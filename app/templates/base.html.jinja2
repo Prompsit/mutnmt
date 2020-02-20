@@ -3,12 +3,11 @@
 <head>
     <title>MutNMT</title>
 
-    <meta charset="utf-8" />
+    {% include "head.html.jinja2" %}
 
-    <link rel="stylesheet" href="/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/base.css" />
+
+    {% block head %}{% endblock %}
 </head>
 <body>
     <div class="container h-100">
@@ -16,49 +15,59 @@
             <div class="col-3 d-flex flex-column justify-content-between">
                 <div class="row mt-3">
                     <div class="col-12 position-sticky">
-                        <h1 class="h4 mb-0">
+                        <a class="h4 mb-0 text-dark" href="{{ url_for('index') }}">
                             <button class="btn btn-light mr-2 d-none"><i class="fas fa-bars"></i></button>
                             MultiTraiNMT
-                        </h1>
+                        </a>
 
                         <ul class="nav nav-pills flex-column mt-3">
                             <li class="nav-item mb-2">
-                                <a class="nav-link" href="{{ url_for('data.data_index') }}">
+                                <a class="nav-link {{ 'active' if page_name == 'data' else '' }}" href="{{ url_for('data.data_index') }}">
                                     <i class="fas fa-database mr-2"></i>
                                     Data
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link" href="{{ url_for('library.library_index') }}">
+                                <a class="nav-link {{ 'active' if page_name == 'library' else '' }}" href="{{ url_for('library.library_index') }}">
                                     <i class="fas fa-folder-open mr-2"></i>
                                     Library
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link" href="{{ url_for('train.train_index') }}">
+                                <a class="nav-link {{ 'active' if page_name == 'train' else '' }}" href="{{ url_for('train.train_index') }}">
                                     <i class="fas fa-running mr-2"></i>
                                     Train
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link" href="translate.html">
+                                <a class="nav-link {{ 'active' if page_name == 'translate' else '' }}" href="{{ url_for('translate.translate_index') }}">
                                     <i class="fas fa-globe-europe mr-2"></i>
                                     Translate
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link" href="inspect.html">
+                                <a class="nav-link  {{ 'active' if page_name == 'inspect' else '' }}" href="{{ url_for('inspect.inspect_index') }}">
                                     <i class="fas fa-search mr-2"></i>
                                     Inspect
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="evaluate.html">
+                                <a class="nav-link {{ 'active' if page_name == 'evaluate' else '' }}" href="{{ url_for('evaluate.evaluate_index') }}">
                                     <i class="fas fa-spell-check mr-2"></i>
                                     Evaluate
                                 </a>
                             </li>
                         </ul>
+
+                        <hr />
+
+                        {% if current_user.is_authenticated %}
+                        <div class="d-flex align-items-center">
+                            <img alt="" src="{{ current_user.avatar_url }}" class="img-avatar" />
+
+                            <span class="ml-2">{{ current_user.username }}</span>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -69,5 +78,9 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha256-WqU1JavFxSAMcLP2WIOI+GB2zWmShMI82mTpLDcqFUg=" crossorigin="anonymous"></script>
+    {% block resources %}{% endblock %}
 </body>
 </html>

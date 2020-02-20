@@ -8,7 +8,7 @@ RUN echo "Europe/Madrid" > /etc/timezone
 
 RUN apt-get update -q --fix-missing && \
     apt-get -y upgrade && \
-    apt-get -y install virtualenv curl && \
+    apt-get -y install virtualenv python3-dev curl && \
     apt-get autoremove -y && \
     apt-get autoclean
 

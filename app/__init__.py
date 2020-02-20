@@ -1,19 +1,49 @@
-from flask import Flask, render_template
+from .config import Config
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_babel import Babel
+from flask_dropzone import Dropzone
+
+import os
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+login_manager = LoginManager(app)
+babel = Babel(app)
+dropzone = Dropzone(app)
+
+# Blueprints
+from .blueprints.auth.views import auth_blueprint
 from .blueprints.data.views import data_blueprint
 from .blueprints.library.views import library_blueprint
 from .blueprints.train.views import train_blueprint
+from .blueprints.translate.views import translate_blueprint
+from .blueprints.inspect.views import inspect_blueprint
+from .blueprints.evaluate.views import evaluate_blueprint
 
-blueprints = [["/data", data_blueprint],
+blueprints = [["/auth", auth_blueprint],
+                ["/data", data_blueprint],
                 ["/library", library_blueprint],
-                ["/train", train_blueprint]]
+                ["/train", train_blueprint],
+                ["/translate", translate_blueprint],
+                ["/inspect", inspect_blueprint],
+                ["/evaluate", evaluate_blueprint]]
 
 for blueprint in blueprints:
-  app.register_blueprint(blueprint[1], url_prefix=blueprint[0])
+    app.register_blueprint(blueprint[1], url_prefix=blueprint[0])
 
-@app.route('/')
-@app.route('/index')
-def index():
-    return render_template('index.html.jinja2')
+from app import routes, models
+
+db.create_all()
+db.session.commit()
+
+try:
+    os.stat(app.config['UPLOAD_FOLDER'])
+except:
+    os.mkdir(app.config['UPLOAD_FOLDER'])

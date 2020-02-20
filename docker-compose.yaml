@@ -11,3 +11,4 @@ services:
             - DEBUG=1
         volumes:
             - ./app:/opt/mutnmt/app
+        entrypoint: 'tail -f /dev/null'

@@ -1,1 +1,28 @@
-MutNMT!!
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MutNMT</title>
+    <meta charset="utf-8" />
+
+    {% include "head.html.jinja2" %}
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-4 offset-4">
+                <img alt="" class="img-fluid" src="{{ url_for('static', filename='img/logo.png') }}" />
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                {% if current_user.is_authenticated %}
+                    {{ current_user.email }} - <a href="{{ url_for('auth.logout') }}">Log out</a>
+                {% else %}
+                    <a href="{{ url_for('google.login') }} " class="btn btn-primary">Log in</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
