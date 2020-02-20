@@ -1,0 +1,40 @@
+/* Variable overrides */
+$primary: #577790 !default;
+$font-family-sans-serif: "Montserrat", Arial, Helvetica, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+
+/* Required imports */
+@import "../bootstrap-base/scss/functions";
+@import "../bootstrap-base/scss/variables";
+@import "../bootstrap-base/scss/mixins";
+
+/* Optional imports */
+@import "../bootstrap-base/scss/root";
+@import "../bootstrap-base/scss/reboot";
+@import "../bootstrap-base/scss/grid";
+@import "../bootstrap-base/scss/buttons";
+@import "../bootstrap-base/scss/input-group";
+@import "../bootstrap-base/scss/forms";
+@import "../bootstrap-base/scss/type";
+@import "../bootstrap-base/scss/nav";
+@import "../bootstrap-base/scss/tables";
+@import "../bootstrap-base/scss/utilities/display";
+@import "../bootstrap-base/scss/utilities/flex";
+@import "../bootstrap-base/scss/utilities/spacing";
+@import "../bootstrap-base/scss/utilities/sizing";
+@import "../bootstrap-base/scss/utilities/text";
+
+/* Class overrides */
+.btn-outline-primary {
+    @include button-outline-variant($primary, $color-hover: #fff)
+}
+
+.btn-primary {
+    @include button-variant($primary, $primary);
+    color: #fff;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}

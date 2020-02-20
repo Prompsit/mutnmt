@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MutNMT</title>
+
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/base.css" />
+</head>
+<body>
+    <div class="container h-100">
+        <div class="row h-100">
+            <div class="col-3 d-flex flex-column justify-content-between">
+                <div class="row mt-3">
+                    <div class="col-12 position-sticky">
+                        <h1 class="h4 mb-0">
+                            <button class="btn btn-light mr-2 d-none"><i class="fas fa-bars"></i></button>
+                            MultiTraiNMT
+                        </h1>
+
+                        <ul class="nav nav-pills flex-column mt-3">
+                            <li class="nav-item mb-2">
+                                <a class="nav-link" href="{{ url_for('data.data_index') }}">
+                                    <i class="fas fa-database mr-2"></i>
+                                    Data
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link" href="{{ url_for('library.library_index') }}">
+                                    <i class="fas fa-folder-open mr-2"></i>
+                                    Library
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link" href="{{ url_for('train.train_index') }}">
+                                    <i class="fas fa-running mr-2"></i>
+                                    Train
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link" href="translate.html">
+                                    <i class="fas fa-globe-europe mr-2"></i>
+                                    Translate
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link" href="inspect.html">
+                                    <i class="fas fa-search mr-2"></i>
+                                    Inspect
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="evaluate.html">
+                                    <i class="fas fa-spell-check mr-2"></i>
+                                    Evaluate
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-9 mt-3">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
