@@ -17,7 +17,7 @@
         <div class="row mt-5">
             <div class="col-12 text-center">
                 {% if current_user.is_authenticated %}
-                    {{ current_user.email }} - <a href="{{ url_for('auth.logout') }}">Log out</a>
+                    {{ current_user.email }} - <a href="{{ url_for('data.data_index') }}">Data</a> - <a href="{{ url_for('auth.logout') }}">Log out</a>
                 {% else %}
                     <a href="{{ url_for('google.login') }} " class="btn btn-primary">Log in</a>
                 {% endif %}

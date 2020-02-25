@@ -44,6 +44,34 @@ db.create_all()
 db.session.commit()
 
 try:
+    for code, name in app.config['LANGUAGES'].items():
+        language_db = models.Language(code = code, name = name)
+        db.session.add(language_db)
+    db.session.commit()
+except:
+    db.session.rollback()
+
+try:
     os.stat(app.config['UPLOAD_FOLDER'])
 except:
     os.mkdir(app.config['UPLOAD_FOLDER'])
+
+try:
+    os.stat(app.config['STORAGE_FOLDER'])
+except:
+    os.mkdir(app.config['STORAGE_FOLDER'])
+
+try:
+    os.stat(app.config['FILES_FOLDER'])
+except:
+    os.mkdir(app.config['FILES_FOLDER'])
+
+try:
+    os.stat(app.config['ENGINES_FOLDER'])
+except:
+    os.mkdir(app.config['ENGINES_FOLDER'])
+
+try:
+    os.stat(app.config['USERS_FOLDER'])
+except:
+    os.mkdir(app.config['USERS_FOLDER'])

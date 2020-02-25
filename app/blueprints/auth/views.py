@@ -43,8 +43,6 @@ def google_logged_in(blueprint, token):
 
   if account_info.ok:
     account_info_json = account_info.json()
-    import sys
-    print(account_info_json, file=sys.stderr)
     username  = account_info_json['name']
     social_id = account_info_json['id']
     email     = account_info_json['email']
@@ -62,6 +60,16 @@ def google_logged_in(blueprint, token):
       db.session.commit()
 
       print("New user created")
+
+      # Create user filesystem
+      user_path = os.path.join(app.config['USERS_FOLDER'], "{}".format(user.id))
+      os.mkdir(user_path)
+
+      engines_path = os.path.join(user_path, "engines")
+      os.mkdir(engines_path)
+
+      files_path = os.path.join(user_path, "files")
+      os.mkdir(files_path)
 
     # Update admins
     for i in app.config['ADMINS']:

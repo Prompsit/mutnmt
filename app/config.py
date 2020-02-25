@@ -3,6 +3,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     UPLOAD_FOLDER = os.path.join(basedir, "uploads")
+    STORAGE_FOLDER = os.path.join(UPLOAD_FOLDER, "storage")
+    FILES_FOLDER = os.path.join(STORAGE_FOLDER, "files")
+    ENGINES_FOLDER = os.path.join(STORAGE_FOLDER, "engines")
+    USERS_FOLDER = os.path.join(UPLOAD_FOLDER, "users")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')

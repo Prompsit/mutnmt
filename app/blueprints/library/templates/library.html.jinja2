@@ -7,6 +7,8 @@
     <button class="btn btn-outline-primary btn-sm"><i class="fas fa-cogs"></i> Engines</button>
 </div>
 <h2 class="h5">Your files</h2>
+
+{% if files|length > 0 %}
 <table class="table table-striped">
     <thead>
         <tr>
@@ -16,43 +18,30 @@
             <th>Words</th>
             <th>Chars</th>
             <th>Date</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
+        {% for file in files %}
         <tr>
-            <td>100k-OpenSubtitles.ca-es.ca</td>
-            <td>ca</td>
-            <td>10000</td>
-            <td>582366</td>
-            <td>3228281</td>
-            <td>1/22/2020 10:13:26 AM</td>
+            <td>{{ file.name }}</td>
+            <td>{{ file.language.name }}</td>
+            <td>{{ file.lines }}</td>
+            <td>{{ file.words }}</td>
+            <td>{{ file.chars }}</td>
+            <td>{{ file.uploaded }}</td>
+            <td><button class="btn btn-sm btn-outline-primary">Share</button></td>
         </tr>
-        <tr>
-            <td>100k-OpenSubtitles.ca-es.es</td>
-            <td>es</td>
-            <td>10000</td>
-            <td>577758</td>
-            <td>3288860</td>
-            <td>1/22/2020 10:13:26 AM</td>
-        </tr>
-        <tr>
-            <td>50k-OpenSubtitles.ca-es.es</td>
-            <td>es</td>
-            <td>50000</td>
-            <td>288364</td>
-            <td>1639735</td>
-            <td>1/22/2020 10:13:24 AM</td>
-        </tr>
-        <tr>
-            <td>50k-OpenSubtitles.ca-es.ca</td>
-            <td>ca</td>
-            <td>50000</td>
-            <td>289470</td>
-            <td>1588849</td>
-            <td>1/22/2020 10:13:24 AM</td>
-        </tr>
+        {% endfor %}
     </tbody>
 </table>
+{% else %}
+<div class="jumbotron p-3 text-center">
+    <p class="h6 m-0">
+        Nothing yet! <a href="{{ url_for('data.data_index') }}">Upload a corpus now</a>
+    </p>
+</div>
+{% endif %}
 
 <h2 class="h5">Public files</h2>
 <table class="table table-striped">
@@ -74,24 +63,6 @@
             <td>10000</td>
             <td>582366</td>
             <td>1/22/2020 10:13:26 AM</td>
-            <td>NMTLover123</td>
-            <td><button class="btn btn-sm btn-outline-primary">Grab</button></td>
-        </tr>
-        <tr>
-            <td>100k-OpenSubtitles.ca-es.es</td>
-            <td>es</td>
-            <td>10000</td>
-            <td>577758</td>
-            <td>1/22/2020 10:13:26 AM</td>
-            <td>iTranslateNMT</td>
-            <td><button class="btn btn-sm btn-outline-primary">Grab</button></td>
-        </tr>
-        <tr>
-            <td>50k-OpenSubtitles.ca-es.es</td>
-            <td>es</td>
-            <td>50000</td>
-            <td>288364</td>
-            <td>1/22/2020 10:13:24 AM</td>
             <td>NMTLover123</td>
             <td><button class="btn btn-sm btn-outline-primary">Grab</button></td>
         </tr>

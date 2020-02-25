@@ -7,7 +7,9 @@
 <div class="jumbotron p-4 text-center">
     <div class="row">
         <div class="col-6">
-            <a href="{{ url_for('data.data_upload', type='bilingual') }}" class="btn btn-outline-primary btn-lg text-uppercase">bilingual corpus</a>
+            <a href="{{ url_for('data.data_upload', type='bilingual') }}" class="btn btn-outline-primary btn-lg text-uppercase">
+                bilingual corpus
+            </a>
 
             <p class="mt-4">
                 With this kind of corpora, you can train engines to translate from one language to another.
@@ -15,7 +17,9 @@
         </div>
 
         <div class="col-6">
-            <button class="btn btn-outline-primary btn-lg text-uppercase">monolingual corpus</button>
+            <a href="{{ url_for('data.data_upload', type='monolingual') }}" class="btn btn-outline-primary btn-lg text-uppercase">
+                monolingual corpus
+            </a>
 
             <p class="mt-4">
                 With this kind of corpora, you can improve an engine by automatically translating from a monolingual file.
@@ -25,56 +29,32 @@
 </div>
 
 <h2 class="h5">Your corpora</h2>
-<div class="row p-3 bg-light mx-sm-0">
-    <div class="col-8">
-        <h2 class="h5 mb-0">
-            <i class="fas fa-folder mr-2"></i> OpenSubtitles 100k
-        </h2>
-    </div>
-    <div class="col-4 text-right">
-        <strong class="h6">ca-es</strong>
-    </div>
-    <div class="col-12 pl-4 mt-2">
-        <div class="d-flex align-items-center mb-1">
-            <i class="fas fa-file ml-4 mr-2"></i> 100k-OpenSubtitles.ca-es.ca
+{% if corpora|length > 0 %}
+    {% for corpus in corpora %}
+    <div class="row p-3 bg-light mx-sm-0">
+        <div class="col-8">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-folder mr-2"></i> {{ corpus.name }}
+            </h2>
         </div>
-        <div class="d-flex align-items-center">
-            <i class="fas fa-file ml-4 mr-2"></i> 100k-OpenSubtitles.ca-es.es
+        <div class="col-4 text-right">
+            <strong class="h6">{{ corpus.corpus_languages[0].language.name }}
+                {% if corpus.type == "bilingual" %} - {{ corpus.corpus_languages[1].language.name }} {% endif %}
+            </strong>
         </div>
-    </div>
-</div>
-<div class="row p-3 bg-light mx-sm-0 mt-3">
-    <div class="col-8">
-        <h2 class="h5 mb-0">
-            <i class="fas fa-folder mr-2"></i> OpenSubtitles 50k
-        </h2>
-    </div>
-    <div class="col-4 text-right">
-        <strong class="h6">es-ca</strong>
-    </div>
-    <div class="col-12 pl-4 mt-2">
-        <div class="d-flex align-items-center mb-1">
-            <i class="fas fa-file ml-4 mr-2"></i> 50k-OpenSubtitles.ca-es.es
-        </div>
-        <div class="d-flex align-items-center">
-            <i class="fas fa-file ml-4 mr-2"></i> 50k-OpenSubtitles.ca-es.ca
-        </div>
-    </div>
-</div>
-<div class="row p-3 bg-light mx-sm-0 mt-3">
-    <div class="col-8">
-        <h2 class="h5 mb-0">
-            <i class="fas fa-folder mr-2"></i> OpenSubtitles 10k for back-translation
-        </h2>
-    </div>
-    <div class="col-4 text-right">
-        <strong class="h6">ca</strong>
-    </div>
-    <div class="col-12 pl-4 mt-2">
-        <div class="d-flex align-items-center mb-1">
-            <i class="fas fa-file ml-4 mr-2"></i> 10k-OpenSubtitles.ca-es.ca
-        </div>
-    </div>
-</div>
 
+        <div class="col-12 pl-4 mt-2">
+            {% for file_entry in corpus.corpus_files %}
+            <div class="d-flex align-items-center">
+                <i class="fas fa-file ml-4 mr-2"></i> {{ file_entry.file.name }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="jumbotron p-3 text-center h6 m-0">
+    Nothing yet!
+</div>
+{% endif %}
 {% endblock %}
