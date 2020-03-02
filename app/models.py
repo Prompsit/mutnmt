@@ -11,35 +11,63 @@ class Language(db.Model):
     code = db.Column(db.String(3), primary_key=True)
     name = db.Column(db.String(64))
 
-class File(db.Model):
-    __tablename__ = 'file'
+class Resource(db.Model):
+    __tablename__ = 'resource'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     path = db.Column(db.String(250), unique=True)
     hash = db.Column(db.String(250))
     uploaded = db.Column(db.Date, default=datetime.datetime.utcnow)
+    public = db.Column(db.Boolean, default=False)
+
+    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    uploader = db.relationship("User", backref="resources")
+
+class File(Resource):
+    __tablename__ = 'file'
+    id = db.Column(db.Integer, db.ForeignKey('resource.id'), primary_key=True)
+
     lines = db.Column(db.Integer)
     words = db.Column(db.Integer)
     chars = db.Column(db.Integer)
-    public = db.Column(db.Boolean, default=False)
 
     language_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     language = db.relationship("Language", backref="files")
 
-    uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    uploader = db.relationship("User", backref="files")
+
+class Engine(Resource):
+    __tablename__ = 'engine'
+    id = db.Column(db.Integer, db.ForeignKey('resource.id'), primary_key=True)
+    
+    status = db.Column(db.String(64))
+    launched = db.Column(db.DateTime)
+
+    source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
+    source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])
+
+    target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
+    target = db.relationship("Language", backref = db.backref("engines_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
+
+    def __repr__(self):
+        return "Engine {}, {}, {}, {}".format(self.name, self.status, self.source_id, self.target_id)
 
 class Corpus(db.Model):
     __tablename__ = 'corpus'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     type = db.Column(db.String(64))
+    public = db.Column(db.Boolean, default=False)
 
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     owner = db.relationship("User", backref="corpora")
 
     files = association_proxy("corpus_files", "files")
-    languages = association_proxy("corpus_languages", "languages")
+
+    source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
+    source = db.relationship("Language", backref = db.backref("corpus_source", cascade="all, delete-orphan"), foreign_keys=[source_id])
+
+    target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
+    target = db.relationship("Language", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
 
 class Corpus_File(db.Model):
     __tablename__ = 'corpus_file'
@@ -49,7 +77,7 @@ class Corpus_File(db.Model):
     role = db.Column(db.String(64))
 
     corpus = db.relationship(Corpus, backref = db.backref("corpus_files", cascade="all, delete-orphan"))
-    file = db.relationship("File")
+    file = db.relationship("File", backref = db.backref("corpora", cascade="all, delete-orphan"))
 
     __table_args__ = (
         db.UniqueConstraint('corpus_id', 'file_id'),
@@ -60,36 +88,6 @@ class Corpus_File(db.Model):
         self.corpus = corpus
         self.role = role
 
-class Corpus_Language(db.Model):
-    __tablename__ = 'corpus_language'
-    id = db.Column(db.Integer, primary_key=True)
-    corpus_id = db.Column(db.Integer, db.ForeignKey('corpus.id'))
-    language_id = db.Column(db.Integer, db.ForeignKey('language.code'))
-    role = db.Column(db.String(64))
-
-    corpus = db.relationship(Corpus, backref = db.backref("corpus_languages", cascade="all, delete-orphan"))
-    language = db.relationship("Language")
-
-    __table_args__ = (
-        db.UniqueConstraint('corpus_id', 'language_id'),
-    )
-
-    def __init__(self, language_id = None, corpus = None, role = None):
-        self.language_id = language_id
-        self.corpus = corpus
-        self.role = role
-
-class Engine(db.Model):
-    __tablename__ = 'engine'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64))
-    path = db.Column(db.String(1024))
-    public = db.Column(db.Boolean, default=False)
-    status = db.Column(db.String(64))
-
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    owner = db.relationship("User", backref="engines")
-
 class Corpus_Engine(db.Model):
     __tablename__ = 'corpus_engine'
     id = db.Column(db.Integer, primary_key=True)
@@ -97,9 +95,17 @@ class Corpus_Engine(db.Model):
     engine_id = db.Column(db.Integer, db.ForeignKey('engine.id'))
     phase = db.Column(db.String(64))
 
+    engine = db.relationship(Engine, backref = db.backref("corpora_engines", cascade="all, delete-orphan"))
+    corpus = db.relationship("Corpus")
+
     __table_args__ = (
         db.UniqueConstraint('corpus_id', 'engine_id', 'phase'),
     )
+
+    def __init__(self, corpus = None, engine = None, phase = None):
+        self.corpus = corpus
+        self.engine = engine
+        self.phase = phase
 
 class User(UserMixin, db.Model):
     __tablename__   = 'user'
@@ -111,6 +117,46 @@ class User(UserMixin, db.Model):
     banned          = db.Column(db.Boolean, default=False)
     lang            = db.Column(db.String(32))
     avatar_url      = db.Column(db.String(250))
+
+    files = association_proxy("user_files", "files")
+    engines = association_proxy("user_engines", "engines")
+
+class LibraryCorpora(db.Model):
+    __tablename__ = 'library_corpora'
+    id = db.Column(db.Integer, primary_key=True)
+
+    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship(User, backref = db.backref("user_files", cascade="all, delete-orphan"))
+    file = db.relationship("File", backref = db.backref("libraries", cascade="all, delete-orphan"))
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'file_id'),
+    )
+
+    def __init__(self, file=None, user=None):
+        self.user = user
+        self.file = file
+
+class LibraryEngine(db.Model):
+    __tablename__ = 'library_engines'
+    id = db.Column(db.Integer, primary_key=True)
+
+    engine_id = db.Column(db.Integer, db.ForeignKey('engine.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship(User, backref = db.backref("user_engines", cascade="all, delete-orphan"))
+    engine = db.relationship("Engine")
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'engine_id'),
+    )
+
+    def __init__(self, engine=None, user=None):
+        self.user = user
+        self.engine = engine
+
 
 class OAuth(OAuthConsumerMixin, db.Model):
     __tablename__ = "flask_dance_oauth"

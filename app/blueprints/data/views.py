@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import File, Corpus, Corpus_File, Corpus_Language
+from app.models import File, Corpus, Corpus_File, LibraryCorpora, User
 from app.utils import utils, user_utils
 from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect
 from flask_login import login_required
@@ -13,6 +13,8 @@ import hashlib
 import re
 import datetime
 import sys
+
+import sentencepiece as spm
 
 data_blueprint = Blueprint('data', __name__, template_folder='templates')
 
@@ -35,7 +37,7 @@ def data_upload_perform(type):
     if request.method == 'POST':
         # Data folder
         blake = hashlib.blake2b()
-        blake.update(request.form['name'].encode("utf-8"))
+        blake.update('{}{}'.format(user_utils.get_user().username, request.form['name']).encode("utf-8"))
         name_footprint = blake.hexdigest()[:16]
 
         source_file = request.files.get('source_file')
@@ -43,13 +45,13 @@ def data_upload_perform(type):
 
         corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
         corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
-        corpus.corpus_languages.append(Corpus_Language(request.form['source_lang'], role = "source"))
-
+        corpus.source_id = request.form['source_lang']
+        
         if type == "bilingual":
             target_file = request.files.get('target_file')
             target_db_file = upload_file(target_file, name_footprint, request.form['target_lang'])
             corpus.files.append(target_db_file)
-            corpus.corpus_languages.append(Corpus_Language(request.form['target_lang'], role = "target"))
+            corpus.target_id = request.form['target_lang']
 
         db.session.add(corpus)
         db.session.commit()
@@ -61,7 +63,8 @@ def data_upload_perform(type):
     return redirect(url_for('data.data_index'))
 
 def upload_file(file, footprint, language):
-    path = os.path.join(app.config['FILES_FOLDER'], '{}-{}-{}'.format(footprint, file.filename, randint(1, 100000)))
+    norm_name = '{}-{}-{}'.format(footprint, file.filename, randint(1, 100000))
+    path = os.path.join(app.config['FILES_FOLDER'], norm_name)
     
     # Could we already have it stored?
     blake = hashlib.blake2b()
@@ -79,9 +82,9 @@ def upload_file(file, footprint, language):
         db_file = query.first()
         if db_file is None: raise NoResultFound
 
-        os.symlink(db_file.path, path)
+        os.link(db_file.path, path)
 
-        db_file.path = File(path = path, name = file.filename, uploaded = file.uploaded,
+        db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
                         hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
                         lines = db_file.lines, words = db_file.words, chars = db_file.chars)
         
@@ -101,8 +104,19 @@ def upload_file(file, footprint, language):
                         uploaded = datetime.datetime.utcnow())
     finally:
         if db_file is not None:
+            user = User.query.filter_by(id = user_utils.get_uid()).first()
+            user.user_files.append(LibraryCorpora(file=db_file, user=user))
             db.session.add(db_file)
             db.session.commit()
-            user_utils.link_file_to_user(db_file.path, db_file.name)
 
     return db_file
+
+def tokenize(corpus):
+    basename = os.path.splittext(file.path)[0]
+    model_name = '{}.model'.format(basename)
+
+    try:
+        os.stat(model_name)
+    except:
+        
+        model_feed = subprocess.Popen("cat {} {} | shuf | head -n 10000".format(), shell=True)

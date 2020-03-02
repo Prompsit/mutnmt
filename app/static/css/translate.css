@@ -1,0 +1,15 @@
+.translate-form .engine-status-container .alert {
+    display: none;
+}
+
+.translate-form[data-status="launching"] .engine-status-container .engine-launching {
+    display: block;
+}
+
+.translate-form[data-status="ready"] .engine-status-container .engine-ready {
+    display: block;
+}
+
+.translate-form[data-status="error"] .engine-status-container .engine-error {
+    display: block;
+}

@@ -3,71 +3,11 @@
 {% block content %}
 
 <div class="btn-group mb-3">
-    <button class="btn btn-outline-primary btn-sm active"><i class="fas fa-file"></i> Corpora</button>
-    <button class="btn btn-outline-primary btn-sm"><i class="fas fa-cogs"></i> Engines</button>
+    <a href="{{ url_for('library.library_index') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_corpora' else '' }}"><i class="fas fa-file"></i> Corpora</a>
+    <a href="{{ url_for('library.library_engines') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_engines' else '' }}"><i class="fas fa-cogs"></i> Engines</a>
 </div>
-<h2 class="h5">Your files</h2>
 
-{% if files|length > 0 %}
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>File name</th>
-            <th>Language</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Chars</th>
-            <th>Date</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for file in files %}
-        <tr>
-            <td>{{ file.name }}</td>
-            <td>{{ file.language.name }}</td>
-            <td>{{ file.lines }}</td>
-            <td>{{ file.words }}</td>
-            <td>{{ file.chars }}</td>
-            <td>{{ file.uploaded }}</td>
-            <td><button class="btn btn-sm btn-outline-primary">Share</button></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="jumbotron p-3 text-center">
-    <p class="h6 m-0">
-        Nothing yet! <a href="{{ url_for('data.data_index') }}">Upload a corpus now</a>
-    </p>
-</div>
-{% endif %}
-
-<h2 class="h5">Public files</h2>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>File name</th>
-            <th>Language</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Date</th>
-            <th>Uploader</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>100k-OpenSubtitles.ca-es.ca</td>
-            <td>ca</td>
-            <td>10000</td>
-            <td>582366</td>
-            <td>1/22/2020 10:13:26 AM</td>
-            <td>NMTLover123</td>
-            <td><button class="btn btn-sm btn-outline-primary">Grab</button></td>
-        </tr>
-    </tbody>
-</table>
-</div>
+{% block library_content %}
+{% endblock %}
 
 {% endblock %}

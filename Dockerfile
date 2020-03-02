@@ -1,4 +1,4 @@
-FROM python:latest
+FROM nvidia/cuda:latest
 
 RUN mkdir /opt/mutnmt
 
@@ -8,7 +8,10 @@ RUN echo "Europe/Madrid" > /etc/timezone
 
 RUN apt-get update -q --fix-missing && \
     apt-get -y upgrade && \
-    apt-get -y install virtualenv python3-dev curl && \
+    apt-get -y install  python3 \
+                        python3-dev \
+                        virtualenv \
+                        curl && \
     apt-get autoremove -y && \
     apt-get autoclean
 
@@ -18,5 +21,8 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 RUN /opt/mutnmt/scripts/install.sh
 
 RUN /opt/mutnmt/scripts/minify.sh
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 CMD ./opt/mutnmt/scripts/docker-entrypoint.sh

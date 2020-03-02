@@ -1,6 +1,7 @@
 # Custom
 app/uploads
 samples
+app/preloaded
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

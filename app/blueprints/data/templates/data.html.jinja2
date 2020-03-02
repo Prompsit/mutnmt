@@ -38,8 +38,8 @@
             </h2>
         </div>
         <div class="col-4 text-right">
-            <strong class="h6">{{ corpus.corpus_languages[0].language.name }}
-                {% if corpus.type == "bilingual" %} - {{ corpus.corpus_languages[1].language.name }} {% endif %}
+            <strong class="h6">{{ corpus.source.name }}
+                {% if corpus.type == "bilingual" %} - {{ corpus.target.name }} {% endif %}
             </strong>
         </div>
 

@@ -9,7 +9,7 @@ def get_uid():
     return None
 
 def get_user():
-    if isUserLoginEnabled() and current_user.get_id() != None:
+    if isUserLoginEnabled() and current_user and current_user.get_id() != None:
         return current_user
     else:
         return None
@@ -25,4 +25,6 @@ def get_user_folder(subfolder = None):
         return base_folder
 
 def link_file_to_user(path, name):
-    os.symlink(path, os.path.join(get_user_folder("files"), name))
+    dest = os.path.join(get_user_folder("files"), name)
+    os.symlink(path, dest)
+    return dest

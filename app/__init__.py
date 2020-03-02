@@ -17,6 +17,7 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 babel = Babel(app)
 dropzone = Dropzone(app)
+migrate = Migrate(app, db)
 
 # Blueprints
 from .blueprints.auth.views import auth_blueprint
@@ -42,14 +43,6 @@ from app import routes, models
 
 db.create_all()
 db.session.commit()
-
-try:
-    for code, name in app.config['LANGUAGES'].items():
-        language_db = models.Language(code = code, name = name)
-        db.session.add(language_db)
-    db.session.commit()
-except:
-    db.session.rollback()
 
 try:
     os.stat(app.config['UPLOAD_FOLDER'])

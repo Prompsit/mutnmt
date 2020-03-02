@@ -68,9 +68,6 @@ def google_logged_in(blueprint, token):
       engines_path = os.path.join(user_path, "engines")
       os.mkdir(engines_path)
 
-      files_path = os.path.join(user_path, "files")
-      os.mkdir(files_path)
-
     # Update admins
     for i in app.config['ADMINS']:
       try:

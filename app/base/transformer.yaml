@@ -1,0 +1,82 @@
+data:
+  dev: dev
+  level: bpe
+  lowercase: true
+  max_sent_length: 100
+  src: src
+#  src_vocab: data/en-es/train.vocab.src
+  test: test
+  train: train
+  trg: trg
+#  trg_vocab: data/en-es/train.vocab.trg
+model:
+  bias_initializer: zeros
+  decoder:
+    dropout: 0.1
+    embeddings:
+      embedding_dim: 512
+      freeze: false
+      scale: true
+    ff_size: 2048
+    freeze: false
+    hidden_size: 512
+    num_heads: 8
+    num_layers: 6
+    type: transformer
+  embed_init_gain: 1.0
+  embed_initializer: xavier
+  encoder:
+    dropout: 0.1
+    embeddings:
+      embedding_dim: 512
+      freeze: false
+      scale: true
+    ff_size: 2048
+    freeze: false
+    hidden_size: 512
+    num_heads: 8
+    num_layers: 6
+    type: transformer
+  init_gain: 1.0
+  initializer: xavier
+  tied_embeddings: true
+  tied_softmax: true
+name: bpe-big-transformer
+testing:
+  alpha: 1.0
+  beam_size: 12
+training:
+  adam_betas:
+  - 0.9
+  - 0.98
+  batch_multiplier: 1
+  batch_size: 6000
+  batch_type: token
+  early_stopping_metric: loss
+  epochs: 10
+  eval_metric: bleu
+  keep_last_ckpts: 3
+  label_smoothing: 0.0
+  learning_rate: 0.0001
+  learning_rate_factor: 0.7
+  learning_rate_min: 1.0e-06
+  learning_rate_warmup: 16000
+  logging_freq: 10
+  max_output_length: 50
+  model_dir: /opt/mutnmt/app/uploads/users/1/engines/2e91d3da23c4d23f/model
+  normalization: batch
+  optimizer: adam
+  overwrite: false
+  print_valid_sents:
+  - 0
+  - 1
+  - 2
+  random_seed: 42
+  reset_best_ckpt: false
+  reset_optimizer: false
+  reset_scheduler: false
+  scheduling: noam
+  shuffle: true
+  use_cuda: true
+  validation_freq: 1000
+  weight_decay: 0.0

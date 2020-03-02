@@ -1,0 +1,22 @@
+.jumping-trees .tree {
+    position: relative;
+    top: -2px;
+    display: inline-block;
+    animation-name: jumpingtrees;
+    animation-duration: 0.8s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes jumpingtrees {
+    0% {
+        top: -2px;
+    }
+
+    50% {
+        top: 2px;
+    }
+
+    100% {
+        top: -2px;
+    }
+}

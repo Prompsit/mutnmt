@@ -1,0 +1,94 @@
+{% extends "library.html.jinja2" %}
+
+{% block library_content %}
+<h2 class="h5">Your engines</h2>
+
+{% if user_engines|length > 0 %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Engine name</th>
+            <th>Source language</th>
+            <th>Target language</th>
+            <th>Date</th>
+            <th>Uploader</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for engine_entry in user_engines %}
+        <tr>
+            <td>{{ engine_entry.engine.name }}</td>
+            <td>{{ engine_entry.engine.source.name }}</td>
+            <td>{{ engine_entry.engine.target.name }}</td>
+            <td>{{ engine_entry.engine.uploaded }}</td>
+            <td>{{ engine_entry.engine.uploader }}</td>
+             <td>
+                <div class="dropdown">
+                    <button class="btn btn-link btn-sm" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                        {% if engine_entry.engine.uploader_id == get_user().id %}
+                            {% if engine_entry.engine.public %}
+                            <a href="{{ url_for('library.library_share_toggle', id = engine_entry.engine.id) }}" class="dropdown-item">
+                                <i class="fas fa-lock"></i> Stop sharing
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('library.library_share_toggle', id = engine_entry.engine.id) }}" class="dropdown-item">
+                                <i class="fas fa-lock-open"></i> Share
+                            </a>
+                            {% endif %}
+
+                            <a href="{{ url_for('library.library_delete', id = engine_entry.engine.id, type = page_name) }}" class="dropdown-item text-danger">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('library.library_ungrab', id = engine_entry.engine.id, type = page_name) }}" class="dropdown-item text-danger">
+                                <i class="fas fa-times"></i> Remove
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="jumbotron p-3 text-center">
+    <p class="h6 m-0">
+        Nothing yet! <a href="{{ url_for('train.train_index') }}">Train an engine now</a>
+    </p>
+</div>
+{% endif %}
+
+<h2 class="h5">Public engines</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Engine name</th>
+            <th>Source language</th>
+            <th>Target language</th>
+            <th>Date</th>
+            <th>Uploader</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for engine in public_engines %}
+        <tr>
+            <td>{{ engine.name }}</td>
+            <td>{{ engine.source.name }}</td>
+            <td>{{ engine.target.name }}</td>
+            <td>{{ engine.uploaded }}</td>
+            <td>{{ engine.uploader }}</td>
+            <td>
+                <a href="{{ url_for('library.library_grab', id = engine.id, type = page_name) }}" class="btn btn-sm btn-outline-primary">Grab</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

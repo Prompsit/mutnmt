@@ -5,7 +5,8 @@ from .models import User
 
 app.jinja_env.globals.update(**{
   "get_locale": lang_utils.get_locale,
-  "user_login_enabled": user_utils.isUserLoginEnabled()
+  "user_login_enabled": user_utils.isUserLoginEnabled(),
+  "get_user": user_utils.get_user
 })
 
 @app.route('/')

@@ -1,0 +1,73 @@
+{% extends "base.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/train.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/train.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<h2 class="h5">Train a neural engine</h2>
+
+<div class="row mt-4">
+    <div class="col-7">
+        <div class="jumbotron p-3 text-center">
+            <strong class="nn-name">{{ engine.name }}</strong> is training...
+
+            <div class="jumping-trees mt-2 text-success">
+                <i class="tree fas fa-tree" style="animation-delay: 0s;"></i>
+                <i class="tree fas fa-tree" style="animation-delay: 0.1s;"></i>
+                <i class="tree fas fa-tree" style="animation-delay: 0.3s;"></i>
+            </div>
+
+            <small>... and this is a message about ethics</small>
+        </div>
+
+        <div class="row align-items-center">
+            <div class="col-6">
+                <span class="time-left" data-started="{{ launched }}" data-minutes="60"></span> left
+                <br />
+                Epoch 1 out of {{ config['training']['epochs'] }}
+            </div>
+
+            <div class="col-6 text-right">
+                <a href="{{ url_for('train.train_stop', id=engine.id) }}" class="btn btn-danger">Stop now</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h5 mt-4">Loss</h2>
+                <div class="row">
+                    <div class="col-6">
+                        <h3 class="h6">During training</h3>
+                        <img class="img-fluid" alt="" src="https://placehold.it/500x300&text=Chart" />
+                    </div>
+
+                    <div class="col-6">
+                        <h3 class="h6">During validation</h3>
+                        <img class="img-fluid" alt="" src="https://placehold.it/500x300&text=Chart" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6">
+                <h2 class="h5 mt-4">Attention</h2>
+                <img class="img-fluid" alt="" src="https://placehold.it/256x200&text=Attention" />
+            </div>
+
+            <div class="col-6">
+                <h2 class="h5 mt-4">Learning rate</h2>
+                <img class="img-fluid" alt="" src="https://placehold.it/256x200&text=Learning rate" />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-5">
+        <div class="neural-network-viewer w-100 pl-2"></div>
+    </div>
+</div>
+{% endblock %}
