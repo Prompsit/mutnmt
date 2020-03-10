@@ -29,8 +29,9 @@
                         <label class="custom-file-label" for="source_file">Choose file</label>
                     </div>
                     <select class="custom-select mt-3" name="source_lang">
-                        <option selected value="en">English</option>
-                        <option value="es">Spanish</option>
+                        {% for language in languages %}
+                        <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 {% if type == "bilingual" %}
@@ -40,9 +41,10 @@
                         <input required type="file" class="custom-file-input" id="target_file" name="target_file">
                         <label class="custom-file-label" for="target_file">Choose file</label>
                     </div>
-                     <select class="custom-select mt-3" name="target_lang">
-                        <option value="en">English</option>
-                        <option selected value="es">Spanish</option>
+                    <select class="custom-select mt-3" name="target_lang">
+                        {% for language in languages %}
+                        <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 {% endif %}

@@ -4,11 +4,11 @@ data:
   lowercase: true
   max_sent_length: 100
   src: src
-#  src_vocab: data/en-es/train.vocab.src
+  src_vocab: data/en-es/train.vocab.src
   test: test
   train: train
   trg: trg
-#  trg_vocab: data/en-es/train.vocab.trg
+  trg_vocab: data/en-es/train.vocab.trg
 model:
   bias_initializer: zeros
   decoder:

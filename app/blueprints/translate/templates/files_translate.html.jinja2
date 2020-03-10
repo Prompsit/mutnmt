@@ -1,0 +1,35 @@
+{% extends "translate.html.jinja2" %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/translate-files.js') }}"></script>
+{% endblock %}
+
+{% block translate_content %}
+<h2 class="h5 mt-3">Translate a document</h2>
+
+<form action="{{ url_for('translate.upload_file') }}" method="post" enctype="multipart/form-data" class="translate-file-form">
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="user_file" name="user_file" required>
+                <label class="custom-file-label" for="user_file">Choose file</label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex align-items-center mt-4">
+                <select class="custom-select mr-1 engine-select" name="engine_id">
+                    {% for engine_entry in engines %}
+                        <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="text-right">
+                    <input type="submit" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

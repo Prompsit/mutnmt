@@ -27,6 +27,10 @@ $font-family-sans-serif: "Montserrat", Arial, Helvetica, sans-serif, "Apple Colo
 @import "../bootstrap-base/scss/utilities/spacing";
 @import "../bootstrap-base/scss/utilities/sizing";
 @import "../bootstrap-base/scss/utilities/text";
+@import "../bootstrap-base/scss/utilities/background";
+@import "../bootstrap-base/scss/utilities/align";
+@import "../bootstrap-base/scss/progress";
+@import "../bootstrap-base/scss/pagination";
 
 /* Class overrides */
 .btn-outline-primary {

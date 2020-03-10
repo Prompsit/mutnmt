@@ -3,13 +3,20 @@
 {% block content %}
 <h2 class="h5">Train a neural network</h2>
 
+{% if corpora | length == 0 %}
+<div class="jumbotron p-3 text-center">
+    <p class="h6 m-0">
+        You need corpora to train an engine. <a href="{{ url_for('data.data_index') }}">Upload</a> or <a href="{{ url_for('library.library_index') }}">grab</a> one
+    </p>
+</div>
+{% else %}
 <div class="row mt-4">
     <div class="col-12">
         <form action="{{ url_for('train.train_start') }}" method="POST">
             <div class="form-group mb-4">
                 <label for="nameText" class="h6">Name</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="nameText" name="nameText" />
+                    <input type="text" class="form-control" id="nameText" name="nameText" value="{{ random_name }}"/>
                 </div>
             </div>
 
@@ -93,7 +100,7 @@
                 <div class="form-group col-6">
                     <label class="col-form-label h6">Duration</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="layer_1_n" value="10" min="1" max="64" />
+                        <input type="number" class="form-control" name="epochsText" value="10" min="1" max="64" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">epochs</div>
                         </div>
@@ -108,9 +115,9 @@
                         </a>
                     </div>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="layer_1_n" value="5" min="1" />
+                        <input type="number" name="patienceTxt" class="form-control" value="5" min="1" />
                         <div class="input-group-prepend">
-                            <div class="input-group-text">epochs</div>
+                            <div class="input-group-text">validations</div>
                         </div>
                     </div>
                 </div>
@@ -118,7 +125,7 @@
                 <div class="form-group col-6">
                     <label for="layer_3_n" class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="layer_1_n" value="2000" min="1" />
+                        <input type="number" name="vocabularySize" class="form-control" value="2000" min="1" max="6000" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">words</div>
                         </div>
@@ -128,9 +135,9 @@
                 <div class="form-group col-6">
                     <label class="col-form-label h6">Batch size</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="layer_1_n" value="16" min="1" />
+                        <input type="number" name="batchSizeTxt" class="form-control" value="6000" min="1" />
                         <div class="input-group-prepend">
-                            <div class="input-group-text">sentences</div>
+                            <div class="input-group-text">tokens</div>
                         </div>
                     </div>
                 </div>
@@ -151,4 +158,5 @@
         <div class="neural-network-viewer w-100 pl-2"></div>
     </div>
 </div>
+{% endif %}
 {% endblock %}

@@ -14,7 +14,7 @@ class Language(db.Model):
 class Resource(db.Model):
     __tablename__ = 'resource'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64))
+    name = db.Column(db.String(64), unique=True)
     path = db.Column(db.String(250), unique=True)
     hash = db.Column(db.String(250))
     uploaded = db.Column(db.Date, default=datetime.datetime.utcnow)
@@ -50,6 +50,12 @@ class Engine(Resource):
 
     def __repr__(self):
         return "Engine {}, {}, {}, {}".format(self.name, self.status, self.source_id, self.target_id)
+
+    def __eq__(self, other):
+        return (
+            self.__class__ == other.__class__ and
+            self.id == other.id
+        )
 
 class Corpus(db.Model):
     __tablename__ = 'corpus'

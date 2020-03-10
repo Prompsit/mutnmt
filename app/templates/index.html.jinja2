@@ -5,22 +5,63 @@
     <meta charset="utf-8" />
 
     {% include "head.html.jinja2" %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
 </head>
 <body>
     <div class="container">
+        <div class="row pt-4 align-items-center">
+            <div class="col-3">
+                <img class="img-fluid" alt="MutNMT" src="{{ url_for('static', filename='img/logo.png') }}" />
+            </div>
+
+            <div class="col-9 text-right">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('google.login') }} " class="btn btn-primary">
+                        <i class="fab fa-google mr-2"></i>
+                        Log in
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <div class="skew-bar my-4"></div>
+
+    <div class="container">
         <div class="row mt-5">
-            <div class="col-4 offset-4">
-                <img alt="" class="img-fluid" src="{{ url_for('static', filename='img/logo.png') }}" />
+            <div class="col-12">
+                <p class="h4 text-center">
+                    What you use to train an NMT system when you don't know what an NMT system is.
+                </p>
             </div>
         </div>
 
         <div class="row mt-5">
-            <div class="col-12 text-center">
-                {% if current_user.is_authenticated %}
-                    {{ current_user.email }} - <a href="{{ url_for('data.data_index') }}">Data</a> - <a href="{{ url_for('auth.logout') }}">Log out</a>
-                {% else %}
-                    <a href="{{ url_for('google.login') }} " class="btn btn-primary">Log in</a>
-                {% endif %}
+            <div class="col-sm-4">
+                <h2 class="h4 text-primary">Something cool</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
+                </p>
+            </div>
+            <div class="col-sm-4">
+                <h2 class="h4 text-primary">Amazing tool</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
+                </p>
+            </div>
+            <div class="col-sm-4">
+                <h2 class="h4 text-primary">Perfect translations</h2>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
+                </p>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12">
+                <img alt="" src="{{ url_for('static', filename='img/multitrain_logo.svg') }}" style="width: 130px;" />
             </div>
         </div>
     </div>

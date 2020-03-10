@@ -38,9 +38,13 @@
             </h2>
         </div>
         <div class="col-4 text-right">
-            <strong class="h6">{{ corpus.source.name }}
-                {% if corpus.type == "bilingual" %} - {{ corpus.target.name }} {% endif %}
-            </strong>
+            <span class="h6 mr-3">{{ corpus.source.name }}
+                {% if corpus.type == "bilingual" %} — {{ corpus.target.name }} {% endif %}
+            </span>
+
+            <a href="{{ url_for('library.library_delete', type='library_corpora', id=corpus.id) }}" class="text-danger">
+                <i class="fas fa-trash"></i>
+            </a>
         </div>
 
         <div class="col-12 pl-4 mt-2">

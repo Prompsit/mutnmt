@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import File, Corpus, Corpus_File, LibraryCorpora, User
+from app.models import File, Corpus, Corpus_File, LibraryCorpora, User, Language
 from app.utils import utils, user_utils
 from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect
 from flask_login import login_required
@@ -13,6 +13,7 @@ import hashlib
 import re
 import datetime
 import sys
+import shutil
 
 import sentencepiece as spm
 
@@ -29,19 +30,16 @@ def data_index():
 @data_blueprint.route('/upload/<type>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload(type):
-    return render_template('upload.data.html.jinja2', page_name='data', type=type)
+    languages = Language.query.all()
+    return render_template('upload.data.html.jinja2', page_name='data', type=type, languages=languages)
 
 @data_blueprint.route('/upload/<type>/perform', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload_perform(type):
     if request.method == 'POST':
         # Data folder
-        blake = hashlib.blake2b()
-        blake.update('{}{}'.format(user_utils.get_user().username, request.form['name']).encode("utf-8"))
-        name_footprint = blake.hexdigest()[:16]
-
         source_file = request.files.get('source_file')
-        source_db_file = upload_file(source_file, name_footprint, request.form['source_lang'])
+        source_db_file = upload_file(source_file, request.form['source_lang'])
 
         corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
         corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
@@ -49,9 +47,11 @@ def data_upload_perform(type):
         
         if type == "bilingual":
             target_file = request.files.get('target_file')
-            target_db_file = upload_file(target_file, name_footprint, request.form['target_lang'])
+            target_db_file = upload_file(target_file, request.form['target_lang'])
             corpus.files.append(target_db_file)
             corpus.target_id = request.form['target_lang']
+
+        tokenize(corpus)
 
         db.session.add(corpus)
         db.session.commit()
@@ -62,8 +62,8 @@ def data_upload_perform(type):
 
     return redirect(url_for('data.data_index'))
 
-def upload_file(file, footprint, language):
-    norm_name = '{}-{}-{}'.format(footprint, file.filename, randint(1, 100000))
+def upload_file(file, language):
+    norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)
     path = os.path.join(app.config['FILES_FOLDER'], norm_name)
     
     # Could we already have it stored?
@@ -83,6 +83,7 @@ def upload_file(file, footprint, language):
         if db_file is None: raise NoResultFound
 
         os.link(db_file.path, path)
+        os.link('{}.mut.spe'.format(db_file.path), '{}.mut.spe'.format(path))
 
         db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
                         hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
@@ -112,11 +113,40 @@ def upload_file(file, footprint, language):
     return db_file
 
 def tokenize(corpus):
-    basename = os.path.splittext(file.path)[0]
-    model_name = '{}.model'.format(basename)
+    model_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.model'.format(corpus.id))
+    vocab_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(corpus.id))
 
     try:
-        os.stat(model_name)
+        os.stat(model_path)
     except:
+        files_list = []
+        for file_entry in corpus.corpus_files:
+            files_list.append(file_entry.file.path)
+        files = " ".join(files_list)
+        random_sample_path = "{}.mut.10k".format(corpus.id)
+        cat_proc = subprocess.Popen("cat {} | shuf | head -n 10000 > {}".format(files, random_sample_path), shell=True)
+        cat_proc.wait()
+
+        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=6000".format(random_sample_path, corpus.id))
+        shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.model".format(corpus.id)), model_path)
+        shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.vocab".format(corpus.id)), vocab_path)
+        os.remove(random_sample_path)
         
-        model_feed = subprocess.Popen("cat {} {} | shuf | head -n 10000".format(), shell=True)
+        purge_vocab = subprocess.Popen("cat {} | awk -F '\\t' '{{ print $1 }}' > {}.purged".format(vocab_path, vocab_path), shell=True)
+        purge_vocab.wait()
+
+        os.remove(vocab_path)
+        shutil.move("{}.purged".format(vocab_path), vocab_path)
+    for entry_file in corpus.corpus_files:
+        file_tok_path = '{}.mut.spe'.format(entry_file.file.path)
+
+        try:
+            os.stat(file_tok_path)
+        except:
+            sp = spm.SentencePieceProcessor()
+            sp.Load(model_path)
+            with open(file_tok_path, 'w+') as file_tok:
+                with open(entry_file.file.path) as file:
+                    for line in file:
+                        line_encoded = sp.EncodeAsPieces(line)
+                        print("".join(line_encoded), file=file_tok)

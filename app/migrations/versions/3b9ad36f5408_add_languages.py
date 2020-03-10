@@ -33,6 +33,6 @@ def upgrade():
 def downgrade():
     for language in languages:
         lang = Language.query.filter_by(code = language[0]).first()
-        app.db.session.remove(lang)
+        db.session.remove(lang)
     db.session.commit()
 

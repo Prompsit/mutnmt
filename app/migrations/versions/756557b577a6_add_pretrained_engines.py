@@ -18,8 +18,7 @@ branch_labels = None
 depends_on = None
 
 engines = [
-    ["Transformer en-de", "preloaded/transformer-en-es/", "en", "de"],
-    ["Best RNN en-de", "preloaded/wmt_ende_best", "en", "de"]
+    ["Transformer en-es", "../preloaded/transformer-new", "en", "es"]
 ]
 
 def upgrade():

@@ -1,9 +1,10 @@
 from app import app, db
-from app.models import LibraryCorpora, Engine, File, Corpus_Engine, Corpus
+from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
 from app.utils import user_utils
 from flask import Blueprint, render_template, request, redirect, url_for
 from sqlalchemy import func
 from toolwrapper import ToolWrapper
+import namegenerator
 import datetime
 
 import hashlib
@@ -12,6 +13,8 @@ import yaml
 import shutil
 import sys
 import logging
+import ntpath
+import subprocess
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
@@ -20,13 +23,25 @@ running_joey = {}
 @train_blueprint.route('/')
 def train_index():
     currently_training = Engine.query.filter_by(uploader_id = user_utils.get_uid()) \
-                            .filter(Engine.status != "done").all()
+                            .filter(Engine.status.like("training")).all()
+    
+    random_name = namegenerator.gen()
+    tryout = 0
+    while len(Engine.query.filter_by(name = random_name).all()):
+        random_name = namegenerator.gen()
+        tryout += 1
+
+        if tryout >= 5:
+            random_name = ""
+            break
+
+    random_name = " ".join(random_name.split("-")[:2])
 
     if (len(currently_training) > 0):
         return redirect(url_for('train.train_console', id=currently_training[0].id))
 
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-    return render_template('train.html.jinja2', page_name='train', corpora=corpora)
+    return render_template('train.html.jinja2', page_name='train', corpora=corpora, random_name=random_name)
 
 @train_blueprint.route('/start', methods=['POST'])
 def train_start():
@@ -54,49 +69,44 @@ def train_start():
     engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
     engine.uploader_id = user_utils.get_uid()
 
+    user = User.query.filter_by(id = user_utils.get_uid()).first()
+    user.user_engines.append(LibraryEngine(engine=engine, user=user))
+
     try:
         os.mkdir(engine_path)
     except:
         return ""
-    
-    shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), os.path.join(engine_path, 'config.yaml'))
+
+    config_file_path = os.path.join(engine.path, 'config.yaml')
+
+    shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), config_file_path)
 
     db.session.add(engine)
     db.session.commit()
 
-    return redirect(url_for('train.train_launch', id=engine.id))
-
-@train_blueprint.route('/launch/<id>')
-def train_launch(id):
-    engine = Engine.query.filter_by(id=id).first()
-    
+    # Engine configuration
     if user_utils.get_uid() in running_joey.keys():
         running_joey[user_utils.get_uid()].close()
         del running_joey[user_utils.get_uid()]
 
-    config_file_path = os.path.join(engine.path, 'config.yaml')
     config = None
     print(config_file_path, file=sys.stderr)
+
     try:
         with open(config_file_path, 'r') as config_file:
             config = yaml.load(config_file, Loader=yaml.FullLoader)
     except:
         pass
 
-    try:
-        os.mkdir(os.path.join(engine.path, "model"))
-    except:
-        pass
-
-
     def link_files(corpus, phase):
         for file_entry in corpus.corpus_files:
-            try:
-                os.link(file_entry.file.path, os.path.join(engine.path, file_entry.file.name))
-            except:
-                pass
+            tok_path = '{}.mut.spe'.format(file_entry.file.path)
+            tok_name = phase
 
-            config["data"][phase] = os.path.join(engine.path, file_entry.file.name)
+            os.link(tok_path, os.path.join(engine.path, '{}.{}'.format(tok_name, 
+                    config["data"]["src" if file_entry.role == "source" else "trg"])))
+
+            config["data"][phase] = os.path.join(engine.path, tok_name)
             config["training"]["model_dir"] = os.path.join(engine.path, "model")
 
     corpus_train = Corpus_Engine.query.filter_by(engine_id = engine.id, phase="train").first().corpus
@@ -107,12 +117,33 @@ def train_launch(id):
 
     corpus_test = Corpus_Engine.query.filter_by(engine_id = engine.id, phase="test").first().corpus
     link_files(corpus_test, "test")
-    
+
+    # Get vocabulary
+    vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(corpus_train.id))
+    final_vocabulary_path = os.path.join(engine.path, "train.vocab")
+
+    extract_vocabulary = subprocess.Popen("cat {} | head -n {} > {}".format(vocabulary_path, request.form['vocabularySize'], final_vocabulary_path),
+                            shell=True)
+
+    extract_vocabulary.wait()
+
+    config["data"]["src_vocab"] = final_vocabulary_path
+    config["data"]["trg_vocab"] = final_vocabulary_path
+
     config["name"] = engine.name
+    config["training"]["epochs"] = int(request.form['epochsText'])
+    config["training"]["patience"] = int(request.form['patienceTxt'])
+    config["training"]["batch_size"] = int(request.form['batchSizeTxt'])
 
     with open(config_file_path, 'w') as config_file:
         yaml.dump(config, config_file)
 
+    return redirect(url_for('train.train_launch', id=engine.id))
+
+@train_blueprint.route('/launch/<id>')
+def train_launch(id):
+    engine = Engine.query.filter_by(id=id).first()
+    
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
 
@@ -120,7 +151,7 @@ def train_launch(id):
     handler.setLevel(logging.DEBUG)
     root.addHandler(handler)
 
-    slave = ToolWrapper(["python3", "-m", "joeynmt", "train", os.path.join(engine.path, "config.yaml"), "-sm"],
+    slave = ToolWrapper(["python3", "-m", "joeynmt", "train", os.path.join(engine.path, "config.yaml")],
                         cwd=app.config['JOEYNMT_FOLDER'])
 
     running_joey[user_utils.get_uid()] = slave
@@ -150,8 +181,7 @@ def train_stop(id):
         del running_joey[user_utils.get_uid()]
 
     engine = Engine.query.filter_by(id = id).first()
-    shutil.rmtree(engine.path)
-    db.session.delete(engine)
+    engine.status = "stopped"
     db.session.commit()
 
     return redirect(url_for('train.train_index'))

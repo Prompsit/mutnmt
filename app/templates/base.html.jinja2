@@ -40,7 +40,7 @@
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link {{ 'active' if page_name == 'translate' else '' }}" href="{{ url_for('translate.translate_index') }}">
+                                <a class="nav-link {{ 'active' if page_name.startswith('translate') else '' }}" href="{{ url_for('translate.translate_index') }}">
                                     <i class="fas fa-globe-europe mr-2"></i>
                                     Translate
                                 </a>
@@ -64,8 +64,13 @@
                         {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
                             <img alt="" src="{{ current_user.avatar_url }}" class="img-avatar" />
-
                             <span class="ml-2">{{ current_user.username }}</span>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('auth.logout') }}" class="text-danger">
+                                <i class="fas fa-power-off"></i> Sign out
+                            </a>
                         </div>
                         {% endif %}
                     </div>
