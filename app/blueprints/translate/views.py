@@ -1,7 +1,7 @@
 from app import app
 from app.models import LibraryEngine, Engine
 from app.utils import user_utils, translation_utils, utils
-from flask import Blueprint, render_template, request, send_file, after_this_request
+from flask import Blueprint, render_template, request, send_file, after_this_request, url_for
 from werkzeug.utils import secure_filename
 
 import subprocess, sys, logging, os, glob, shutil
@@ -45,15 +45,20 @@ def upload_file():
     
     key = utils.normname(user_utils.get_uid(), user_file.filename)
     this_upload = user_utils.get_user_folder(key)
-    os.mkdir(this_upload)
+
+    try:
+        os.mkdir(this_upload)
+    except:
+        shutil.rmtree(this_upload)
+        os.mkdir(this_upload)
     
     user_file_path = os.path.join(this_upload, secure_filename(user_file.filename))
     user_file.save(user_file_path)
 
-    translate_attach(engine_id)
-    translators.translate_xml(user_utils.get_uid(), user_file_path)
+    translators.launch(user_utils.get_uid(), engine_id)
+    translators.translate_file(user_utils.get_uid(), user_file_path)
 
-    return key
+    return url_for('translate.download_file', key=key)
 
 @translate_blueprint.route('/download/<key>')
 def download_file(key):
@@ -61,12 +66,8 @@ def download_file(key):
     files = [f for f in glob.glob(os.path.join(user_upload, "*"))]
     file = os.path.join(user_upload, files[0]) if len(files) > 0 else None
 
-    @after_this_request
-    def remove_file(response):
-        if file:
-            shutil.rmtree(user_upload)
-
     if len(files) > 0:
-        return send_file(os.path.join(user_upload, files[0]), as_attachment=True)
+        return send_file(os.path.join(user_upload, file), as_attachment=True)
     else:
         return "-1"
+

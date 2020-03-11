@@ -1,13 +1,18 @@
 {% extends "translate.html.jinja2" %}
 
 {% block resources %}
+<script src="{{ url_for('static', filename='js/custom-file.js') }}"></script>
 <script src="{{ url_for('static', filename='js/translate-files.js') }}"></script>
 {% endblock %}
 
 {% block translate_content %}
 <h2 class="h5 mt-3">Translate a document</h2>
 
-<form action="{{ url_for('translate.upload_file') }}" method="post" enctype="multipart/form-data" class="translate-file-form">
+<p>
+    Supported file formats: TXT, HTML, DOCX, PPTX, XLSX, ODP, ODT, ODS
+</p>
+
+<form action="{{ url_for('translate.upload_file') }}" method="post" enctype="multipart/form-data" class="translate-file-form translate-form" data-status="none">
     <div class="row mt-3">
         <div class="col-12">
             <div class="custom-file">
@@ -25,7 +30,21 @@
                 </select>
 
                 <div class="text-right">
-                    <input type="submit" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
+                    <input type="submit" class="btn btn-primary translate-btn" value="Translate" />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="engine-status-container mt-2">
+                <div class="alert alert-warning engine-launching mb-0" role="alert">
+                    <i class="fas fa-circle-notch fa-spin"></i> Launching engine and translating your file...
+                </div>
+                <div class="alert alert-danger engine-error mb-0" role="alert">
+                    <i class="fas fa-exclamation-circle"></i> Something went wrong!
+                </div>
+                <div class="alert alert-success engine-ready mb-0" role="alert">
+                    <i class="fas fa-check-circle"></i> Your file is ready! <a href="#" class="file_download alert-link">Download now</a>
                 </div>
             </div>
         </div>

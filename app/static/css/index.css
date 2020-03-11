@@ -4,3 +4,17 @@
     background: rgb(38,50,56);
     background: linear-gradient(115deg,var(--primary) 0%, var(--primary) 45%, var(--dark) 45%);
 }
+
+.skew-decorations {
+    position: relative;
+}
+
+.skew-decorations::after {
+    content: "";
+    display: block;
+    width: 20%;
+    height: 8px;
+    background: var(--primary);
+    transform: skew(25deg);
+    margin: 8px auto 0px auto;
+}

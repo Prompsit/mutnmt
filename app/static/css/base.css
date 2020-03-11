@@ -3,3 +3,38 @@
     height: 48px;
     border-radius: 50% 50%;
 }
+
+@media screen and (max-width: 576px) {
+    .hamburger-menu {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 90%;
+        height: 100%;
+        z-index: 10;
+        background-color: var(--light);
+        padding: 1rem;
+        transition: left 0.3s ease-out;
+    }
+
+    .hamburger:not(.show) .hamburger-menu {
+        left: -90%;
+    }
+
+    .hamburger .hamburger-overlay {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0);
+        z-index: 9;
+        transition: background-color 0.15s ease-out;
+        display: none;
+    }
+
+    .hamburger.show .hamburger-overlay {
+        display: block;
+        background-color: rgba(0, 0, 0, .6);
+    }
+}

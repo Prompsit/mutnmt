@@ -1,5 +1,4 @@
 from app.utils import user_utils
-from werkzeug.utils import secure_filename
 import hashlib
 
 class condec(object):
@@ -13,7 +12,7 @@ class condec(object):
             return func
         return self.decorator(func)
 
-def normname(self, user_id, filename):
+def normname(user_id, filename):
     blake = hashlib.blake2b()
-    blake.update(secure_filename('{}{}'.format(user_id, filename).encode("utf-8")))
+    blake.update(('{}{}'.format(user_id, filename).encode("utf-8")))
     return blake.hexdigest()[:16]

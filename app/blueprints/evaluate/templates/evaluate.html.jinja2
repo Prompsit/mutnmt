@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.js" integrity="sha256-BFIKaFl5uYR8kP6wcRxaAqJpfZfC424TBccBBVjVzuY=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap4.min.js" integrity="sha256-hJ44ymhBmRPJKIaKRf3DSX5uiFEZ9xB/qx8cNbJvIMU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/custom-file.js') }}"></script>
 <script src="{{ url_for('static', filename='js/evaluate.js') }}"></script>
 {% endblock %}
 
@@ -25,7 +26,7 @@
                 <label class="custom-file-label" for="mt_file">Choose file</label>
             </div>
         </div>
-        <div class="col-sm-6 col-12">
+        <div class="col-sm-6 col-12 mt-4 mt-sm-0">
             <h2 class="h6">Human translation</h2>
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="ht_file" name="ht_file" required>

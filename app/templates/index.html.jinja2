@@ -11,16 +11,18 @@
 <body>
     <div class="container">
         <div class="row pt-4 align-items-center">
-            <div class="col-3">
-                <img class="img-fluid" alt="MutNMT" src="{{ url_for('static', filename='img/logo.png') }}" />
+            <div class="col-sm-3 col-8 offset-2 offset-sm-0">
+                <a href="">
+                    <img class="img-fluid" alt="MutNMT" src="{{ url_for('static', filename='img/logo.png') }}" />
+                </a>
             </div>
 
-            <div class="col-9 text-right">
+            <div class="col-sm-9 col-12 text-sm-right mt-4 mt-sm-0">
                 {% if not current_user.is_authenticated %}
-                    <a href="{{ url_for('google.login') }} " class="btn btn-primary">
-                        <i class="fab fa-google mr-2"></i>
-                        Log in
-                    </a>
+                <a href="{{ url_for('google.login') }} " class="btn btn-primary d-block d-sm-inline">
+                    <i class="fab fa-google mr-2"></i>
+                    Log in
+                </a>
                 {% endif %}
             </div>
         </div>
@@ -31,27 +33,30 @@
 
     <div class="container">
         <div class="row mt-5">
-            <div class="col-12">
-                <p class="h4 text-center">
+            <div class="col-12 col-sm-6">
+                <img alt="People" class="img-fluid" src="{{ url_for('static', filename='img/people.svg') }}" />
+            </div>
+            <div class="col-12 col-sm-6 d-flex align-items-center mt-4 mt-sm-0">
+                <p class="h4 text-center skew-decorations">
                     What you use to train an NMT system when you don't know what an NMT system is.
                 </p>
             </div>
         </div>
 
         <div class="row mt-5">
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-12">
                 <h2 class="h4 text-primary">Something cool</h2>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
                 </p>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-12 mt-3 mt-sm-0">
                 <h2 class="h4 text-primary">Amazing tool</h2>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
                 </p>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-4 col-12 mt-3 mt-sm-0">
                 <h2 class="h4 text-primary">Perfect translations</h2>
                 <p>
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi bibendum, lectus id ullamcorper congue, mi leo lobortis elit, a luctus ex augue fringilla quam. Mauris dignissim venenatis quam, a interdum ipsum.
@@ -59,8 +64,14 @@
             </div>
         </div>
 
-        <div class="row mt-5">
-            <div class="col-12">
+        <div class="row my-5 align-items-center">
+            <div class="col-12 col-sm-6">
+                <h2 class="h5 text-primary">Find us on</h2>
+                <a href="#" class="h1 text-dark">
+                    <i class="fab fa-github-square"></i>
+                </a>
+            </div>
+            <div class="col-12 col-sm-6 text-sm-right mt-4 mt-sm-0">
                 <img alt="" src="{{ url_for('static', filename='img/multitrain_logo.svg') }}" style="width: 130px;" />
             </div>
         </div>

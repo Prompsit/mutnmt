@@ -1,8 +1,4 @@
 $(document).ready(function() {
-    $('.custom-file input[type=file]').on('change', function() {
-        $(this).closest(".custom-file").find(".custom-file-label").html(this.files[0].name);
-    });
-
     $('.evaluate-form').on('submit', function() {
         let data = new FormData();
         data.append("mt_file", document.querySelector("#mt_file").files[0])
