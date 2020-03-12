@@ -3,14 +3,15 @@ from app.utils import user_utils
 from app.utils.tokenizer import Tokenizer
 from app.models import Engine
 from toolwrapper import ToolWrapper
-import xml.etree.ElementTree as ElementTree
-from bs4 import BeautifulSoup, Doctype
+from lxml import etree
+# from bs4 import BeautifulSoup, Doctype
 
 import zipfile
 import os
 import re
 import shutil
 import glob
+import subprocess
 
 import sys
 
@@ -22,6 +23,11 @@ class TranslationUtils:
             ".docx": r'.*(document.xml)$',
             ".xlsx": r'.*sharedStrings\.xml$',
             ".libreoffice": r'.*content\.xml$'
+        }
+        
+        self.format_filters = {
+            ".pdf": "odg",
+            ".rtf": "docx"
         }
 
     def launch(self, user_id, id):
@@ -61,7 +67,7 @@ class TranslationUtils:
     def norm_extension(self, extension):
         if extension in [".ppt", ".doc", ".xls"]:
             return extension + "x"
-        elif extension in [".odp", ".odt", ".ods"]:
+        elif extension in [".odp", ".odt", ".ods", ".odg"]:
             return ".libreoffice"
         else:
             return extension
@@ -99,7 +105,8 @@ class TranslationUtils:
         os.remove(file_path)
         shutil.move(translated_path, file_path)
 
-    def translate_xml(self, user_id, xml_path):
+    def translate_xml(self, user_id, xml_path, mode = "xml"):
+        """
         with open(xml_path, "r") as xml_file:
             def eat(node):
                 text = node.find(text=True, recursive=False)
@@ -115,15 +122,48 @@ class TranslationUtils:
         os.remove(xml_path)
 
         with open(xml_path, "w+") as xml_file:
-            xml_file.write(soup.prettify())
+            print(soup, file=sys.stderr)
+            xml_file.write(soup.prettify())"""
+
+        def explore_node(node):
+            if node.text and node.text.strip():
+                node.text = self.get(user_id, node.text)
+            for child in node:
+                explore_node(child)
+        
+        with open(xml_path, 'r') as xml_file:
+            parser = etree.HTMLParser() if mode == "html" else etree.XMLParser()
+            tree = etree.parse(xml_file, parser)
+            explore_node(tree.getroot())
+
+        tree.write(xml_path, encoding="UTF-8", xml_declaration=(mode == "xml"))
+
+    def translate_bridge(self, user_id, file_path, original_extension):
+        filename, extension = os.path.splitext(file_path)
+        dest_path = filename + "." + self.format_filters[original_extension]
+
+        convert = subprocess.Popen("soffice --convert-to {} {} --outdir {}".format(self.format_filters[original_extension],
+                        file_path, os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], 
+                        stdout=subprocess.PIPE) 
+        convert.wait()
+
+        self.translate_office(user_id, dest_path)
+
+        convert = subprocess.Popen("soffice --convert-to {} {} --outdir {}".format(original_extension[1:], dest_path,
+                                os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], stdout=subprocess.PIPE)
+        convert.wait()
+
+        os.remove(dest_path)
 
     def translate_file(self, user_id, file_path):
         filename, extension = os.path.splitext(file_path)
 
         if extension in [".xml", ".html"]:
-            self.translate_xml(user_id, file_path)
+            self.translate_xml(user_id, file_path, extension[1:])
         elif extension == ".txt":
             self.translate_txt(user_id, file_path)
+        elif extension in [".rtf", ".pdf"]:
+            self.translate_bridge(user_id, file_path, extension)
         else:
             self.translate_office(user_id, file_path)
         

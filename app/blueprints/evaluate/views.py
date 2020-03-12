@@ -39,9 +39,10 @@ def evaluate_perform():
     for minfo in pkgutil.iter_modules([os.path.join(os.path.dirname(os.path.abspath(__file__)), "evaluators")]):
         module = importlib.import_module('.{}'.format(minfo.name), package='app.blueprints.evaluate.evaluators')
         classes = inspect.getmembers(module)
-        if len(classes) > 0:
-            evaluator = getattr(module, classes[0][0])
-            evaluators.append(evaluator())
+        for name, _class in classes:
+            if name != "Evaluator" and name.lower() == minfo.name.lower() and inspect.isclass(_class):
+                evaluator = getattr(module, name)
+                evaluators.append(evaluator())
 
     metrics = []
     for evaluator in evaluators:

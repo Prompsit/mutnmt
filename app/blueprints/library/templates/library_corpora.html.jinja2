@@ -4,68 +4,70 @@
 <h2 class="h5">Your corpora</h2>
 
 {% if user_library|length > 0 %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>File name</th>
-            <th>Language</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Chars</th>
-            <th>Date</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for corpus in user_library %}
-            <tr class="bg-light">
-                <td colspan="6" class="align-middle">
-                    <i class="fas fa-folder mr-2"></i> {{ corpus.name }} 
-                    ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
-                </td>
-                <td class="text-right">
-                    <div class="dropdown">
-                        <button class="btn btn-link btn-sm" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                            {% if corpus.owner_id == get_user().id %}
-                                {% if corpus.public %}
-                                <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
-                                    <i class="fas fa-lock"></i> Stop sharing
-                                </a>
-                                {% else %}
-                                <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
-                                    <i class="fas fa-lock-open"></i> Share
-                                </a>
-                                {% endif %}
-
-                                <a href="{{ url_for('library.library_delete', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
-                                    <i class="fas fa-trash"></i> Delete
-                                </a>
-                            {% else %}
-                                <a href="{{ url_for('library.library_ungrab', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
-                                    <i class="fas fa-times"></i> Remove
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            {% for user_file in corpus.corpus_files %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
             <tr>
-                <td>{{ user_file.file.name }}</td>
-                <td>{{ user_file.file.language.name }}</td>
-                <td>{{ user_file.file.lines }}</td>
-                <td>{{ user_file.file.words }}</td>
-                <td>{{ user_file.file.chars }}</td>
-                <td>{{ user_file.file.uploaded }}</td>
-                <td></td>
+                <th>File name</th>
+                <th>Language</th>
+                <th>Lines</th>
+                <th>Words</th>
+                <th>Chars</th>
+                <th>Date</th>
+                <th></th>
             </tr>
+        </thead>
+        <tbody>
+            {% for corpus in user_library %}
+                <tr class="bg-light">
+                    <td colspan="6" class="align-middle">
+                        <i class="fas fa-folder mr-2"></i> {{ corpus.name }} 
+                        ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
+                    </td>
+                    <td class="text-right">
+                        <div class="dropdown">
+                            <button class="btn btn-link btn-sm" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                {% if corpus.owner_id == get_user().id %}
+                                    {% if corpus.public %}
+                                    <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
+                                        <i class="fas fa-lock"></i> Stop sharing
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
+                                        <i class="fas fa-lock-open"></i> Share
+                                    </a>
+                                    {% endif %}
+
+                                    <a href="{{ url_for('library.library_delete', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('library.library_ungrab', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
+                                        <i class="fas fa-times"></i> Remove
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% for user_file in corpus.corpus_files %}
+                <tr>
+                    <td>{{ user_file.file.name }}</td>
+                    <td>{{ user_file.file.language.name }}</td>
+                    <td>{{ user_file.file.lines }}</td>
+                    <td>{{ user_file.file.words }}</td>
+                    <td>{{ user_file.file.chars }}</td>
+                    <td>{{ user_file.file.uploaded }}</td>
+                    <td></td>
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 {% else %}
 <div class="jumbotron p-3 text-center">
     <p class="h6 m-0">
@@ -75,42 +77,43 @@
 {% endif %}
 
 <h2 class="h5">Public corpora</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th>File name</th>
-            <th>Language</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Date</th>
-            <th>Uploader</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for corpus in user_library %}
-            <tr class="bg-light">
-                <td colspan="6" class="align-middle">
-                    <i class="fas fa-folder mr-2"></i> {{ corpus.name }} 
-                    ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
-                </td>
-                <td class="text-right">
-                    <a href="{{ url_for('library.library_grab', id = corpus.id, type = page_name) }}" class="btn btn-sm btn-outline-primary">Grab</a>
-                </td>
-            </tr>
-            {% for user_file in corpus.corpus_files %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
             <tr>
-                <td>{{ user_file.file.name }}</td>
-                <td>{{ user_file.file.language.name }}</td>
-                <td>{{ user_file.file.lines }}</td>
-                <td>{{ user_file.file.words }}</td>
-                <td>{{ user_file.file.uploaded }}</td>
-                <td>{{ user_file.file.uploader.username }}</td>
-                <td></td>
+                <th>File name</th>
+                <th>Language</th>
+                <th>Lines</th>
+                <th>Words</th>
+                <th>Date</th>
+                <th>Uploader</th>
+                <th></th>
             </tr>
+        </thead>
+        <tbody>
+            {% for corpus in user_library %}
+                <tr class="bg-light">
+                    <td colspan="6" class="align-middle">
+                        <i class="fas fa-folder mr-2"></i> {{ corpus.name }} 
+                        ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
+                    </td>
+                    <td class="text-right">
+                        <a href="{{ url_for('library.library_grab', id = corpus.id, type = page_name) }}" class="btn btn-sm btn-outline-primary">Grab</a>
+                    </td>
+                </tr>
+                {% for user_file in corpus.corpus_files %}
+                <tr>
+                    <td>{{ user_file.file.name }}</td>
+                    <td>{{ user_file.file.language.name }}</td>
+                    <td>{{ user_file.file.lines }}</td>
+                    <td>{{ user_file.file.words }}</td>
+                    <td>{{ user_file.file.uploaded }}</td>
+                    <td>{{ user_file.file.uploader.username }}</td>
+                    <td></td>
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </div>
 {% endblock %}

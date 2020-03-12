@@ -1,5 +1,15 @@
 $(document).ready(function() {
+    let bpl_table = $(".bleu-line").DataTable({
+        "lengthMenu": [5, 10, 15, 25, 50, 100]
+    });
+
+
     $('.evaluate-form').on('submit', function() {
+        // Clean previous
+        $(".evaluate-results").addClass("d-none");
+        $(".evaluate-results-row").empty();
+        bpl_table.clear().draw();
+
         let data = new FormData();
         data.append("mt_file", document.querySelector("#mt_file").files[0])
         data.append("ht_file", document.querySelector("#ht_file").files[0])
@@ -27,16 +37,13 @@ $(document).ready(function() {
                 }
 
 
-                $(".bleu-line").on('init.dt', function(e, d) {
-                    let bpl_table = $(this).DataTable();
-                    bpl_table.rows.add(evaluation.bpl).draw();
-                })
-                
-                let bpl_table = $(".bleu-line").DataTable({
-                    "lengthMenu": [5, 10, 15, 25, 50, 100]
-                });
+                bpl_table.rows.add(evaluation.bpl).draw();
 
-                let bpl_chart = new Chart(document.querySelector("#bpl-graph"), {
+
+                $("#blp-graph canvas").remove();
+                $("#blp-graph").append(document.createElement("canvas"));
+
+                let bpl_chart = new Chart(document.querySelector("#blp-graph").querySelector("canvas"), {
                     type: 'bar',
                     data: {
                         labels: Array.from(Array(evaluation.bpl.length), (x, index) => index + 1),
@@ -51,6 +58,15 @@ $(document).ready(function() {
                         responsive: true,
                         legend: {
                             display: false
+                        },
+                        scales: {
+                            yAxes: [{
+                                display: true,
+                                ticks: {
+                                    suggestedMin: 0, //min
+                                    suggestedMax: 100 //max 
+                                }
+                            }]
                         }
                     }
                 });
