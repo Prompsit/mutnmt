@@ -1,11 +1,17 @@
 $(document).ready(function() {
+    let dragged_file = null;
+    FileDnD(".file-dnd", function(file) {
+        dragged_file = file;
+    });
+
     $(".translate-file-form").on("submit", function(e) {
         e.preventDefault();
+        if (dragged_file == null) return false;
 
         $('.translate-form').attr('data-status', 'launching');
 
         let data = new FormData();
-        data.append("user_file", document.querySelector("#user_file").files[0])
+        data.append("user_file", dragged_file);
         data.append("engine_id", $(".engine-select option:selected").val())
 
         $.ajax({

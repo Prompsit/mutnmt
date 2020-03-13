@@ -1,1 +1,60 @@
 {% extends "base.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/translate.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/inspect.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<h2 class="h5">Inspect translations</h2>
+
+<form action="{{ url_for('evaluate.evaluate_perform') }}" method="post" class="translate-form" data-status="false">
+    <textarea class="form-control translate-text" style="min-height: 50px;" name="translate_text">My father bought a bike yesterday for me</textarea>
+    <div class="d-flex align-items-center mt-2">
+        <select class="custom-select mr-1 engine-select" name="engine_id">
+            {% for engine_entry in engines %}
+                <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="text-right">
+            <input type="submit" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
+        </div>
+    </div>
+
+    <div class="engine-status-container mt-3">
+        <div class="alert alert-warning engine-launching mb-0" role="alert">
+            <i class="fas fa-circle-notch fa-spin"></i> Launching engine...
+        </div>
+        <div class="alert alert-success engine-ready mb-0" role="alert">
+            <i class="fas fa-check-circle"></i> Engine ready!
+        </div>
+        <div class="alert alert-danger engine-error mb-0" role="alert">
+            <i class="fas fa-exclamation-circle"></i> Something went wrong!
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    <div class="col-12 col-sm-6 mt-3">
+        <label class="h6">Pre-processed output</label>
+        <textarea class="tarea-preproc form-control" disabled></textarea>
+    </div>
+    <div class="col-12 col-sm-6 mt-3">
+        <label class="h6">N-Best</label>
+        <textarea class="tarea-nbest form-control" disabled></textarea>
+    </div>
+    <div class="col-12 col-sm-6 mt-3">
+        <label class="h6">Alignments</label>
+        <textarea class="tarea-alignments form-control" disabled></textarea>
+    </div>
+    <div class="col-12 col-sm-6 mt-3">
+        <label class="h6">Post-processed output</label>
+        <textarea class="tarea-postproc form-control" disabled></textarea>
+    </div>
+</div>
+
+{% endblock %}

@@ -30,12 +30,18 @@ class TranslationUtils:
             ".rtf": "docx"
         }
 
-    def launch(self, user_id, id):
+    def launch(self, user_id, id, inspect = False):
         if user_utils.get_uid() in self.running_joey.keys():
             self.running_joey[user_utils.get_uid()]['slave'].close()
 
         engine = Engine.query.filter_by(id = id).first()
-        slave = ToolWrapper(["python3", "-m", "joeynmt", "translate", os.path.join(engine.path, "config.yaml"), "-sm"],
+        joey_params = ["python3", "-m", "joeynmt", "translate", os.path.join(engine.path, "config.yaml"), "-sm"]
+
+        if inspect:
+            joey_params.append("-n")
+            joey_params.append("3")
+        
+        slave = ToolWrapper(joey_params,
                             cwd=app.config['JOEYNMT_FOLDER'])
 
         welcome = slave.readline()
@@ -56,6 +62,30 @@ class TranslationUtils:
 
             translation = joey.readline()
             return user_context['tokenizer'].detokenize(translation)
+        else:
+            return None
+
+    def get_inspect(self, user_id, text):
+        if user_utils.get_uid() in self.running_joey.keys():
+            user_context = self.running_joey[user_utils.get_uid()]
+            if not user_context['tokenizer'].loaded:
+                user_context['tokenizer'].load()
+
+            joey = user_context['slave']
+            joey.writeline(user_context['tokenizer'].tokenize(text))
+
+            translation = joey.readline()
+            n_best = []
+            while translation != "!:SLAVE_END_NBEST":
+                n_best.append(translation)
+                translation = joey.readline()
+
+            return {
+                "preproc": n_best[0], 
+                "nbest": n_best,
+                "alignments": [],
+                "postproc": user_context['tokenizer'].detokenize(n_best[0])
+            }
         else:
             return None
 
@@ -166,4 +196,3 @@ class TranslationUtils:
             self.translate_bridge(user_id, file_path, extension)
         else:
             self.translate_office(user_id, file_path)
-        
