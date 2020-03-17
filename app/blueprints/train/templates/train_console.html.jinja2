@@ -6,14 +6,17 @@
 
 {% block resources %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
 <script src="{{ url_for('static', filename='js/train.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}
 
 {% block content %}
+<input type=hidden id="engine_id" value="{{ engine.id }}" />
 <h2 class="h5">Train a neural engine</h2>
 
 <div class="row mt-4">
-    <div class="col-7">
+    <div class="col-12">
         <div class="jumbotron p-3 text-center">
             <strong class="nn-name">{{ engine.name }}</strong> is training...
 
@@ -44,7 +47,9 @@
                 <div class="row">
                     <div class="col-6">
                         <h3 class="h6">During training</h3>
-                        <img class="img-fluid" alt="" src="https://placehold.it/500x300&text=Chart" />
+                        <div class="chart-container">
+                            <canvas class="graph-batch-loss"></canvas>
+                        </div>
                     </div>
 
                     <div class="col-6">
@@ -64,10 +69,6 @@
                 <img class="img-fluid" alt="" src="https://placehold.it/256x200&text=Learning rate" />
             </div>
         </div>
-    </div>
-
-    <div class="col-5">
-        <div class="neural-network-viewer w-100 pl-2"></div>
     </div>
 </div>
 {% endblock %}

@@ -1,9 +1,10 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
 from app.utils import user_utils
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from sqlalchemy import func
 from toolwrapper import ToolWrapper
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import namegenerator
 import datetime
 
@@ -15,6 +16,7 @@ import sys
 import logging
 import ntpath
 import subprocess
+import glob
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
@@ -173,6 +175,32 @@ def train_console(id):
     return render_template("train_console.html.jinja2", page_name="train",
             engine=engine, config=config,
             launched = datetime.datetime.timestamp(engine.launched))
+
+@train_blueprint.route('/graph_data/<id>/<last>')
+def train_graph(id, last):
+    engine = Engine.query.filter_by(id = id).first()
+    tensor_path = os.path.join(engine.path, "model/tensorboard")
+    files = glob.glob(os.path.join(tensor_path, "*"))
+
+    last = int(last)
+    
+    if len(files) > 0:
+        log = files[0]
+
+        eacc = EventAccumulator(log)
+        eacc.Reload()
+
+        tags = eacc.Tags()
+
+        stats = {}
+        for scalar in tags.get('scalars'):
+            stats[scalar] = []
+            for data in eacc.Scalars(scalar)[last:250]:
+                stats[scalar].append({ "time": data.wall_time, "step": data.step, "value": data.value })
+
+        return jsonify(stats)
+    else:
+        return jsonify({})
 
 @train_blueprint.route('/stop/<id>')
 def train_stop(id):

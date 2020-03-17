@@ -47,3 +47,11 @@ html, body {
     margin: 0;
     padding: 0;
 }
+
+.row-striped > [class*="col-"] {
+    padding: 1rem;
+}
+
+.row-striped > [class*="col-"]:nth-child(2n) {
+    background-color: var(--light);
+}

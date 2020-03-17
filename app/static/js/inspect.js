@@ -4,15 +4,23 @@ $(document).ready(function() {
     });
 
     let onsubmit = (e) => {
+        $('.inspect-row').addClass("d-none");
+        $('.inspect-content').html("");
+
         if ($('.translate-form').attr('data-status') == 'ready') {
             $.ajax({
                 url: `get/${$('.translate-text').val()}`
             }).done(function(inspection) {
-                $('.tarea-preproc').html(inspection['preproc'])
-                $('.tarea-postproc').html(inspection['postproc'])
+                $('.preproc').html(inspection['preproc'])
+                $('.postproc').html(inspection['postproc'])
                 for (sentence of inspection.nbest) {
-                    $('.tarea-nbest').val($('.tarea-nbest').val() + sentence + "\n")
+                    let p = document.createElement("p")
+                    $(p).html(sentence)
+                    $(p).addClass("mb-1");
+                    $(".nbest").append(p)
                 }
+
+                $(".inspect-row").removeClass("d-none");
             });
         } else {
             $('.translate-form').attr('data-status', 'launching');

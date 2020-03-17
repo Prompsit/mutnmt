@@ -32,6 +32,10 @@ class TranslationUtils:
 
     def launch(self, user_id, id, inspect = False):
         if user_utils.get_uid() in self.running_joey.keys():
+            engine = self.running_joey[user_utils.get_uid()]['engine']
+            if int(engine.id) == int(id):
+                return True
+            
             self.running_joey[user_utils.get_uid()]['slave'].close()
 
         engine = Engine.query.filter_by(id = id).first()
@@ -82,7 +86,7 @@ class TranslationUtils:
 
             return {
                 "preproc": n_best[0], 
-                "nbest": n_best,
+                "nbest": [user_context['tokenizer'].detokenize(s) for s in n_best],
                 "alignments": [],
                 "postproc": user_context['tokenizer'].detokenize(n_best[0])
             }

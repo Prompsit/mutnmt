@@ -38,23 +38,51 @@
     </div>
 </form>
 
-<div class="row">
-    <div class="col-12 col-sm-6 mt-3">
-        <label class="h6">Pre-processed output</label>
-        <textarea class="tarea-preproc form-control" disabled></textarea>
+<div class="row row-striped inspect-row d-none">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Pre-processed output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content preproc"></span>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-sm-6 mt-3">
-        <label class="h6">N-Best</label>
-        <textarea class="tarea-nbest form-control" disabled></textarea>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Post-processed output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content postproc"></span>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-sm-6 mt-3">
-        <label class="h6">Alignments</label>
-        <textarea class="tarea-alignments form-control" disabled></textarea>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>N-Best</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content nbest"></span>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-sm-6 mt-3">
-        <label class="h6">Post-processed output</label>
-        <textarea class="tarea-postproc form-control" disabled></textarea>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Alignments</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content alignments"></span>
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}
