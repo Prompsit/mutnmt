@@ -11,6 +11,17 @@
 {% block content %}
 <h2 class="h5">Inspect translations</h2>
 
+{% if engines | length == 0 %}
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="jumbotron p-3 text-center">
+            <p class="h6 m-0">
+                You need an engine to evaluate text. <a href="{{ url_for('library.library_engines') }}">Grab</a> or <a href="{{ url_for('train.train_index') }}">train</a> a new one
+            </p>
+        </div>
+    </div>
+</div>
+{% else %}
 <form action="{{ url_for('evaluate.evaluate_perform') }}" method="post" class="translate-form" data-status="false">
     <textarea class="form-control translate-text" style="min-height: 50px;" name="translate_text">My father bought a bike yesterday for me</textarea>
     <div class="d-flex align-items-center mt-2">
@@ -85,4 +96,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
