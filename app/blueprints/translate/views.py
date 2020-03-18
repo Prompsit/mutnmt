@@ -28,8 +28,9 @@ def translate_attach(id):
     else:
         return "-1"
 
-@translate_blueprint.route('/get/<text>')
-def translate_get(text):
+@translate_blueprint.route('/get', methods=["POST"])
+def translate_get():
+    text = request.form.get('text')
     translation = translators.get(user_utils.get_uid(), text)
     return translation if translation else "-1"
 
@@ -71,3 +72,6 @@ def download_file(key):
     else:
         return "-1"
 
+@translate_blueprint.route('/as_tmx/', methods=["POST"])
+def as_tmx():
+    pass

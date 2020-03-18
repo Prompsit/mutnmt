@@ -6,7 +6,11 @@ $(document).ready(function() {
     let onsubmit = (e) => {
         if ($('.translate-form').attr('data-status') == 'ready') {
             $.ajax({
-                url: `get/${$('.translate-text').val()}`
+                url: `get`,
+                method: "POST",
+                data: {
+                    text: $('.translate-text').val()
+                }
             }).done(function(raw) {
                 $('.translation-target-text').html(raw);
             });
