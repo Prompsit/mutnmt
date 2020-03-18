@@ -2,6 +2,7 @@
 app/uploads
 samples
 app/preloaded
+app/app.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
