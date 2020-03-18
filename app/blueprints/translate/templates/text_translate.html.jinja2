@@ -5,34 +5,34 @@
 {% endblock %}
 
 {% block translate_content %}
+<form action="{{ url_for('translate.as_tmx') }}" method="post" class="translate-form" data-status="false">
 <div class="row mt-4">
     <div class="col-12 col-sm-6">
-        <form class="translate-form" data-status="false">
-            <textarea class="form-control translate-text" style="min-height: 150px;">My father bought a bike yesterday for me</textarea>
-            <div class="d-flex align-items-center mt-2">
-                <select class="custom-select mr-1 engine-select">
-                    {% for engine_entry in engines %}
-                        <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
-                    {% endfor %}
-                </select>
+        <textarea name="text" class="form-control translate-text" style="min-height: 150px;">My father bought a bike yesterday for me</textarea>
+        <div class="d-flex align-items-center mt-2">
+            <select class="custom-select mr-1 engine-select" name="engine_id">
+                {% for engine_entry in engines %}
+                    <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+                {% endfor %}
+            </select>
 
-                <div class="text-right">
-                    <input type="submit" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
-                </div>
+            <div class="text-right d-flex">
+                <input type="submit" class="btn btn-secondary mr-1" value="As TMX" />
+                <input type="button" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
             </div>
+        </div>
 
-            <div class="engine-status-container mt-2">
-                <div class="alert alert-warning engine-launching mb-0" role="alert">
-                    <i class="fas fa-circle-notch fa-spin"></i> Launching engine...
-                </div>
-                <div class="alert alert-success engine-ready mb-0" role="alert">
-                    <i class="fas fa-check-circle"></i> Engine ready!
-                </div>
-                <div class="alert alert-danger engine-error mb-0" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> Something went wrong!
-                </div>
+        <div class="engine-status-container mt-2">
+            <div class="alert alert-warning engine-launching mb-0" role="alert">
+                <i class="fas fa-circle-notch fa-spin"></i> Launching engine...
             </div>
-        </form>
+            <div class="alert alert-success engine-ready mb-0" role="alert">
+                <i class="fas fa-check-circle"></i> Engine ready!
+            </div>
+            <div class="alert alert-danger engine-error mb-0" role="alert">
+                <i class="fas fa-exclamation-circle"></i> Something went wrong!
+            </div>
+        </div>
     </div>
     <div class="col-12 col-sm-6 mt-4 mt-sm-0">
         <div class="jumbotron py-4 h-100">
@@ -42,4 +42,5 @@
         </div>
     </div>
 </div>
+</form>
 {% endblock %}

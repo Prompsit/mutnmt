@@ -4,6 +4,7 @@ from app.utils.tokenizer import Tokenizer
 from app.models import Engine
 from toolwrapper import ToolWrapper
 from lxml import etree
+from nltk.tokenize import sent_tokenize
 # from bs4 import BeautifulSoup, Doctype
 
 import zipfile
@@ -200,3 +201,35 @@ class TranslationUtils:
             self.translate_bridge(user_id, file_path, extension)
         else:
             self.translate_office(user_id, file_path)
+
+    def generate_tmx(self, user_id, text):
+        engine = self.running_joey[user_utils.get_uid()]['engine']
+        source_lang = engine.source.code
+        target_lang = engine.target.code
+
+        sentences = sent_tokenize(text)
+        with open(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'base.tmx'), 'r') as tmx_file:
+            tmx = etree.parse(tmx_file, etree.XMLParser())
+            body = tmx.getroot().find("body")
+            for sentence in sentences:
+                tu = etree.Element("tu")
+
+                tuv_source = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): source_lang })
+                seg_source = etree.Element("seg")
+                seg_source.text = sentence
+                
+                tuv_target = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): target_lang })
+                seg_target = etree.Element("seg")
+                seg_target.text = self.get(user_id, sentence)
+
+                tuv_source.append(seg_source)
+                tuv_target.append(seg_target)
+
+                tu.append(tuv_source)
+                tu.append(tuv_target)
+
+                body.append(tu)
+
+        tmx_path = os.path.join('/tmp', '{}.tmx'.format(user_id))
+        tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True, pretty_print=True)
+        return tmx_path

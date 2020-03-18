@@ -3,7 +3,7 @@ $(document).ready(function() {
         $('.translate-form').attr('data-status', 'false');
     });
 
-    let onsubmit = (e) => {
+    let onclick = (e) => {
         if ($('.translate-form').attr('data-status') == 'ready') {
             $.ajax({
                 url: `get`,
@@ -23,7 +23,7 @@ $(document).ready(function() {
                 console.log(raw);
                 if (raw == "0") {
                     $('.translate-form').attr('data-status', 'ready');
-                    onsubmit()
+                    onclick()
                 } else {
                     $('.translate-form').attr('data-status', 'error');
                 }
@@ -33,8 +33,8 @@ $(document).ready(function() {
         return false;
     }
 
-    $('.translate-form').on('submit', function() {
-        return onsubmit()
+    $('.translate-form .translate-btn').on('click', function() {
+        return onclick()
     });
 });
 

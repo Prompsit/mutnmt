@@ -74,4 +74,10 @@ def download_file(key):
 
 @translate_blueprint.route('/as_tmx/', methods=["POST"])
 def as_tmx():
-    pass
+    engine_id = request.form.get('engine_id')
+    text = request.form.get('text')
+
+    translators.launch(user_utils.get_uid(), engine_id)
+    tmx_path = translators.generate_tmx(user_utils.get_uid(), text)
+
+    return send_file(tmx_path, as_attachment=True)
