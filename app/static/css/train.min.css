@@ -1,1 +1,1 @@
-.jumping-trees .tree{position:relative;top:-2px;display:inline-block;animation-name:jumpingtrees;animation-duration:.8s;animation-iteration-count:infinite}@keyframes jumpingtrees{0%{top:-2px}50%{top:2px}100%{top:-2px}}
+.jumping-trees .tree{position:relative;top:-2px;display:inline-block;animation-name:jumpingtrees;animation-duration:.8s;animation-iteration-count:infinite}@keyframes jumpingtrees{0%{top:-2px}50%{top:2px}100%{top:-2px}}.fullscreen-chart{position:fixed;background-color:var(--light);width:100%;max-width:100%;height:100%;top:0;left:0}

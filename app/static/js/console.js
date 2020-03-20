@@ -60,4 +60,12 @@ $(document).ready(function() {
 
     setInterval(load_data, 10000);
     load_data();
+
+    $(".fullscreen-button").on('click', function() {
+        $(this).closest('[class*="col-"]').addClass("fullscreen-chart");
+    })
+
+    $(".fullscreen-close").on('click', function() {
+        $(this).closest('[class*="col-"]').removeClass("fullscreen-chart");
+    })
 });

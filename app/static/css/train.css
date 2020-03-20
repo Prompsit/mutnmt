@@ -20,3 +20,27 @@
         top: -2px;
     }
 }
+
+.fullscreen-chart {
+    position: fixed;
+    background-color: var(--light);
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+    padding: 1rem;
+}
+
+.fullscreen-close {
+    display: none;
+}
+
+.fullscreen-chart .fullscreen-close {
+    display: block;
+}
+
+.fullscreen-chart .fullscreen-button {
+    display: none;
+}
