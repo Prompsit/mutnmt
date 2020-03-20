@@ -388,6 +388,22 @@ class TrainManager:
                     self.tb_writer.add_scalar("valid/valid_ppl",
                                               valid_ppl, self.steps)
 
+                    if valid_attention_scores:
+                        attention_name = "dev.{}.att".format(self.steps)
+                        attention_path = os.path.join(self.model_dir, attention_name)
+                        self.logger.info("Saving attention plots. This might take a while..")
+                        store_attention_plots(attentions=valid_attention_scores,
+                                            targets=valid_hypotheses_raw,
+                                            sources=valid_data.src,
+                                            indices=range(len(valid_hypotheses)),
+                                            output_prefix=attention_path)
+                        self.logger.info("Attention plots saved to: %s", attention_path)
+                    else:
+                        self.logger.warning("Attention scores could not be saved. "
+                                    "Note that attention scores are not available "
+                                    "when using beam search. "
+                                    "Set beam_size to 1 for greedy decoding.")
+
                     if self.early_stopping_metric == "loss":
                         ckpt_score = valid_loss
                     elif self.early_stopping_metric in ["ppl", "perplexity"]:
@@ -657,10 +673,10 @@ def train(cfg_file: str) -> None:
 
     # predict with the best model on validation and test
     # (if test data is available)
-    ckpt = "{}/{}.ckpt".format(trainer.model_dir, trainer.best_ckpt_iteration)
-    output_name = "{:08d}.hyps".format(trainer.best_ckpt_iteration)
-    output_path = os.path.join(trainer.model_dir, output_name)
-    test(cfg_file, ckpt=ckpt, output_path=output_path, logger=trainer.logger)
+    # ckpt = "{}/{}.ckpt".format(trainer.model_dir, trainer.best_ckpt_iteration)
+    # output_name = "{:08d}.hyps".format(trainer.best_ckpt_iteration)
+    # output_path = os.path.join(trainer.model_dir, output_name)
+    # test(cfg_file, ckpt=ckpt, output_path=output_path, logger=trainer.logger)
 
 
 if __name__ == "__main__":
