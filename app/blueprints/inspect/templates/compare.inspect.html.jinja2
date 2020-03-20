@@ -1,0 +1,45 @@
+{% extends "inspect.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/translate.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/inspect.js') }}"></script>
+{% endblock %}
+
+{% block inspect_content %}
+<div class="row mt-3">
+    <div class="col-12 col-sm-4">
+        <strong>Your engine</strong>
+    </div>
+    <div class="col-12 col-sm-8">
+        <span class="user-engine-target"></span>
+    </div>
+</div>
+
+<hr />
+
+<div class="row mt-3">
+    <div class="col-12 col-sm-4">
+        <strong>Google</strong>
+    </div>
+    <div class="col-12 col-sm-8 p-3">
+        <span class="user-engine-target"></span>
+    </div>
+
+    <div class="col-12 col-sm-4">
+        <strong>Bing</strong>
+    </div>
+    <div class="col-12 col-sm-8 p-3">
+        <span class="user-engine-target"></span>
+    </div>
+
+    <div class="col-12 col-sm-4">
+        <strong>DeepL</strong>
+    </div>
+    <div class="col-12 col-sm-8 p-3">
+        <span class="user-engine-target"></span>
+    </div>
+</div>
+{% endblock %}

@@ -330,6 +330,11 @@ class TrainManager:
                     self.tb_writer.add_scalar("train/train_batch_loss",
                                               batch_loss, self.steps)
 
+                    # Log learning rate to tensorflow
+                    self.tb_writer.add_scalar("train/train_learning_rate",
+                                              self.optimizer.param_groups[0]["lr"],
+                                              self.steps)
+
                 count = self.batch_multiplier if update else count
                 count -= 1
 
@@ -351,6 +356,7 @@ class TrainManager:
                         epoch_no + 1, self.steps, batch_loss,
                         elapsed_tokens / elapsed,
                         self.optimizer.param_groups[0]["lr"])
+
                     start = time.time()
                     total_valid_duration = 0
                     start_tokens = self.total_tokens

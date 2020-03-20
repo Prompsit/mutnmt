@@ -1,13 +1,5 @@
 {% extends "base.html.jinja2" %}
 
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/translate.css') }}" />
-{% endblock %}
-
-{% block resources %}
-<script src="{{ url_for('static', filename='js/inspect.js') }}"></script>
-{% endblock %}
-
 {% block content %}
 <h2 class="h5">Inspect translations</h2>
 
@@ -49,52 +41,21 @@
     </div>
 </form>
 
-<div class="row row-striped inspect-row d-none">
-    <div class="col-12">
-        <div class="row">
-            <div class="col-12 col-sm-4">
-                <strong>Pre-processed output</strong>
-            </div>
-            <div class="col-12 col-sm-8">
-                <span class="inspect-content preproc"></span>
-            </div>
-        </div>
-    </div>
+<div class="text-center">
+    <div class="btn-group">
+        <a href="{{ url_for('inspect.inspect_index') }}" 
+            class="btn btn-outline-primary {{ 'active' if page_name == 'inspect_details' else '' }}">Details</a>
 
-    <div class="col-12">
-        <div class="row">
-            <div class="col-12 col-sm-4">
-                <strong>Post-processed output</strong>
-            </div>
-            <div class="col-12 col-sm-8">
-                <span class="inspect-content postproc"></span>
-            </div>
-        </div>
-    </div>
+        <a href="{{ url_for('inspect.inspect_compare') }}"
+            class="btn btn-outline-primary {{ 'active' if page_name == 'inspect_compare' else '' }}">Compare</a>
 
-    <div class="col-12">
-        <div class="row">
-            <div class="col-12 col-sm-4">
-                <strong>N-Best</strong>
-            </div>
-
-            <div class="col-12 col-sm-8">
-                <span class="inspect-content nbest"></span>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12">
-        <div class="row">
-            <div class="col-12 col-sm-4">
-                <strong>Alignments</strong>
-            </div>
-
-            <div class="col-12 col-sm-8">
-                <span class="inspect-content alignments"></span>
-            </div>
-        </div>
+        <a href="{{ url_for('inspect.inspect_access') }}"
+            class="btn btn-outline-primary {{ 'active' if page_name == 'inspect_access' else '' }}">Access</a>
     </div>
 </div>
+
+{% block inspect_content %}
+
+{% endblock %}
 {% endif %}
 {% endblock %}

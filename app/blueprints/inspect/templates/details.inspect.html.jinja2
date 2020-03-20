@@ -1,0 +1,59 @@
+{% extends "inspect.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/translate.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/inspect/details.inspect.js') }}"></script>
+{% endblock %}
+
+{% block inspect_block %}
+<div class="row row-striped inspect-row d-none">
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Pre-processed output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content preproc"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Post-processed output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content postproc"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>N-Best</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content nbest"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Alignments</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content alignments"></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
