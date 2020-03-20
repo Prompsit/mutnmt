@@ -62,7 +62,7 @@
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link  {{ 'active' if page_name == 'inspect' else '' }}" href="{{ url_for('inspect.inspect_index') }}">
+                                <a class="nav-link  {{ 'active' if page_name.startswith('inspect') else '' }}" href="{{ url_for('inspect.inspect_index') }}">
                                     <i class="fas fa-search mr-2"></i>
                                     Inspect
                                 </a>

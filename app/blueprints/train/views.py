@@ -1,7 +1,7 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
 from app.utils import user_utils
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from sqlalchemy import func
 from toolwrapper import ToolWrapper
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
@@ -153,7 +153,7 @@ def train_launch(id):
     handler.setLevel(logging.DEBUG)
     root.addHandler(handler)
 
-    slave = ToolWrapper(["python3", "-m", "joeynmt", "train", os.path.join(engine.path, "config.yaml")],
+    slave = ToolWrapper(["python3", "-m", "joeynmt", "train", os.path.join(engine.path, "config.yaml"), "--save_attention"],
                         cwd=app.config['JOEYNMT_FOLDER'])
 
     running_joey[user_utils.get_uid()] = slave
@@ -176,8 +176,12 @@ def train_console(id):
             engine=engine, config=config,
             launched = datetime.datetime.timestamp(engine.launched))
 
-@train_blueprint.route('/graph_data/<id>/<last>')
-def train_graph(id, last):
+@train_blueprint.route('/graph_data', methods=["POST"])
+def train_graph():
+    tag = request.form.get('tag')
+    id = request.form.get('id')
+    last = request.form.get('last')
+
     engine = Engine.query.filter_by(id = id).first()
     tensor_path = os.path.join(engine.path, "model/tensorboard")
     files = glob.glob(os.path.join(tensor_path, "*"))
@@ -193,14 +197,24 @@ def train_graph(id, last):
         tags = eacc.Tags()
 
         stats = {}
-        for scalar in tags.get('scalars'):
-            stats[scalar] = []
-            for data in eacc.Scalars(scalar)[last:250]:
-                stats[scalar].append({ "time": data.wall_time, "step": data.step, "value": data.value })
+        if tag in tags.get('scalars'):
+            stats[tag] = []
+            for data in eacc.Scalars(tag)[last:250]:
+                stats[tag].append({ "time": data.wall_time, "step": data.step, "value": data.value })
 
         return jsonify(stats)
     else:
-        return jsonify({})
+        return jsonify([])
+
+@train_blueprint.route('/attention/<id>')
+def train_attention(id):
+    engine = Engine.query.filter_by(id = id).first()
+    files = glob.glob(os.path.join(engine.path, "*.att"))
+    if len(files) > 0:
+        return send_file(files[0])
+    else:
+        return send_file(os.path.join(app.config['BASE_CONFIG_FOLDER'], "attention.png"))
+
 
 @train_blueprint.route('/stop/<id>')
 def train_stop(id):

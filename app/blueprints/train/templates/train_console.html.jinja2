@@ -76,7 +76,7 @@
                     <button class="btn btn-outline-secondary border-0 fullscreen-button"><i class="fas fa-expand"></i></button>
                     <button class="btn btn-outline-secondary border-0 fullscreen-close"><i class="fas fa-times"></i></button>
                 </h2>
-                <img class="img-fluid" alt="" src="https://placehold.it/256x200&text=Attention" />
+                <img class="img-fluid" alt="" src="{{ url_for('train.train_attention', id=engine.id) }}" />
             </div>
 
             <div class="col-6 chart-col">
