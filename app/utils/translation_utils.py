@@ -250,7 +250,7 @@ class TranslationUtils:
         filename, extension = os.path.splitext(file_path)
         self.sentences[str(user_id)] = [] if as_tmx else None
         
-        if extension in [".xml", ".html"]:
+        if extension in [".xml", ".html", ".tmx"]:
             self.translate_xml(user_id, file_path, extension[1:], as_tmx)
         elif extension == ".txt":
             self.translate_txt(user_id, file_path, as_tmx)
