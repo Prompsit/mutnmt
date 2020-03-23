@@ -43,6 +43,7 @@ def translate_leave():
 def upload_file():
     engine_id = request.form.get('engine_id')
     user_file = request.files.get('user_file')
+    as_tmx = request.form.get('as_tmx') == 'true'
     
     key = utils.normname(user_utils.get_uid(), user_file.filename)
     this_upload = user_utils.get_user_folder(key)
@@ -57,7 +58,7 @@ def upload_file():
     user_file.save(user_file_path)
 
     translators.launch(user_utils.get_uid(), engine_id)
-    translators.translate_file(user_utils.get_uid(), user_file_path)
+    translators.translate_file(user_utils.get_uid(), user_file_path, as_tmx)
 
     return url_for('translate.download_file', key=key)
 

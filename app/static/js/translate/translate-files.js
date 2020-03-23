@@ -12,7 +12,8 @@ $(document).ready(function() {
 
         let data = new FormData();
         data.append("user_file", dragged_file);
-        data.append("engine_id", $(".engine-select option:selected").val())
+        data.append("engine_id", $(".engine-select option:selected").val());
+        data.append("as_tmx", $("#as_tmx").val());
 
         $.ajax({
             url: $(this).attr("action"),
@@ -28,5 +29,10 @@ $(document).ready(function() {
         });
 
         return false;
-    })
+    });
+
+    $('.translate-btn').on('click', function() {
+        $("#as_tmx").val($(this).hasClass("translate-tmx-btn"));
+        $(this).closest('form').trigger('submit');
+    });
 })

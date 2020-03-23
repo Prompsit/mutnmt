@@ -5,6 +5,7 @@ from app.models import Engine
 from toolwrapper import ToolWrapper
 from lxml import etree
 from nltk.tokenize import sent_tokenize
+from sqlalchemy import inspect as sa_inspect
 # from bs4 import BeautifulSoup, Doctype
 
 import zipfile
@@ -31,10 +32,15 @@ class TranslationUtils:
             ".rtf": "docx"
         }
 
+        self.sentences = {}
+
     def launch(self, user_id, id, inspect = False):
         if user_utils.get_uid() in self.running_joey.keys():
             engine = self.running_joey[user_utils.get_uid()]['engine']
             if int(engine.id) == int(id):
+                if sa_inspect(engine).detached:
+                    self.running_joey[user_utils.get_uid()]['engine'] = Engine.query.filter_by(id = id).first()
+
                 return True
             
             self.running_joey[user_utils.get_uid()]['slave'].close()
@@ -107,40 +113,20 @@ class TranslationUtils:
         else:
             return extension
 
-    def translate_office(self, user_id, file_path):
-        filename, extension = os.path.splitext(file_path)
-        norm_extension = self.norm_extension(extension)
-
-        if norm_extension in self.format_mappings.keys():
-            extract_path = '{}-extract'.format(filename)
-            os.mkdir(extract_path)
-
-            with zipfile.ZipFile(file_path, 'r') as zip:
-                zip.extractall(extract_path)
-
-            os.remove(file_path)
-
-            for xml_file_path in [f for f in glob.glob(os.path.join(extract_path, "**/*.xml"), recursive=True)]:
-                if re.search(self.format_mappings[norm_extension], xml_file_path):
-                    self.translate_xml(user_id, xml_file_path)
-            
-            shutil.make_archive(filename, 'zip', extract_path, '.')
-            shutil.move('{}.zip'.format(filename), file_path)
-            shutil.rmtree(extract_path)
-
-    def translate_txt(self, user_id, file_path):
+    def translate_txt(self, user_id, file_path, as_tmx = False):
         translated_path = '{}.translated'.format(file_path)
-
         with open(file_path, 'r') as source:
             with open(translated_path, 'w+') as target:
                 for line in source:
                     if line.strip():
-                        print(self.get(user_id, line.strip()), file=target)
+                        translation = self.get(user_id, line.strip())
+                        if as_tmx: self.sentences[str(user_id)].append({ "source": line.strip(), "target": translation })
+                        print(translation, file=target)
         
         os.remove(file_path)
         shutil.move(translated_path, file_path)
 
-    def translate_xml(self, user_id, xml_path, mode = "xml"):
+    def translate_xml(self, user_id, xml_path, mode = "xml", as_tmx = False):
         """
         with open(xml_path, "r") as xml_file:
             def eat(node):
@@ -162,7 +148,9 @@ class TranslationUtils:
 
         def explore_node(node):
             if node.text and node.text.strip():
-                node.text = self.get(user_id, node.text)
+                translation = self.get(user_id, node.text)
+                if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": translation })
+                node.text = translation
             for child in node:
                 explore_node(child)
         
@@ -173,7 +161,28 @@ class TranslationUtils:
 
         tree.write(xml_path, encoding="UTF-8", xml_declaration=(mode == "xml"))
 
-    def translate_bridge(self, user_id, file_path, original_extension):
+    def translate_office(self, user_id, file_path, as_tmx = False):
+        filename, extension = os.path.splitext(file_path)
+        norm_extension = self.norm_extension(extension)
+
+        if norm_extension in self.format_mappings.keys():
+            extract_path = '{}-extract'.format(filename)
+            os.mkdir(extract_path)
+
+            with zipfile.ZipFile(file_path, 'r') as zip:
+                zip.extractall(extract_path)
+
+            os.remove(file_path)
+
+            for xml_file_path in [f for f in glob.glob(os.path.join(extract_path, "**/*.xml"), recursive=True)]:
+                if re.search(self.format_mappings[norm_extension], xml_file_path):
+                    self.translate_xml(user_id, xml_file_path, "xml", as_tmx)
+            
+            shutil.make_archive(filename, 'zip', extract_path, '.')
+            shutil.move('{}.zip'.format(filename), file_path)
+            shutil.rmtree(extract_path)
+
+    def translate_bridge(self, user_id, file_path, original_extension, as_tmx = False):
         filename, extension = os.path.splitext(file_path)
         dest_path = filename + "." + self.format_filters[original_extension]
 
@@ -182,7 +191,7 @@ class TranslationUtils:
                         stdout=subprocess.PIPE) 
         convert.wait()
 
-        self.translate_office(user_id, dest_path)
+        self.translate_office(user_id, dest_path, as_tmx)
 
         convert = subprocess.Popen("soffice --convert-to {} {} --outdir {}".format(original_extension[1:], dest_path,
                                 os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], stdout=subprocess.PIPE)
@@ -190,24 +199,11 @@ class TranslationUtils:
 
         os.remove(dest_path)
 
-    def translate_file(self, user_id, file_path):
-        filename, extension = os.path.splitext(file_path)
-
-        if extension in [".xml", ".html"]:
-            self.translate_xml(user_id, file_path, extension[1:])
-        elif extension == ".txt":
-            self.translate_txt(user_id, file_path)
-        elif extension in [".rtf", ".pdf"]:
-            self.translate_bridge(user_id, file_path, extension)
-        else:
-            self.translate_office(user_id, file_path)
-
-    def generate_tmx(self, user_id, text):
-        engine = self.running_joey[user_utils.get_uid()]['engine']
+    def tmx_builder(self, user_id, sentences):
+        engine = self.running_joey[user_id]['engine']
         source_lang = engine.source.code
         target_lang = engine.target.code
 
-        sentences = sent_tokenize(text)
         with open(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'base.tmx'), 'r') as tmx_file:
             tmx = etree.parse(tmx_file, etree.XMLParser())
             body = tmx.getroot().find("body")
@@ -216,11 +212,11 @@ class TranslationUtils:
 
                 tuv_source = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): source_lang })
                 seg_source = etree.Element("seg")
-                seg_source.text = sentence
+                seg_source.text = sentence.get('source')
                 
                 tuv_target = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): target_lang })
                 seg_target = etree.Element("seg")
-                seg_target.text = self.get(user_id, sentence)
+                seg_target.text = sentence.get('target')
 
                 tuv_source.append(seg_source)
                 tuv_target.append(seg_target)
@@ -233,3 +229,35 @@ class TranslationUtils:
         tmx_path = os.path.join('/tmp', '{}.tmx'.format(user_id))
         tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True, pretty_print=True)
         return tmx_path
+
+    def generate_tmx(self, user_id, text):
+        sentences_raw = sent_tokenize(text)
+        sentences = []
+        for sentence in sentences_raw:
+            sentences.append({ "source": sentence, "target": self.get(user_id, sentence) })
+        return self.tmx_builder(user_id, sentences)
+
+    def translate_file(self, user_id, file_path, as_tmx = False):
+        filename, extension = os.path.splitext(file_path)
+        self.sentences[str(user_id)] = [] if as_tmx else None
+        
+        if extension in [".xml", ".html"]:
+            self.translate_xml(user_id, file_path, extension[1:], as_tmx)
+        elif extension == ".txt":
+            self.translate_txt(user_id, file_path, as_tmx)
+        elif extension in [".rtf", ".pdf"]:
+            self.translate_bridge(user_id, file_path, extension, as_tmx)
+        else:
+            self.translate_office(user_id, file_path, as_tmx)
+
+        if as_tmx:
+            tmx_path = self.tmx_builder(user_id, self.sentences[str(user_id)])
+
+            bundle_path = '{}-tmx-bundle'.format(filename)
+            os.mkdir(bundle_path)
+
+            basename = os.path.basename(filename)
+            shutil.move(tmx_path, os.path.join(bundle_path, '{}.tmx'.format(basename)))
+            shutil.move(file_path, os.path.join(bundle_path, '{}{}'.format(basename, extension)))
+            shutil.make_archive(filename, 'zip', bundle_path, '.')
+            shutil.rmtree(bundle_path)

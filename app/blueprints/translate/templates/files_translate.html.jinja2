@@ -8,6 +8,7 @@
 
 {% block translate_content %}
 <form action="{{ url_for('translate.upload_file') }}" method="post" enctype="multipart/form-data" class="translate-file-form translate-form" data-status="none">
+    <input type=hidden id="as_tmx" value="false" />
     <div class="row mt-4">
         <div class="col-12 col-sm-6">
             <h2 class="h5">Translate a document</h2>
@@ -24,7 +25,16 @@
                 </select>
 
                 <div class="text-right">
-                    <input type="submit" class="btn btn-primary translate-btn" value="Translate" />
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary translate-btn">Translate</button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item translate-btn" href="#">Translate file</a>
+                            <a class="dropdown-item translate-btn translate-tmx-btn" href="#">Translate file and generate TMX</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
