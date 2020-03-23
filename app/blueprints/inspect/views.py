@@ -35,7 +35,8 @@ def translate_attach(id):
     else:
         return "-1"
 
-@inspect_blueprint.route('/get/<text>')
-def inspect_get(text):
+@inspect_blueprint.route('/get', methods=["POST"])
+def inspect_get():
+    text = request.form.get('text')
     translation = translators.get_inspect(user_utils.get_uid(), text)
     return jsonify(translation) if translation else "-1"

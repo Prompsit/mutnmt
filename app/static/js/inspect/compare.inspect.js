@@ -4,25 +4,24 @@ $(document).ready(function() {
     });
 
     let onsubmit = (e) => {
-        $('.inspect-row').addClass("d-none");
-        $('.inspect-content').html("");
+        $(".inspect-compare-content").addClass("d-none");
+
+        $('.user-engine-target').html("");
+        $('.engine-target').html("");
+
+        let text = $('.translate-text').val();
 
         if ($('.translate-form').attr('data-status') == 'ready') {
             $.ajax({
                 url: `get`,
-                data: { "text": $('.translate-text').val() },
+                data: { "text": text},
                 method: "post"
             }).done(function(inspection) {
-                $('.preproc').html(inspection['preproc'])
-                $('.postproc').html(inspection['postproc'])
-                for (sentence of inspection.nbest) {
-                    let p = document.createElement("p")
-                    $(p).html(sentence)
-                    $(p).addClass("mb-1");
-                    $(".nbest").append(p)
-                }
-
-                $(".inspect-row").removeClass("d-none");
+                let translation = inspection['postproc']
+                $('.user-engine-target').html(translation);
+                $('.google-link').attr('href', `https://translate.google.com/#view=home&op=translate&sl=${inspection['source']}&tl=${inspection['target']}&text=${text}`)
+                $('.deepl-link').attr('href', `https://www.deepl.com/translator#${inspection['source']}/${inspection['target']}/${text}`)
+                $(".inspect-compare-content").removeClass("d-none");
             });
         } else {
             $('.translate-form').attr('data-status', 'launching');

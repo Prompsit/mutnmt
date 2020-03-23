@@ -5,41 +5,49 @@
 {% endblock %}
 
 {% block resources %}
-<script src="{{ url_for('static', filename='js/inspect.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inspect/compare.inspect.js') }}"></script>
 {% endblock %}
 
 {% block inspect_content %}
-<div class="row mt-3">
-    <div class="col-12 col-sm-4">
-        <strong>Your engine</strong>
-    </div>
-    <div class="col-12 col-sm-8">
-        <span class="user-engine-target"></span>
-    </div>
-</div>
-
-<hr />
-
-<div class="row mt-3">
-    <div class="col-12 col-sm-4">
-        <strong>Google</strong>
-    </div>
-    <div class="col-12 col-sm-8 p-3">
-        <span class="user-engine-target"></span>
+<div class="inspect-compare-content d-none">
+    <div class="row mt-5">
+        <div class="col-12 col-sm-3">
+            <strong>Your engine</strong>
+        </div>
+        <div class="col-12 col-sm-8">
+            <span class="user-engine-target"></span>
+        </div>
     </div>
 
-    <div class="col-12 col-sm-4">
-        <strong>Bing</strong>
-    </div>
-    <div class="col-12 col-sm-8 p-3">
-        <span class="user-engine-target"></span>
-    </div>
+    <hr />
 
-    <div class="col-12 col-sm-4">
-        <strong>DeepL</strong>
+    <div class="row mt-3">
+        <div class="col-12 col-sm-3">
+            <strong>Bing</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <span class="engine-target bing-target"></span>
+        </div>
     </div>
-    <div class="col-12 col-sm-8 p-3">
-        <span class="user-engine-target"></span>
+    <div class="row mt-1">
+        <div class="col-12 col-sm-3">
+            <strong>Google</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <a href="#" target="_blank" class="google-link">
+                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
+            </a>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-12 col-sm-3">
+            <strong>DeepL</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <a href="#" target="_blank" class="deepl-link">
+                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

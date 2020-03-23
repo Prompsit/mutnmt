@@ -34,16 +34,20 @@ class TranslationUtils:
 
         self.sentences = {}
 
-    def launch(self, user_id, id, inspect = False):
-        if user_utils.get_uid() in self.running_joey.keys():
-            engine = self.running_joey[user_utils.get_uid()]['engine']
+    def load_engine(self, user_id, id):
+        if user_id in self.running_joey.keys():
+            engine = self.running_joey[user_id]['engine']
             if int(engine.id) == int(id):
                 if sa_inspect(engine).detached:
-                    self.running_joey[user_utils.get_uid()]['engine'] = Engine.query.filter_by(id = id).first()
+                    self.running_joey[user_id]['engine'] = Engine.query.filter_by(id = id).first()
 
                 return True
             
-            self.running_joey[user_utils.get_uid()]['slave'].close()
+            self.running_joey[user_id]['slave'].close()
+
+
+    def launch(self, user_id, id, inspect = False):
+        self.load_engine(user_id, id)
 
         engine = Engine.query.filter_by(id = id).first()
         joey_params = ["python3", "-m", "joeynmt", "translate", os.path.join(engine.path, "config.yaml"), "-sm"]
@@ -78,7 +82,10 @@ class TranslationUtils:
 
     def get_inspect(self, user_id, text):
         if user_utils.get_uid() in self.running_joey.keys():
+            self.load_engine(user_id, self.running_joey[user_utils.get_uid()]['engine'].id)
             user_context = self.running_joey[user_utils.get_uid()]
+            engine = user_context['engine']
+
             if not user_context['tokenizer'].loaded:
                 user_context['tokenizer'].load()
 
@@ -92,6 +99,8 @@ class TranslationUtils:
                 translation = joey.readline()
 
             return {
+                "source": user_context['engine'].source.code,
+                "target": user_context['engine'].target.code,
                 "preproc": n_best[0], 
                 "nbest": [user_context['tokenizer'].detokenize(s) for s in n_best],
                 "alignments": [],

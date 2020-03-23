@@ -14,7 +14,7 @@
     </div>
 </div>
 {% else %}
-<form action="{{ url_for('evaluate.evaluate_perform') }}" method="post" class="translate-form" data-status="false">
+<form action="{{ url_for('inspect.inspect_get') }}" method="post" class="translate-form" data-status="false">
     <textarea class="form-control translate-text" style="min-height: 50px;" name="translate_text">My father bought a bike yesterday for me</textarea>
     <div class="d-flex align-items-center mt-2">
         <select class="custom-select mr-1 engine-select" name="engine_id">
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="engine-status-container mt-3">
+    <div class="engine-status-container my-3">
         <div class="alert alert-warning engine-launching mb-0" role="alert">
             <i class="fas fa-circle-notch fa-spin"></i> Launching engine...
         </div>
