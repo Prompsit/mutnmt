@@ -129,36 +129,17 @@ class TranslationUtils:
                 for line in source:
                     if line.strip():
                         translation = self.get(user_id, line.strip())
-                        if as_tmx: self.sentences[str(user_id)].append({ "source": line.strip(), "target": translation })
+                        if as_tmx: self.sentences[str(user_id)].append({ "source": line.strip(), "target": [translation] })
                         print(translation, file=target)
         
         os.remove(file_path)
         shutil.move(translated_path, file_path)
 
     def translate_xml(self, user_id, xml_path, mode = "xml", as_tmx = False):
-        """
-        with open(xml_path, "r") as xml_file:
-            def eat(node):
-                text = node.find(text=True, recursive=False)
-                if text and text.strip() and not isinstance(text, Doctype):
-                    node.find(text=True, recursive=False).replace_with(self.get(user_id, text.string.upper()))
-
-                for child in node.findChildren(recursive=False):
-                    eat(child)
-
-            soup = BeautifulSoup(xml_file, 'lxml')
-            eat(soup)
-            
-        os.remove(xml_path)
-
-        with open(xml_path, "w+") as xml_file:
-            print(soup, file=sys.stderr)
-            xml_file.write(soup.prettify())"""
-
         def explore_node(node):
             if node.text and node.text.strip():
                 translation = self.get(user_id, node.text)
-                if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": translation })
+                if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": [translation] })
                 node.text = translation
             for child in node:
                 explore_node(child)
@@ -169,6 +150,29 @@ class TranslationUtils:
             explore_node(tree.getroot())
 
         tree.write(xml_path, encoding="UTF-8", xml_declaration=(mode == "xml"))
+
+    def translate_tmx(self, user_id, tmx_path, tmx_mode):
+        sentences = []
+
+        with open(tmx_path, 'r') as xml_file:
+            tmx = etree.parse(xml_file, etree.XMLParser())
+            body = tmx.getroot().find("body")
+            for tu in body:
+                sentence = None
+
+                for i, tuv in enumerate(tu):
+                    text = tuv.find("seg").text
+                    if i == 0:
+                        sentence = { "source": text, "target": [] }
+                    else:
+                        if tmx_mode == "create":
+                            sentence.get('target').append(text)
+                        sentence.get('target').append(self.get(user_id, text))
+
+                sentences.append(sentence)
+            
+        tmx_path_translated = self.tmx_builder(user_id, sentences)
+        shutil.move(tmx_path_translated, tmx_path)
 
     def translate_office(self, user_id, file_path, as_tmx = False):
         filename, extension = os.path.splitext(file_path)
@@ -222,16 +226,15 @@ class TranslationUtils:
                 tuv_source = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): source_lang })
                 seg_source = etree.Element("seg")
                 seg_source.text = sentence.get('source')
-                
-                tuv_target = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): target_lang })
-                seg_target = etree.Element("seg")
-                seg_target.text = sentence.get('target')
-
                 tuv_source.append(seg_source)
-                tuv_target.append(seg_target)
-
                 tu.append(tuv_source)
-                tu.append(tuv_target)
+
+                for target_sentence in sentence.get('target'):
+                    tuv_target = etree.Element("tuv", { etree.QName("http://www.w3.org/XML/1998/namespace", "lang"): target_lang })
+                    seg_target = etree.Element("seg")
+                    seg_target.text = target_sentence
+                    tuv_target.append(seg_target)
+                    tu.append(tuv_target)
 
                 body.append(tu)
 
@@ -243,15 +246,17 @@ class TranslationUtils:
         sentences_raw = sent_tokenize(text)
         sentences = []
         for sentence in sentences_raw:
-            sentences.append({ "source": sentence, "target": self.get(user_id, sentence) })
+            sentences.append({ "source": sentence, "target": [self.get(user_id, sentence)] })
         return self.tmx_builder(user_id, sentences)
 
-    def translate_file(self, user_id, file_path, as_tmx = False):
+    def translate_file(self, user_id, file_path, as_tmx = False, tmx_mode = None):
         filename, extension = os.path.splitext(file_path)
         self.sentences[str(user_id)] = [] if as_tmx else None
         
-        if extension in [".xml", ".html", ".tmx"]:
+        if extension in [".xml", ".html"]:
             self.translate_xml(user_id, file_path, extension[1:], as_tmx)
+        elif extension == ".tmx":
+            self.translate_tmx(user_id, file_path, tmx_mode)
         elif extension == ".txt":
             self.translate_txt(user_id, file_path, as_tmx)
         elif extension in [".rtf", ".pdf"]:

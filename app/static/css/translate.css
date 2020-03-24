@@ -13,3 +13,8 @@
 .translate-form[data-status="error"] .engine-status-container .engine-error {
     display: block;
 }
+
+.tmx-mode-select-content {
+    position: relative;
+    top: -12px;  
+}

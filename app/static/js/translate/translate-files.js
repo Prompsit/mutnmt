@@ -2,6 +2,14 @@ $(document).ready(function() {
     let dragged_file = null;
     FileDnD(".file-dnd", function(file) {
         dragged_file = file;
+
+        let re = /(?:\.([^.]+))?$/;
+        let extension = re.exec(file.name)[1];
+        if (extension == "tmx") {
+            $(".tmx-mode-select").removeClass("d-none");
+        } else {
+            $(".tmx-mode-select").addClass("d-none");
+        }
     });
 
     $(".translate-file-form").on("submit", function(e) {
@@ -14,6 +22,7 @@ $(document).ready(function() {
         data.append("user_file", dragged_file);
         data.append("engine_id", $(".engine-select option:selected").val());
         data.append("as_tmx", $("#as_tmx").val());
+        data.append("tmx_mode", $(".tmx-mode-select .form-check-input:checked").val())
 
         $.ajax({
             url: $(this).attr("action"),
