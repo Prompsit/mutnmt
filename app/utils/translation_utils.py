@@ -235,7 +235,7 @@ class TranslationUtils:
 
                 body.append(tu)
 
-        tmx_path = os.path.join('/tmp', '{}.tmx'.format(user_id))
+        tmx_path = os.path.join('/tmp', '{}.{}-{}.tmx'.format(user_id, engine.source.code, engine.target.code))
         tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True, pretty_print=True)
         return tmx_path
 
@@ -259,12 +259,18 @@ class TranslationUtils:
         else:
             self.translate_office(user_id, file_path, as_tmx)
 
+        engine = self.running_joey[user_id]['engine']
+        file_path_translated = '{}.{}-{}{}'.format(filename, engine.source.code, engine.target.code, extension)
+        shutil.move(file_path, file_path_translated)
+        file_path = file_path_translated
+
         if as_tmx:
             tmx_path = self.tmx_builder(user_id, self.sentences[str(user_id)])
 
             bundle_path = '{}-tmx-bundle'.format(filename)
             os.mkdir(bundle_path)
 
+            filename, extension = os.path.splitext(file_path)
             basename = os.path.basename(filename)
             shutil.move(tmx_path, os.path.join(bundle_path, '{}.tmx'.format(basename)))
             shutil.move(file_path, os.path.join(bundle_path, '{}{}'.format(basename, extension)))
