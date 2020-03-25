@@ -1,0 +1,68 @@
+/* Datatables */
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td:first-child::before, table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > th:first-child::before {
+  content: '▼';
+  width: 20px;
+  height: 100%;
+  border: 0;
+  border-radius: 0px;
+  font-size: 15px;
+  line-height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+  color: #333339;
+  position: absolute;
+  top: 0px;
+}
+
+table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"].parent > td:first-child::before, table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"].parent > th:first-child::before {
+  content: "▲";
+}
+
+table.dataTable .child ul a {
+  margin-right: 0.5em;
+}
+
+table.dataTable .child ul {
+  width: 100%;
+}
+
+table.dataTable > tbody > tr.child span.dtr-title {
+  display: block;
+}
+
+table.dataTable .actions {
+  text-align: center;
+  line-height: 1.3em;
+}
+
+table.dataTable .actions .glyphicon {
+  font-size: 1.3em;
+}
+
+table.dataTable .actions .dropdown-menu .glyphicon {
+  margin-right: 0.3em;
+}
+
+table.dataTable .actions .btn-link {
+  padding: 0;
+}
+
+table.dataTable .actions li a {
+  display: flex;
+  align-items: center;
+}
+
+table.dataTable td:not(.actions) {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table.dataTable td.multiline:not(.actions) {
+  white-space: normal;
+}
+

@@ -49,12 +49,14 @@
                                     Library
                                 </a>
                             </li>
+                            {% if not is_normal() %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name == 'train' else '' }}" href="{{ url_for('train.train_index') }}">
                                     <i class="fas fa-running mr-2"></i>
                                     Train
                                 </a>
                             </li>
+                            {% endif %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name.startswith('translate') else '' }}" href="{{ url_for('translate.translate_index') }}">
                                     <i class="fas fa-globe-europe mr-2"></i>
@@ -73,6 +75,14 @@
                                     Evaluate
                                 </a>
                             </li>
+                            {% if is_admin() %}
+                            <li class="nav-item">
+                                <a class="nav-link {{ 'active' if page_name.startswith('admin') else '' }}" href="{{ url_for('admin.admin_index') }}">
+                                    <i class="fas fa-user-tie mr-2"></i>
+                                    Admin
+                                </a>
+                            </li>
+                            {% endif %}
                         </ul>
 
                         <hr />

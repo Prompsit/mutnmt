@@ -7,7 +7,11 @@ from .models import User
 app.jinja_env.globals.update(**{
     "get_locale": lang_utils.get_locale,
     "user_login_enabled": user_utils.isUserLoginEnabled(),
-    "get_user": user_utils.get_user
+    "get_user": user_utils.get_user,
+    "is_admin": user_utils.is_admin,
+    "is_expert": user_utils.is_expert,
+    "is_normal": user_utils.is_normal,
+    "get_uid": user_utils.get_uid
 })
 
 @app.route('/')

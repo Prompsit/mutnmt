@@ -82,21 +82,6 @@ def library_ungrab(type, id):
 @library_blueprint.route('/delete/<type>/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def library_delete(type, id):
-    if type == "library_corpora":
-        corpus = Corpus.query.filter_by(id = id).first()
-
-        for file in corpus.files:
-            os.remove(file.path)
-            db.session.delete(file)
-
-        db.session.delete(corpus)
-        db.session.commit()
-    else:
-        library = LibraryEngine.query.filter_by(engine_id = id, user_id = user_utils.get_uid()).first()
-        shutil.rmtree(library.engine.path)
-        
-        db.session.delete(library.engine)
-        db.session.delete(library)
-        db.session.commit()
+    user_utils.library_delete(type, id)
 
     return redirect(request.referrer)

@@ -1,7 +1,8 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
-from app.utils import user_utils
+from app.utils import user_utils, utils
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
+from flask_login import login_required
 from sqlalchemy import func
 from toolwrapper import ToolWrapper
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
@@ -23,7 +24,10 @@ train_blueprint = Blueprint('train', __name__, template_folder='templates')
 running_joey = {}
 
 @train_blueprint.route('/')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_index():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     currently_training = Engine.query.filter_by(uploader_id = user_utils.get_uid()) \
                             .filter(Engine.status.like("training")).all()
     
@@ -46,7 +50,10 @@ def train_index():
     return render_template('train.html.jinja2', page_name='train', corpora=corpora, random_name=random_name)
 
 @train_blueprint.route('/start', methods=['POST'])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_start():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     uengines_path = user_utils.get_user_folder("engines")
     blake = hashlib.blake2b()
     blake.update('{}{}'.format(user_utils.get_user().username, request.form['nameText']).encode("utf-8"))
@@ -143,7 +150,10 @@ def train_start():
     return redirect(url_for('train.train_launch', id=engine.id))
 
 @train_blueprint.route('/launch/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_launch(id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     engine = Engine.query.filter_by(id=id).first()
     
     root = logging.getLogger()
@@ -161,7 +171,10 @@ def train_launch(id):
     return redirect(url_for('train.train_console', id=id))
 
 @train_blueprint.route('/console/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_console(id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+    
     engine = Engine.query.filter_by(id = id).first()
     config_file_path = os.path.join(engine.path, 'config.yaml')
     config = None
@@ -177,7 +190,10 @@ def train_console(id):
             launched = datetime.datetime.timestamp(engine.launched))
 
 @train_blueprint.route('/graph_data', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_graph():
+    if user_utils.is_normal(): return jsonify([])
+
     tag = request.form.get('tag')
     id = request.form.get('id')
     last = request.form.get('last')
@@ -207,7 +223,10 @@ def train_graph():
         return jsonify([])
 
 @train_blueprint.route('/attention/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_attention(id):
+    if user_utils.is_normal(): return send_file(os.path.join(app.config['BASE_CONFIG_FOLDER'], "attention.png"))
+
     engine = Engine.query.filter_by(id = id).first()
     files = glob.glob(os.path.join(engine.path, "*.att"))
     if len(files) > 0:
@@ -217,7 +236,10 @@ def train_attention(id):
 
 
 @train_blueprint.route('/stop/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_stop(id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+    
     if user_utils.get_uid() in running_joey.keys():
         running_joey[user_utils.get_uid()].close()
         del running_joey[user_utils.get_uid()]
