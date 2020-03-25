@@ -13,6 +13,8 @@ $(document).ready(function() {
                 targets: 3,
                 responsivePriority: 1,
                 className: "actions",
+                searchable: false,
+                sortable: false,
                 render: function(data, type, row) {
                     if ($("#current_user").val() != row[0]) {
                         let template = document.importNode(document.querySelector("#users-table-actions-template").content, true);
