@@ -10,7 +10,7 @@ $(document).ready(function() {
         columnDefs: [
             { targets: 0, responsivePriority: 1 },
             { 
-                targets: 3,
+                targets: 4,
                 responsivePriority: 1,
                 className: "actions",
                 searchable: false,
@@ -25,9 +25,9 @@ $(document).ready(function() {
                         $(".become-expert").attr("href", "become/expert/" + row[0]);
                         $(".become-normal").attr("href", "become/normal/" + row[0]);
 
-                        if (row[4]) { // is admin
+                        if (row[5]) { // is admin
                             $(".become-admin").addClass("d-none");
-                        } else if (row[5]) { // is expert
+                        } else if (row[6]) { // is expert
                             $(".become-expert").addClass("d-none");
                         } else {
                             $(".become-normal").addClass("d-none");

@@ -1,10 +1,8 @@
 from app.models import User, Corpus
-from app.utils import user_utils, utils
+from app.utils import user_utils, utils, datatables
 from app import db
 from flask import Blueprint, render_template, request, jsonify, redirect
-from sqlalchemy.orm import load_only
 from flask_login import login_required
-from sqlalchemy import desc, asc, or_
 
 import shutil
 
@@ -18,39 +16,18 @@ def admin_index():
 @admin_blueprint.route('/users_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def user_datatables_feed():
-    draw = request.form.get('draw')
-    start = request.form.get('start')
-    length = request.form.get('length')
-    order = int(request.form.get('order[0][column]'))
-    dir = request.form.get('order[0][dir]')
-    search = request.form.get('search[value]')
-    
     columns = [User.id, User.username, User.email]
-    
-    users = User.query.options(load_only(*columns)) \
-                .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
-                .limit(length).offset(start) \
-                .all()
-    
-    users_filtered = None
-    if search:
-        users_filtered = User.query.options(load_only(*columns)) \
-                            .filter(or_(*[c.ilike('%{}%'.format(search)) for c in columns])) \
-                            .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
-                            .limit(length).offset(start) \
-                            .all()
+    dt = datatables.Datatables()
 
+    rows, rows_filtered, search = dt.parse(User, columns, request)
 
     user_data = []
-    for user in (users_filtered if search else users):
-        user_data.append([user.id, user.username, user.email, "", user.admin, user.expert])
+    for user in (rows_filtered if search else rows):
+        user_data.append([user.id, user.username, user.email,
+                        "Admin" if user.admin else "Expert" if user.expert else "Normal", 
+                        "", user.admin, user.expert])
 
-    return jsonify({
-        "draw": int(draw) + 1,
-        "recordsTotal": len(users),
-        "recordsFiltered": len(users_filtered) if search else len(users),
-        "data": user_data
-    })
+    return dt.response(rows, rows_filtered, user_data)
 
 @admin_blueprint.route('/delete_user')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
