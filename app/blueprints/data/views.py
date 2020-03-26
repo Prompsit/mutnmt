@@ -20,7 +20,10 @@ import sentencepiece as spm
 data_blueprint = Blueprint('data', __name__, template_folder='templates')
 
 @data_blueprint.route('/')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_index():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
 
     print(corpora, file=sys.stderr)
@@ -30,12 +33,16 @@ def data_index():
 @data_blueprint.route('/upload/<type>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload(type):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     languages = Language.query.all()
     return render_template('upload.data.html.jinja2', page_name='data', type=type, languages=languages)
 
 @data_blueprint.route('/upload/<type>/perform', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload_perform(type):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     if request.method == 'POST':
         # Data folder
         source_file = request.files.get('source_file')

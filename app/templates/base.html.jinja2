@@ -37,12 +37,14 @@
                         </div>
 
                         <ul class="nav nav-pills flex-column mt-3">
+                            {% if not is_normal() %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name == 'data' else '' }}" href="{{ url_for('data.data_index') }}">
                                     <i class="fas fa-database mr-2"></i>
                                     Data
                                 </a>
                             </li>
+                            {% endif %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name.startswith('library') else '' }}" href="{{ url_for('library.library_index') }}">
                                     <i class="fas fa-folder-open mr-2"></i>

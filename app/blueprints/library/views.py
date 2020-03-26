@@ -2,7 +2,7 @@ from app import app, db
 from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus
 from app.utils import user_utils, utils
 from flask_login import login_required
-
+from sqlalchemy import and_
 from flask import Blueprint, render_template, redirect, url_for, request
 
 import os
@@ -16,7 +16,7 @@ library_blueprint = Blueprint('library', __name__, template_folder='templates')
 @library_blueprint.route('/corpora')
 def library_index():
     user_library = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-    public_files = Corpus.query.filter_by(public = True)
+    public_files = Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid()))
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', 
             user_library = user_library, public_files = public_files)
