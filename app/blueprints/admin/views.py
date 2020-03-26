@@ -5,6 +5,8 @@ from flask import Blueprint, render_template, request, jsonify, redirect
 from flask_login import login_required
 
 import shutil
+import psutil
+import nvidia_smi
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 
@@ -12,6 +14,26 @@ admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_index():
     return render_template('users.admin.html.jinja2', page_name='admin_users')
+
+@admin_blueprint.route('/system')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def admin_system():
+    factor = 1073741824
+    vmem = psutil.virtual_memory()
+    ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) }
+
+    gpus = []
+    nvidia_smi.nvmlInit()
+    for i in range(0, nvidia_smi.nvmlDeviceGetCount()):
+        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
+        resources = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+        gpus.append({ "id": i, 
+                        "memory": resources.memory,
+                        "proc": resources.gpu
+                    })
+
+    return render_template('system.admin.html.jinja2', page_name='admin_system', 
+                            ram=ram, cpu=round(psutil.cpu_percent(), 2), gpus=gpus)
 
 @admin_blueprint.route('/users_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

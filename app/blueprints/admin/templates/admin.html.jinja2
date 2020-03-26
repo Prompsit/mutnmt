@@ -6,7 +6,8 @@
 <div class="btn-group mb-3">
     <a href="{{ url_for('admin.admin_index') }}" 
         class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_users' else '' }}">Users</a>
-
+    <a href="{{ url_for('admin.admin_system') }}"
+        class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_system' else '' }}">System</a>
     <a href=""
         class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_running' else '' }}">Running instances</a>
 </div>
