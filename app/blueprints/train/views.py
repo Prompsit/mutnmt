@@ -227,6 +227,40 @@ def train_graph():
     else:
         return jsonify({ "stats": [], "stopped": False })
 
+@train_blueprint.route('/train_status', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_status():
+    if user_utils.is_normal(): return jsonify([])
+
+    id = request.form.get('id')
+
+    engine = Engine.query.filter_by(id = id).first()
+    tensor_path = os.path.join(engine.path, "model/tensorboard")
+    files = glob.glob(os.path.join(tensor_path, "*"))
+    
+    if len(files) > 0:
+        log = files[0]
+
+        eacc = EventAccumulator(log)
+        eacc.Reload()
+
+        stats = {}
+        epoch_no = 0
+        for data in eacc.Scalars("train/epoch"):
+            if data.value > epoch_no:
+                epoch_no = data.value
+        stats["epoch"] = epoch_no
+
+        done = False
+        for data in eacc.Scalars("train/done"):
+            if data.value == 1:
+                done = True
+        stats["done"] = done
+
+        return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
+    else:
+        return jsonify({ "stats": [], "stopped": False })
+
 @train_blueprint.route('/attention/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_attention(id):

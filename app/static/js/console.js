@@ -45,6 +45,8 @@ $(document).ready(function() {
                     last: data_map[data_entry].last
                 },
                 success: function(data) {
+                    if (!data) return;
+                    
                     let { stats, stopped } = data
                     
                     if (updater && stopped) clearInterval(updater);
@@ -70,6 +72,23 @@ $(document).ready(function() {
                 }
             });
         }
+
+        $.ajax({
+            url: `../train_status`,
+            method: "post",
+            data: {
+                id: engine_id
+            },
+            success: function(data) {
+                if (data.stats && data.stats['done'] && data.stopped == false) {
+                    window.location.href = `../stop/${engine_id}`
+                }
+
+                if (data.stats && data.stats['epoch']) {
+                    $(".epoch-no").html(data.stats['epoch'])
+                }
+            }
+        });
     }
 
     load_data();

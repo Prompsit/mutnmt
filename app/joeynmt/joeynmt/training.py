@@ -287,6 +287,7 @@ class TrainManager:
 
         for epoch_no in range(self.epochs):
             self.logger.info("EPOCH %d", epoch_no + 1)
+            self.tb_writer.add_scalar("train/epoch", epoch_no + 1)
 
             if self.scheduler is not None and self.scheduler_step_at == "epoch":
                 self.scheduler.step(epoch=epoch_no)
@@ -480,6 +481,8 @@ class TrainManager:
                          '%8d: %6.2f %s.', self.best_ckpt_iteration,
                          self.best_ckpt_score,
                          self.early_stopping_metric)
+
+        self.tb_writer.add_scalar("train/done", 1)
 
         self.tb_writer.close()  # close Tensorboard writer
 
