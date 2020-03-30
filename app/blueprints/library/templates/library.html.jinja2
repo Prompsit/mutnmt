@@ -1,5 +1,9 @@
 {% extends "base.html.jinja2" %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}" />
+{% endblock %}
+
 {% block content %}
 
 <div class="btn-group mb-3">

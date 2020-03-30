@@ -40,6 +40,10 @@
                             </a>
                             {% endif %}
 
+                            <a href="{{ url_for('train.train_console', id = engine_entry.engine.id) }}" class="dropdown-item">
+                                <i class="fas fa-chart-bar"></i> See summary
+                            </a>
+
                             <a href="{{ url_for('library.library_delete', id = engine_entry.engine.id, type = page_name) }}" class="dropdown-item text-danger">
                                 <i class="fas fa-trash"></i> Delete
                             </a>

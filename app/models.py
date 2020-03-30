@@ -14,7 +14,7 @@ class Language(db.Model):
 class Resource(db.Model):
     __tablename__ = 'resource'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), unique=True)
+    name = db.Column(db.String(64))
     path = db.Column(db.String(250), unique=True)
     hash = db.Column(db.String(250))
     uploaded = db.Column(db.Date, default=datetime.datetime.utcnow)
@@ -41,6 +41,7 @@ class Engine(Resource):
     
     status = db.Column(db.String(64))
     launched = db.Column(db.DateTime)
+    finished = db.Column(db.DateTime)
 
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])
@@ -125,26 +126,26 @@ class User(UserMixin, db.Model):
     lang            = db.Column(db.String(32))
     avatar_url      = db.Column(db.String(250))
 
-    files = association_proxy("user_files", "files")
+    corpora = association_proxy("user_corpora", "corpora")
     engines = association_proxy("user_engines", "engines")
 
 class LibraryCorpora(db.Model):
     __tablename__ = 'library_corpora'
     id = db.Column(db.Integer, primary_key=True)
 
-    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
+    corpus_id = db.Column(db.Integer, db.ForeignKey('corpus.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    user = db.relationship(User, backref = db.backref("user_files", cascade="all, delete-orphan"))
-    file = db.relationship("File", backref = db.backref("libraries", cascade="all, delete-orphan"))
+    user = db.relationship(User, backref = db.backref("user_corpora", cascade="all, delete-orphan"))
+    corpus = db.relationship("Corpus", backref = db.backref("libraries", cascade="all, delete-orphan"))
 
     __table_args__ = (
-        db.UniqueConstraint('user_id', 'file_id'),
+        db.UniqueConstraint('user_id', 'corpus_id'),
     )
 
     def __init__(self, file=None, user=None):
         self.user = user
-        self.file = file
+        self.corpus = corpus
 
 class LibraryEngine(db.Model):
     __tablename__ = 'library_engines'

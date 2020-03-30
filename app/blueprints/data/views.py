@@ -1,6 +1,7 @@
 from app import app, db
 from app.models import File, Corpus, Corpus_File, LibraryCorpora, User, Language
 from app.utils import utils, user_utils
+from app.flash import Flash
 from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect
 from flask_login import login_required
 from random import randint
@@ -12,8 +13,8 @@ import subprocess
 import hashlib
 import re
 import datetime
-import sys
 import shutil
+import sys
 
 import sentencepiece as spm
 
@@ -25,8 +26,6 @@ def data_index():
     if user_utils.is_normal(): return redirect(url_for('index'))
 
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-
-    print(corpora, file=sys.stderr)
 
     return render_template('data.html.jinja2', page_name='data', corpora = corpora)
 
@@ -43,29 +42,39 @@ def data_upload(type):
 def data_upload_perform(type):
     if user_utils.is_normal(): return redirect(url_for('index'))
 
-    if request.method == 'POST':
-        # Data folder
-        source_file = request.files.get('source_file')
-        source_db_file = upload_file(source_file, request.form['source_lang'])
+    try:
+        if request.method == 'POST':
+            try:
+                # Data folder
+                source_file = request.files.get('source_file')
+                source_db_file = upload_file(source_file, request.form['source_lang'])
 
-        corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
-        corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
-        corpus.source_id = request.form['source_lang']
-        
-        if type == "bilingual":
-            target_file = request.files.get('target_file')
-            target_db_file = upload_file(target_file, request.form['target_lang'])
-            corpus.files.append(target_db_file)
-            corpus.target_id = request.form['target_lang']
+                corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
+                corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
+                corpus.source_id = request.form['source_lang']
+                
+                if type == "bilingual":
+                    target_file = request.files.get('target_file')
+                    target_db_file = upload_file(target_file, request.form['target_lang'])
+                    corpus.files.append(target_db_file)
+                    corpus.target_id = request.form['target_lang']
+            except Exception as e:
+                print(e, file=sys.stderr)
+                raise Exception("Database error")
 
-        tokenize(corpus)
-
-        db.session.add(corpus)
-        db.session.commit()
-
-        flash('Corpus uploaded successfully')
+            try:
+                tokenize(corpus)
+            except:
+                raise Exception("Tokenization error")
+            else:
+                db.session.add(corpus)
+                db.session.commit()
+        else:
+            raise Exception("Request not allowed")
+    except Exception as e:
+        Flash.issue(e, Flash.ERROR)
     else:
-        flash('Error while uploading corpus')
+        Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
 
     return redirect(url_for('data.data_index'))
 
@@ -112,8 +121,6 @@ def upload_file(file, language):
                         uploaded = datetime.datetime.utcnow())
     finally:
         if db_file is not None:
-            user = User.query.filter_by(id = user_utils.get_uid()).first()
-            user.user_files.append(LibraryCorpora(file=db_file, user=user))
             db.session.add(db_file)
             db.session.commit()
 
@@ -144,6 +151,7 @@ def tokenize(corpus):
 
         os.remove(vocab_path)
         shutil.move("{}.purged".format(vocab_path), vocab_path)
+
     for entry_file in corpus.corpus_files:
         file_tok_path = '{}.mut.spe'.format(entry_file.file.path)
 
