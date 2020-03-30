@@ -1,6 +1,6 @@
 from flask import render_template, url_for, redirect
 from flask_login import current_user
-from app import app, login_manager
+from app import app, login_manager, flash
 from app.utils import utils, user_utils, lang_utils
 from .models import User
 
@@ -11,7 +11,9 @@ app.jinja_env.globals.update(**{
     "is_admin": user_utils.is_admin,
     "is_expert": user_utils.is_expert,
     "is_normal": user_utils.is_normal,
-    "get_uid": user_utils.get_uid
+    "get_uid": user_utils.get_uid,
+    "int": int,
+    "Flash": flash.Flash
 })
 
 @app.route('/')

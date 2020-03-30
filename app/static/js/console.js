@@ -32,6 +32,7 @@ $(document).ready(function() {
         "valid/valid_score": { chart: undefined, last: 0},
     }
 
+    let updater = undefined;
     let load_data = () => {
         for (data_entry in data_map) {
             let _data_entry = data_entry; // closure
@@ -43,8 +44,11 @@ $(document).ready(function() {
                     id: engine_id,
                     last: data_map[data_entry].last
                 },
-                success: function(stats) {
-                    console.log(stats, Object.keys(stats), _data_entry, stats[data_entry])
+                success: function(data) {
+                    let { stats, stopped } = data
+                    
+                    if (updater && stopped) clearInterval(updater);
+                    
                     if (stats[_data_entry]) {
                         let { chart } = data_map[_data_entry];
                         for (let entry of stats[_data_entry]) {
@@ -68,8 +72,8 @@ $(document).ready(function() {
         }
     }
 
-    setInterval(load_data, 10000);
     load_data();
+    updater = setInterval(load_data, 10000);
 
     $(".fullscreen-button").on('click', function() {
         $(this).closest('[class*="col-"]').addClass("fullscreen-chart");

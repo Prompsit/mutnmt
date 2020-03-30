@@ -1,0 +1,23 @@
+.folder-indicator {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 24px;
+}
+
+.folder-indicator .folder-icon {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.folder-indicator .second-icon {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+.folder-indicator .second-icon::before {
+    background: white;
+
+}

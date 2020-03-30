@@ -4,6 +4,10 @@
     border-radius: 50% 50%;
 }
 
+.hamburger-menu .nav-pills .fas {
+    width: 18px;
+}
+
 @media screen and (max-width: 576px) {
     .hamburger-menu {
         position: fixed;

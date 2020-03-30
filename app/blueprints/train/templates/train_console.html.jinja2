@@ -18,6 +18,7 @@
 <div class="row mt-4">
     <div class="col-12">
         <div class="jumbotron p-3 text-center">
+            {% if engine.status != "stopped" %}
             <strong class="nn-name">{{ engine.name }}</strong> is training...
 
             <div class="jumping-trees mt-2 text-success">
@@ -27,18 +28,27 @@
             </div>
 
             <small>... and this is a message about ethics</small>
+            {% else %}
+            The training of <strong class="nn-name">{{ engine.name }}</strong> was stopped!
+            {% endif %}
         </div>
 
         <div class="row align-items-center">
             <div class="col-6">
+                {% if engine.status == "stopped" %}
+                It took {{ int(elapsed / 3600) }}h {{ int((elapsed % 3600) / 60) }}min {{ int(elapsed % 3600) % 60 }}s to train.
+                {% else %}
                 <span class="time-left" data-started="{{ launched }}" data-minutes="60"></span> left
                 <br />
-                Epoch 1 out of {{ config['training']['epochs'] }}
+                Epoch X out of {{ config['training']['epochs'] }}
+                {% endif %}
             </div>
 
+            {% if engine.status != "stopped" %}
             <div class="col-6 text-right">
                 <a href="{{ url_for('train.train_stop', id=engine.id) }}" class="btn btn-danger">Stop now</a>
             </div>
+            {% endif %}
         </div>
 
         <div class="row">

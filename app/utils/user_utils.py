@@ -50,9 +50,9 @@ def library_delete(type, id, user_id = None):
     if type == "library_corpora":
         corpus = Corpus.query.filter_by(id = id).first()
 
-        for file in corpus.files:
-            os.remove(file.path)
-            db.session.delete(file)
+        for file_entry in corpus.corpus_files:
+            os.remove(file_entry.file.path)
+            db.session.delete(file_entry.file)
 
         db.session.delete(corpus)
         db.session.commit()

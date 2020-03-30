@@ -176,7 +176,7 @@ def train_console(id):
     if user_utils.is_normal(): return redirect(url_for('index'))
     
     engine = Engine.query.filter_by(id = id).first()
-    config_file_path = os.path.join(engine.path, 'config.yaml')
+    config_file_path = os.path.join(os.path.realpath(os.path.join(app.config['PRELOADED_ENGINES_FOLDER'], engine.path)), 'config.yaml')
     config = None
 
     try:
@@ -185,9 +185,14 @@ def train_console(id):
     except:
         pass
 
+    launched = datetime.datetime.timestamp(engine.launched)
+    finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
+    elapsed = (finished - launched) if engine.finished else None
+
     return render_template("train_console.html.jinja2", page_name="train",
             engine=engine, config=config,
-            launched = datetime.datetime.timestamp(engine.launched))
+            launched = launched, finished = finished,
+            elapsed = elapsed)
 
 @train_blueprint.route('/graph_data', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -218,9 +223,9 @@ def train_graph():
             for data in eacc.Scalars(tag)[last:250]:
                 stats[tag].append({ "time": data.wall_time, "step": data.step, "value": data.value })
 
-        return jsonify(stats)
+        return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
     else:
-        return jsonify([])
+        return jsonify({ "stats": [], "stopped": False })
 
 @train_blueprint.route('/attention/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -246,6 +251,7 @@ def train_stop(id):
 
     engine = Engine.query.filter_by(id = id).first()
     engine.status = "stopped"
+    engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
     db.session.commit()
 
-    return redirect(url_for('train.train_index'))
+    return redirect(url_for('train.train_console', id=engine.id))
