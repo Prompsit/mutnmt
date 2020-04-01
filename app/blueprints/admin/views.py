@@ -1,5 +1,6 @@
-from app.models import User, Corpus
+from app.models import User, Corpus, Engine
 from app.utils import user_utils, utils, datatables
+from app.utils.trainer import Trainer
 from app import db
 from flask import Blueprint, render_template, request, jsonify, redirect
 from flask_login import login_required
@@ -35,6 +36,12 @@ def admin_system():
     return render_template('system.admin.html.jinja2', page_name='admin_system', 
                             ram=ram, cpu=round(psutil.cpu_percent(), 2), gpus=gpus)
 
+
+@admin_blueprint.route('/instances')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def admin_instances():
+    return render_template('instances.admin.html.jinja2', page_name='admin_instances')
+
 @admin_blueprint.route('/users_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def user_datatables_feed():
@@ -48,6 +55,21 @@ def user_datatables_feed():
         user_data.append([user.id, user.username, user.email,
                         "Admin" if user.admin else "Expert" if user.expert else "Normal", 
                         "", user.admin, user.expert])
+
+    return dt.response(rows, rows_filtered, user_data)
+
+
+@admin_blueprint.route('/instances_feed', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def instances_datatables_feed():
+    columns = [Engine.id, Engine.name]
+    dt = datatables.Datatables()
+
+    rows, rows_filtered, search = dt.parse(Engine, columns, request, Engine.status.like("training"))
+
+    user_data = []
+    for engine in (rows_filtered if search else rows):
+        user_data.append([engine.id, engine.name, engine.uploader.email if engine.uploader else ""])
 
     return dt.response(rows, rows_filtered, user_data)
 
@@ -68,6 +90,18 @@ def delete_user():
         shutil.rmtree(user_utils.get_user_folder())
         db.session.delete(user)
         db.session.commit()
+    except:
+        pass
+
+    return redirect(request.referrer)
+
+@admin_blueprint.route('/stop_engine')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def stop_engine():
+    id = request.args.get('id')
+
+    try:
+        Trainer.stop(user_utils.get_uid(), id)
     except:
         pass
 

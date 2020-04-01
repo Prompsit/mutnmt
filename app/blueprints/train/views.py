@@ -1,6 +1,7 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
 from app.utils import user_utils, utils
+from app.utils.trainer import Trainer
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
@@ -14,15 +15,12 @@ import os
 import yaml
 import shutil
 import sys
-import logging
 import ntpath
 import subprocess
 import glob
 import nvidia_smi
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
-
-running_joey = {}
 
 @train_blueprint.route('/')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -99,9 +97,7 @@ def train_start():
     db.session.commit()
 
     # Engine configuration
-    if user_utils.get_uid() in running_joey.keys():
-        running_joey[user_utils.get_uid()].close()
-        del running_joey[user_utils.get_uid()]
+    Trainer.finish(user_utils.get_uid, id)
 
     config = None
     print(config_file_path, file=sys.stderr)
@@ -152,26 +148,14 @@ def train_start():
     with open(config_file_path, 'w') as config_file:
         yaml.dump(config, config_file)
 
-    return redirect(url_for('train.train_launch', id=engine.id, gpu=request.form.get('gpu_id')))
+    return redirect(url_for('train.train_launch', id=engine.id))
 
-@train_blueprint.route('/launch/<id>/<gpu>')
+@train_blueprint.route('/launch/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_launch(id):
     if user_utils.is_normal(): return redirect(url_for('index'))
 
-    engine = Engine.query.filter_by(id=id).first()
-    
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
-
-    handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.DEBUG)
-    root.addHandler(handler)
-
-    slave = ToolWrapper(["python3", "-m", "joeynmt", "train", os.path.join(engine.path, "config.yaml"), "--save_attention"],
-                        cwd=app.config['JOEYNMT_FOLDER'])
-
-    running_joey[user_utils.get_uid()] = slave
+    Trainer.launch(user_utils.get_uid(), id)
 
     return redirect(url_for('train.train_console', id=id))
 
@@ -284,13 +268,6 @@ def train_attention(id):
 def train_stop(id):
     if user_utils.is_normal(): return redirect(url_for('index'))
     
-    if user_utils.get_uid() in running_joey.keys():
-        running_joey[user_utils.get_uid()].close()
-        del running_joey[user_utils.get_uid()]
+    Trainer.stop(user_utils.get_uid(), id)
 
-    engine = Engine.query.filter_by(id = id).first()
-    engine.status = "stopped"
-    engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
-    db.session.commit()
-
-    return redirect(url_for('train.train_console', id=engine.id))
+    return redirect(url_for('train.train_console', id=id))
