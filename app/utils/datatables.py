@@ -7,7 +7,7 @@ class Datatables(object):
         self.draw = None
         self.search = None
 
-    def parse(self, table, columns, request):
+    def parse(self, table, columns, request, condition = None):
         self.draw = request.form.get('draw')
         self.search = request.form.get('search[value]')
         start = request.form.get('start')
@@ -15,8 +15,12 @@ class Datatables(object):
         order = int(request.form.get('order[0][column]'))
         dir = request.form.get('order[0][dir]')
 
-        rows = table.query.options(load_only(*columns)) \
-                .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
+        rows = table.query.options(load_only(*columns))
+
+        if condition is not None:
+            rows = rows.filter(condition)
+
+        rows = rows.order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
                 .limit(length).offset(start) \
                 .all()
     
