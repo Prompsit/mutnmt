@@ -18,6 +18,7 @@ import logging
 import ntpath
 import subprocess
 import glob
+import nvidia_smi
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
@@ -30,7 +31,10 @@ def train_index():
 
     currently_training = Engine.query.filter_by(uploader_id = user_utils.get_uid()) \
                             .filter(Engine.status.like("training")).all()
-    
+
+    if (len(currently_training) > 0):
+        return redirect(url_for('train.train_console', id=currently_training[0].id))
+
     random_name = namegenerator.gen()
     tryout = 0
     while len(Engine.query.filter_by(name = random_name).all()):
@@ -43,11 +47,12 @@ def train_index():
 
     random_name = " ".join(random_name.split("-")[:2])
 
-    if (len(currently_training) > 0):
-        return redirect(url_for('train.train_console', id=currently_training[0].id))
-
+    nvidia_smi.nvmlInit()
+    gpus = list(range(0, nvidia_smi.nvmlDeviceGetCount()))
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-    return render_template('train.html.jinja2', page_name='train', corpora=corpora, random_name=random_name)
+    return render_template('train.html.jinja2', page_name='train', 
+                            corpora=corpora, random_name=random_name,
+                            gpus=gpus)
 
 @train_blueprint.route('/start', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -147,9 +152,9 @@ def train_start():
     with open(config_file_path, 'w') as config_file:
         yaml.dump(config, config_file)
 
-    return redirect(url_for('train.train_launch', id=engine.id))
+    return redirect(url_for('train.train_launch', id=engine.id, gpu=request.form.get('gpu_id')))
 
-@train_blueprint.route('/launch/<id>')
+@train_blueprint.route('/launch/<id>/<gpu>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_launch(id):
     if user_utils.is_normal(): return redirect(url_for('index'))

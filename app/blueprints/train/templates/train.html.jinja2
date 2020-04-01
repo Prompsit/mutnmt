@@ -13,10 +13,20 @@
 <div class="row mt-4">
     <div class="col-12">
         <form action="{{ url_for('train.train_start') }}" method="POST">
-            <div class="form-group mb-4">
-                <label for="nameText" class="h6">Name</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="nameText" name="nameText" value="{{ random_name }}"/>
+            <div class="row">
+                <div class="col-sm-6 col-12">
+                    <label for="nameText" class="h6">Name</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="nameText" name="nameText" value="{{ random_name }}"/>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-12">
+                    <label for="gpu_id" class="h6">GPU</label>
+                    <select name="gpu_id" id="gpu_id" class="custom-select">
+                        {% for gpu_id in gpus %}
+                            <option value="{{ gpu_id }}">GPU #{{ gpu_id }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
 

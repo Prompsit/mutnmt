@@ -362,6 +362,8 @@ class TrainManager:
                     total_valid_duration = 0
                     start_tokens = self.total_tokens
 
+                    self.tb_writer.add_scalar("train/learning_rate", self.optimizer.param_groups[0]["lr"], self.steps)
+
                 # validate on the entire dev set
                 if self.steps % self.validation_freq == 0 and update:
                     valid_start_time = time.time()
