@@ -54,24 +54,10 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-sm-6">
-            <div class="file-dnd h-100">
-                <label class="file-dnd-label" for="translate-dnd">
-                    <div class="file-dnd-label-content">
-                        <p class="h3">
-                            <i class="fas fa-arrow-circle-up"></i> Drag files to upload
-                        </p>
-
-                        <p class="h6">
-                            Or click to select files
-                        </p>
-                    </div>
-                    <div clasS="file-dnd-dragged">
-                        <p class="h5 file-dnd-name"></p>
-                    </div>
-                </label>
-                <input type=file class="file-dnd-input" id="translate-dnd" />
-            </div>
+        <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+            {% with file_dnd_id = "translate-dnd" %}
+                {% include "file-dnd.html.jinja2" %}
+            {% endwith %}
         </div>
         <div class="col-12 mt-4">
             <div class="engine-status-container">

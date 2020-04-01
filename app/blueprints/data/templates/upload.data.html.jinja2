@@ -1,10 +1,12 @@
 {% extends "base.html.jinja2" %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd.css') }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/data.css') }}" />
 {% endblock %}
 
 {% block resources %}
+<script src="{{ url_for('static', filename='js/file-dnd.js') }}"></script>
 <script src="{{ url_for('static', filename='js/data.js') }}"></script>
 {% endblock %}
 
@@ -22,30 +24,31 @@
             </div>
 
             <div class="form-group row">
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <label for="source_file">Source file</label>
-                    <div class="custom-file">
-                        <input required type="file" class="custom-file-input" id="source_file" name="source_file">
-                        <label class="custom-file-label" for="source_file">Choose file</label>
-                    </div>
-                    <select class="custom-select mt-3" name="source_lang">
+                    <select class="custom-select mb-2" name="source_lang">
                         {% for language in languages %}
-                        <option value="{{ language.code }}">{{ language.name }}</option>
+                            <option value="{{ language.code }}">{{ language.name }}</option>
                         {% endfor %}
                     </select>
+
+                    {% with file_dnd_id = "source_file" %}
+                        {% include "file-dnd.html.jinja2" %}
+                    {% endwith %}
                 </div>
+
                 {% if type == "bilingual" %}
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <label for="target_file">Target file</label>
-                    <div class="custom-file">
-                        <input required type="file" class="custom-file-input" id="target_file" name="target_file">
-                        <label class="custom-file-label" for="target_file">Choose file</label>
-                    </div>
-                    <select class="custom-select mt-3" name="target_lang">
+                    <select class="custom-select mb-2" name="target_lang">
                         {% for language in languages %}
-                        <option value="{{ language.code }}">{{ language.name }}</option>
+                            <option value="{{ language.code }}">{{ language.name }}</option>
                         {% endfor %}
                     </select>
+
+                    {% with file_dnd_id = "target_file" %}
+                        {% include "file-dnd.html.jinja2" %}
+                    {% endwith %}
                 </div>
                 {% endif %}
             </div>
