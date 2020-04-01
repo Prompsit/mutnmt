@@ -32,12 +32,7 @@
 {% if corpora|length > 0 %}
     {% for corpus in corpora %}
     <div class="row p-3 bg-light mx-sm-0">
-        <div class="col-8">
-            <h2 class="h5 mb-0">
-                <i class="fas fa-folder mr-2"></i> {{ corpus.name }}
-            </h2>
-        </div>
-        <div class="col-4 text-right">
+        <div class="col-12 order-sm-2 col-sm-4 text-right">
             <span class="h6 mr-3">{{ corpus.source.name }}
                 {% if corpus.type == "bilingual" %} — {{ corpus.target.name }} {% endif %}
             </span>
@@ -47,7 +42,13 @@
             </a>
         </div>
 
-        <div class="col-12 pl-4 mt-2">
+        <div class="col-12 order-sm-1 col-sm-8">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-folder mr-2"></i> {{ corpus.name }}
+            </h2>
+        </div>
+
+        <div class="col-12 order-sm-3 pl-4 mt-2">
             {% for file_entry in corpus.corpus_files %}
             <div class="d-flex align-items-center">
                 <i class="fas fa-file ml-4 mr-2"></i> {{ file_entry.file.name }}

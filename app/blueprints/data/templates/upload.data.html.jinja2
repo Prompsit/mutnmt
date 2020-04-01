@@ -14,19 +14,19 @@
 
 <h2 class="h5">Upload a {{ type }} corpus</h2>
 
-    <form action="{{ url_for('data.data_upload_perform', type=type) }}" enctype="multipart/form-data" method="post">
-        <div class="jumbotron p-4 mt-4">
-            <div class="form-group row">
-                <div class="col-6">
-                    <label for="name">Name</label>
-                    <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
-                </div>
+    <form class="data-upload-form" action="{{ url_for('data.data_upload_perform', type=type) }}" enctype="multipart/form-data" method="post">
+        <div class="form-group row">
+            <div class="col-6">
+                <label for="name">Name</label>
+                <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
             </div>
+        </div>
 
-            <div class="form-group row">
-                <div class="col-12 col-sm-6">
+        <div class="form-group row">
+            <div class="col-12 col-sm-6">
+                <div class="p-3 bg-light">
                     <label for="source_file">Source file</label>
-                    <select class="custom-select mb-2" name="source_lang">
+                    <select class="custom-select mb-2 source_lang" name="source_lang">
                         {% for language in languages %}
                             <option value="{{ language.code }}">{{ language.name }}</option>
                         {% endfor %}
@@ -36,11 +36,13 @@
                         {% include "file-dnd.html.jinja2" %}
                     {% endwith %}
                 </div>
+            </div>
 
-                {% if type == "bilingual" %}
-                <div class="col-12 col-sm-6">
+            {% if type == "bilingual" %}
+            <div class="col-12 col-sm-6 mt-3 mt-sm-0">
+                <div class="p-3 bg-light">
                     <label for="target_file">Target file</label>
-                    <select class="custom-select mb-2" name="target_lang">
+                    <select class="custom-select mb-2 target_lang" name="target_lang">
                         {% for language in languages %}
                             <option value="{{ language.code }}">{{ language.name }}</option>
                         {% endfor %}
@@ -50,8 +52,8 @@
                         {% include "file-dnd.html.jinja2" %}
                     {% endwith %}
                 </div>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
         <div class="form-group text-right">
             <input class="btn btn-primary" type="submit" id="submit" value="Upload" />

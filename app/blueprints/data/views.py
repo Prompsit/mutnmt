@@ -64,7 +64,8 @@ def data_upload_perform(type):
 
             try:
                 tokenize(corpus)
-            except:
+            except Exception as e:
+                print(e, file=sys.stderr)
                 raise Exception("Tokenization error")
             else:
                 db.session.add(corpus)
@@ -76,7 +77,7 @@ def data_upload_perform(type):
     else:
         Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
 
-    return redirect(url_for('data.data_index'))
+    return url_for('data.data_index')
 
 def upload_file(file, language):
     norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)
@@ -141,7 +142,7 @@ def tokenize(corpus):
         cat_proc = subprocess.Popen("cat {} | shuf | head -n 10000 > {}".format(files, random_sample_path), shell=True)
         cat_proc.wait()
 
-        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=6000".format(random_sample_path, corpus.id))
+        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=6000 --hard_vocab_limit=false".format(random_sample_path, corpus.id))
         shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.model".format(corpus.id)), model_path)
         shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.vocab".format(corpus.id)), vocab_path)
         os.remove(random_sample_path)
