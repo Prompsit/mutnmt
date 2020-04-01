@@ -9,16 +9,19 @@
 <div class="row mt-4">
     <div class="col-12 col-sm-6">
         <textarea name="text" class="form-control translate-text" style="min-height: 150px;">My father bought a bike yesterday for me</textarea>
-        <div class="d-flex align-items-center mt-2">
-            <select class="custom-select mr-1 engine-select" name="engine_id">
-                {% for engine_entry in engines %}
-                    <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
-                {% endfor %}
-            </select>
-
-            <div class="text-right d-flex">
-                <input type="submit" class="btn btn-secondary mr-1" value="As TMX" />
-                <input type="button" class="btn btn-primary translate-btn" data-ready="false" value="Translate" />
+        <div class="row no-gutters">
+            <div class="col-12 col-sm-6 mt-2 pr-sm-2">
+                <select class="custom-select mr-1 engine-select" name="engine_id">
+                    {% for engine_entry in engines %}
+                        <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-sm-6 mt-2">
+                <div class="btn-group w-100">
+                    <input type="submit" class="btn btn-secondary w-100" value="As TMX" />
+                    <input type="button" class="btn btn-primary translate-btn w-100" data-ready="false" value="Translate" />
+                </div>
             </div>
         </div>
 

@@ -1,7 +1,8 @@
 from app import app
+from app.flash import Flash
 from app.models import LibraryEngine, Engine
 from app.utils import user_utils, translation_utils, utils
-from flask import Blueprint, render_template, request, send_file, after_this_request, url_for
+from flask import Blueprint, render_template, request, send_file, after_this_request, url_for, redirect
 from werkzeug.utils import secure_filename
 
 import subprocess, sys, logging, os, glob, shutil
@@ -78,7 +79,10 @@ def as_tmx():
     engine_id = request.form.get('engine_id')
     text = request.form.get('text')
 
-    translators.launch(user_utils.get_uid(), engine_id)
-    tmx_path = translators.generate_tmx(user_utils.get_uid(), text)
-
-    return send_file(tmx_path, as_attachment=True)
+    try:
+        translators.launch(user_utils.get_uid(), engine_id)
+        tmx_path = translators.generate_tmx(user_utils.get_uid(), text)
+        return send_file(tmx_path, as_attachment=True)
+    except:
+        Flash.issue("The TMX file could not be generated", Flash.ERROR)
+        return redirect(request.referrer)

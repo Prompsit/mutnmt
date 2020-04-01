@@ -112,19 +112,13 @@
                         <div
                             class="alert alert-{{ 'danger' if category == Flash.ERROR.value else 'success' if category == Flash.SUCCESS.value else 'warning' if category == Flash.WARNING.value else 'primary' }}" 
                             role="alert">
-                                {% if category == Flash.ERROR.value %}
-                                    <h4 class="alert-heading">
+                                <p class="mb-0">
+                                    {% if category == Flash.ERROR.value and not message %}
                                         Sorry! Something went wrong...
-                                    </h4>
-                                    <hr />
-                                    <p class="mb-0">
+                                    {% else %}
                                         {{ message }}
-                                    </p>
-                                {% else %}
-                                    <p class="mb-0">
-                                        {{ message }}
-                                    </p>
-                                {% endif %}
+                                    {% endif %}
+                                </p>
                         </div>
                         {% endfor %}
                     {% endif %}
