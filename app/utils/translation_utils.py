@@ -20,6 +20,8 @@ import sys
 class TranslationUtils:
     def __init__(self):
         self.running_joey = {}
+        self.running_users = {}
+
         self.format_mappings = {
             ".pptx": r'.*(slide(s*))$',
             ".docx": r'.*(document.xml)$',
@@ -34,20 +36,25 @@ class TranslationUtils:
 
         self.sentences = {}
 
-    def load_engine(self, user_id, id):
-        if user_id in self.running_joey.keys():
-            engine = self.running_joey[user_id]['engine']
+    def reload_engine(self, id):
+        if id in self.running_joey.keys():
+            engine = self.running_joey[id]['engine']
             if int(engine.id) == int(id):
                 if sa_inspect(engine).detached:
-                    self.running_joey[user_id]['engine'] = Engine.query.filter_by(id = id).first()
-
-                return True
-            
-            self.running_joey[user_id]['slave'].close()
+                    self.running_joey[id]['engine'] = Engine.query.filter_by(id = id).first()
 
 
     def launch(self, user_id, id, inspect = False):
-        self.load_engine(user_id, id)
+        if user_id in self.running_users:
+            if self.running_joey[self.running_users[user_id]].engine.id != id:
+                self.deattach(user_id)
+            else:
+                return True
+
+        if id in self.running_joey.keys():
+            self.running_joey[id]['users'].append(user_id)
+            self.running_users[user_id] = id
+            return True
 
         engine = Engine.query.filter_by(id = id).first()
         joey_params = ["python3", "-m", "joeynmt", "translate", os.path.join(engine.path, "config.yaml"), "-sm"]
@@ -61,14 +68,16 @@ class TranslationUtils:
 
         welcome = slave.readline()
         if welcome == "!:SLAVE_READY":
-            self.running_joey[user_utils.get_uid()] = { "slave": slave, "engine": engine, "tokenizer": Tokenizer(engine) }
+            self.running_joey[id] = { "slave": slave, "engine": engine, "tokenizer": Tokenizer(engine), "users": [user_id] }
+            self.running_users[user_id] = id
             return True
 
         return False
 
-    def get(self, user_id, text): 
-        if user_utils.get_uid() in self.running_joey.keys():
-            user_context = self.running_joey[user_utils.get_uid()]
+    def get(self, user_id, text):
+        if user_id in self.running_users.keys():
+            engine_id = self.running_users[user_id]
+            user_context = self.running_joey[engine_id]
             if not user_context['tokenizer'].loaded:
                 user_context['tokenizer'].load()
 
@@ -81,10 +90,10 @@ class TranslationUtils:
             return None
 
     def get_inspect(self, user_id, text):
-        if user_utils.get_uid() in self.running_joey.keys():
-            self.load_engine(user_id, self.running_joey[user_utils.get_uid()]['engine'].id)
-            user_context = self.running_joey[user_utils.get_uid()]
-            engine = user_context['engine']
+        if user_id in self.running_users.keys():
+            engine_id = self.running_users[user_id]
+            self.reload_engine(self.running_joey[engine_id]['engine'].id)
+            user_context = self.running_joey[engine_id]
 
             if not user_context['tokenizer'].loaded:
                 user_context['tokenizer'].load()
@@ -110,9 +119,14 @@ class TranslationUtils:
             return None
 
     def deattach(self, user_id):
-        if user_utils.get_uid() in self.running_joey.keys():
-            self.running_joey[user_utils.get_uid()]['slave'].close()
-            del self.running_joey[user_utils.get_uid()]
+        if user_id in self.running_users.keys():
+            engine_id = self.running_users[user_id]
+            self.running_joey[engine_id]['users'].remove(user_id)
+            del self.running_users[user_id]
+
+            if len(self.running_joey[engine_id]['users']) == 0:
+                self.running_joey[engine_id]['slave'].close()
+                del self.running_joey[engine_id]
 
     def norm_extension(self, extension):
         if extension in [".ppt", ".doc", ".xls"]:
