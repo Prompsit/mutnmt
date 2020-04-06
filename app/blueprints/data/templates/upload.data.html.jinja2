@@ -54,9 +54,12 @@
                 </div>
             </div>
             {% endif %}
+
         </div>
-        <div class="form-group text-right">
-            <input class="btn btn-primary" type="submit" id="submit" value="Upload" />
+        <div class="row">
+            <div class="col-12 col-sm-6 {{ 'offset-sm-6' if type == 'bilingual' else '' }} text-right">
+                <input class="btn btn-primary" type="submit" id="submit" value="Upload" />
+            </div>
         </div>
     </form>
 </div>

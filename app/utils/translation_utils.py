@@ -281,7 +281,7 @@ class TranslationUtils:
         else:
             self.translate_office(user_id, file_path, as_tmx)
 
-        engine = self.running_joey[user_id]['engine']
+        engine = self.running_joey[self.running_users[user_id]]['engine']
         file_path_translated = '{}.{}-{}{}'.format(filename, engine.source.code, engine.target.code, extension)
         shutil.move(file_path, file_path_translated)
         file_path = file_path_translated
