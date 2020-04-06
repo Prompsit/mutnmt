@@ -77,6 +77,8 @@ class TranslationUtils:
     def get(self, user_id, text):
         if user_id in self.running_users.keys():
             engine_id = self.running_users[user_id]
+            self.reload_engine(engine_id)
+
             user_context = self.running_joey[engine_id]
             if not user_context['tokenizer'].loaded:
                 user_context['tokenizer'].load()
@@ -92,7 +94,8 @@ class TranslationUtils:
     def get_inspect(self, user_id, text):
         if user_id in self.running_users.keys():
             engine_id = self.running_users[user_id]
-            self.reload_engine(self.running_joey[engine_id]['engine'].id)
+            self.reload_engine(engine_id)
+
             user_context = self.running_joey[engine_id]
 
             if not user_context['tokenizer'].loaded:
