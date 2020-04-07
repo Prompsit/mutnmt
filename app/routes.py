@@ -13,7 +13,8 @@ app.jinja_env.globals.update(**{
     "is_normal": user_utils.is_normal,
     "get_uid": user_utils.get_uid,
     "int": int,
-    "Flash": flash.Flash
+    "Flash": flash.Flash,
+    "len": len
 })
 
 @app.route('/')
