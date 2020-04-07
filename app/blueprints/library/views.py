@@ -1,9 +1,10 @@
 from app import app, db
 from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus
 from app.utils import user_utils, utils
+from app.flash import Flash
 from flask_login import login_required
 from sqlalchemy import and_
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 
 import os
 import hashlib
@@ -32,6 +33,30 @@ def library_engines():
 
     return render_template('library_engines.html.jinja2', page_name = 'library_engines', 
             user_library = user_library, public_engines = public_engines)
+
+@library_blueprint.route('/preview/<id>')
+def corpora_preview(id):
+    try:
+        corpus = Corpus.query.filter_by(id = id).first()
+        return render_template('library_preview.html.jinja2', page_name = 'library_preview',
+                corpus=corpus)
+    except:
+        Flash.issue("Preview is currently unavailable", Flash.ERROR)
+        return render_template(request.referrer)
+
+@library_blueprint.route('/stream', methods=["POST"])
+def stream_file():
+    file_id = request.form.get('file_id')
+
+    try:
+        start = int(request.form.get('start'))
+        offset = int(request.form.get('offset'))
+
+        file = File.query.filter_by(id=file_id).first()
+        lines = [line for line in utils.file_reader(file.path, start, offset)]
+        return jsonify({ "result": 200, "lines": lines })
+    except:
+        return jsonify({ "result": -1, "lines": [] })
 
 @library_blueprint.route('/share/<type>/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

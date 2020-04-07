@@ -47,6 +47,9 @@
                                 <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                <a href="{{ url_for('library.corpora_preview', id = corpus.id) }}" class="dropdown-item">
+                                    <i class="fas fa-stream"></i> Preview
+                                </a>
                                 {% if corpus.owner_id == get_user().id %}
                                     {% if corpus.public %}
                                     <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">

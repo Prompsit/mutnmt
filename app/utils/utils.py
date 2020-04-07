@@ -17,3 +17,9 @@ def normname(user_id, filename):
     blake = hashlib.blake2b()
     blake.update(('{}{}{}'.format(time.time(), user_id, filename).encode("utf-8")))
     return blake.hexdigest()[:16]
+
+def file_reader(file_path, start, offset):
+    with open(file_path, 'r') as file:
+        for i, line in enumerate(file):
+            if i >= start and i < (start + offset):
+                yield line

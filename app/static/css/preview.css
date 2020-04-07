@@ -1,0 +1,16 @@
+.parafile-showcase {
+    max-height: 40vh;
+    overflow-y: auto;
+    background-color: var(--light);
+    padding: 0.5rem;
+}
+
+    .parafile-showcase .parafile-line {
+        margin: 1rem 0px 1rem 0px;
+    }
+
+        .parafile-showcase .parafile-line.active .parafile-line-content {
+            background-color: var(--primary);
+            padding: 1px;
+            color: var(--white);
+        }

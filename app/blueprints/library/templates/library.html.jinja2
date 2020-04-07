@@ -7,7 +7,7 @@
 {% block content %}
 
 <div class="btn-group mb-3">
-    <a href="{{ url_for('library.library_index') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_corpora' else '' }}"><i class="fas fa-file"></i> Corpora</a>
+    <a href="{{ url_for('library.library_index') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_corpora' or page_name == 'library_preview' else '' }}"><i class="fas fa-file"></i> Corpora</a>
     <a href="{{ url_for('library.library_engines') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_engines' else '' }}"><i class="fas fa-cogs"></i> Engines</a>
 </div>
 
