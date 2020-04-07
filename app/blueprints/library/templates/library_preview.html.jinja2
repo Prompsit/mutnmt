@@ -11,7 +11,7 @@
 {% block library_content %}
 <h2 class="h5">Preview</h2>
 
-<div class="row {{ 'parafile' if len(corpus.corpus_files) > 1 else '' }}">
+<div class="row parafile">
     {% for file_entry in corpus.corpus_files %}
     <div class="col-12 col-sm-6 mt-3 mt-sm-0">
         <h3 class="h6">

@@ -44,17 +44,19 @@ $(document).ready(function() {
 
                 if (control == $(sc).data("file-id")) {
                     // Highlight line
-                    let line = { i: -1 };
-                    $(sc).find('.parafile-line').each(function(k, l) {
-                        if (line.i == -1 && (($(l).offset().top + $(l).height() - 25) - $(sc).offset().top) >= 0) {
-                            $('.parafile-line').removeClass("active");
-                            $(l).addClass("active");
-                            line = { i: k, el: l };
-                        }
-                    });
-                    
-                    let other_line = $('.parafile-showcase').not(sc).find('.parafile-line').eq(line.i);
-                    other_line.addClass("active");
+                    if ($('.parafile-showcase').not(sc).length > 0) {
+                        let line = { i: -1 };
+                        $(sc).find('.parafile-line').each(function(k, l) {
+                            if (line.i == -1 && (($(l).offset().top + $(l).height() - 25) - $(sc).offset().top) >= 0) {
+                                $('.parafile-line').removeClass("active");
+                                $(l).addClass("active");
+                                line = { i: k, el: l };
+                            }
+                        });
+                        
+                        let other_line = $('.parafile-showcase').not(sc).find('.parafile-line').eq(line.i);
+                        other_line.addClass("active");
+                    }
 
                     $(".parafile-showcase").not(sc).scrollTop($(sc).scrollTop());
                 }
