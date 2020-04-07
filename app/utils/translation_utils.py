@@ -230,7 +230,7 @@ class TranslationUtils:
         os.remove(dest_path)
 
     def tmx_builder(self, user_id, sentences):
-        engine = self.running_joey[user_id]['engine']
+        engine = self.running_joey[self.running_users[user_id]]['engine']
         source_lang = engine.source.code
         target_lang = engine.target.code
 

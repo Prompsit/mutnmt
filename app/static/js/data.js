@@ -20,6 +20,8 @@ $(document).ready(function() {
 
     $(".data-upload-form").on("submit", function(e) {
         e.preventDefault();
+        $(".token-alert").addClass("d-none");
+
         if (file_source == null) return false;
 
         $('.translate-form').attr('data-status', 'launching');
@@ -30,6 +32,8 @@ $(document).ready(function() {
         data.append("target_lang", $(".target_lang option:selected").val());
         data.append("source_file", file_source)
         if (file_target) data.append("target_file", file_target)
+
+        $(".token-alert").removeClass("d-none");
 
         $.ajax({
             url: $(this).attr("action"),
@@ -45,5 +49,4 @@ $(document).ready(function() {
 
         return false;
     });
-
 });
