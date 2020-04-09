@@ -1,6 +1,24 @@
 $(document).ready(function() {
     let engine_id = $("#engine_id").val();
 
+    const interval = 1000;
+
+    let setupTimer = (el) => {
+        let timestamp = parseInt($(el).attr("data-started"));
+        let begin = moment();
+        let end = moment.unix(timestamp).add($(el).attr("data-minutes"), 'minutes');
+        let duration = moment.duration(end.diff(begin))
+
+        $(el).html(moment.utc(duration.asMilliseconds()).format("mm:ss"))
+    }
+
+    $(".time-left").each(function(i, el) {
+        setupTimer(el)
+        setInterval(() => {
+            setupTimer(el)
+        }, interval);
+    });
+
     let make_chart = (selector) => {
         return new Chart(document.querySelector(selector), {
             type: 'line',
@@ -101,4 +119,42 @@ $(document).ready(function() {
     $(".fullscreen-close").on('click', function() {
         $(this).closest('[class*="col-"]').removeClass("fullscreen-chart");
     })
+
+    let log_pager = { start: -1, offset: 50 }
+    let log_feed = () => {
+        $.ajax({
+            url: "../log",
+            method: "post",
+            data: { 
+                engine_id: engine_id,
+                start: log_pager.start,
+                offset: log_pager.offset
+            },
+            success: (data) => {
+                if (data.log && data.log.length > 0) {
+                    let scroll_bottom = $('.log').scrollTop() == ($('.log')[0].scrollHeight - $('.log').height()) || log_pager.start == 0;
+                    let template = document.importNode(document.querySelector("#log-entry-template").content, true);
+                    let log_entry_template = $(template).find('.log-entry')[0];
+                    $(template).find('.log-entry').remove();
+
+                    for (let entry of data.log) {
+                        let log_entry = log_entry_template.cloneNode(true);
+                        $(log_entry).html(entry);
+                        $(template).find('.log-group').append(log_entry);
+                    }
+
+                    $('.log').append(template);
+                    if (scroll_bottom) {
+                        $('.log').scrollTop($('.log')[0].scrollHeight);
+                    }
+
+                    console.log(data.start);
+                    log_pager.start = data.start;
+                }
+            }
+        });
+    }
+
+    setInterval(log_feed, 5000)
+    log_feed()
 });

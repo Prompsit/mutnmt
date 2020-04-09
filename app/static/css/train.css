@@ -44,3 +44,16 @@
 .fullscreen-chart .fullscreen-button {
     display: none;
 }
+
+.log {
+    height: 250px;
+    background-color: var(--light);
+    overflow-y: auto;
+    font-family: monospace;
+}
+
+    .log .log-group {
+        border-top: dashed 3px var(--gray);
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }

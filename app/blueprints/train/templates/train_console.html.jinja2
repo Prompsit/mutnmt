@@ -7,7 +7,6 @@
 {% block resources %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
-<script src="{{ url_for('static', filename='js/train.js') }}"></script>
 <script src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}
 
@@ -15,7 +14,7 @@
 <input type=hidden id="engine_id" value="{{ engine.id }}" />
 <h2 class="h5">Train a neural engine</h2>
 
-<div class="row mt-4">
+<div class="row my-4">
     <div class="col-12">
         <div class="jumbotron p-3 text-center">
             {% if engine.status != "stopped" %}
@@ -100,6 +99,20 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h5 mt-4">Train raw log</h2>
+
+                <div class="log"></div>
+            </div>
+        </div>
     </div>
 </div>
+
+<template id="log-entry-template">
+    <div class="log-group">
+        <div class="log-entry"></div>
+    </div>
+</template>
 {% endblock %}

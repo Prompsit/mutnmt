@@ -234,21 +234,49 @@ def train_status():
         eacc.Reload()
 
         stats = {}
-        epoch_no = 0
-        for data in eacc.Scalars("train/epoch"):
-            if data.value > epoch_no:
-                epoch_no = data.value
-        stats["epoch"] = epoch_no
 
-        done = False
-        for data in eacc.Scalars("train/done"):
-            if data.value == 1:
-                done = True
-        stats["done"] = done
+        try:
+            epoch_no = 0
+            for data in eacc.Scalars("train/epoch"):
+                if data.value > epoch_no:
+                    epoch_no = data.value
+            stats["epoch"] = epoch_no
+
+            done = False
+            for data in eacc.Scalars("train/done"):
+                if data.value == 1:
+                    done = True
+            stats["done"] = done
+        except:
+            pass
 
         return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
     else:
         return jsonify({ "stats": [], "stopped": False })
+
+@train_blueprint.route('/log', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_log():
+    engine_id = request.form.get('engine_id')
+    start = int(request.form.get('start'))
+    offset = int(request.form.get('offset'))
+
+    engine = Engine.query.filter_by(id = engine_id).first()
+    
+    result = { "result": 200, "log": [], "start": start }
+
+    train_log_path = os.path.join(engine.path, 'model/train.log')
+    try:
+        with open(train_log_path, 'r') as train_log:
+            for i, line in enumerate(train_log):
+                if start == -1 or i >= start and i < (start + offset):
+                    result['start'] = i + 1
+                    result['log'].append(line.strip())
+    except: 
+        pass
+
+    return jsonify(result)
+
 
 @train_blueprint.route('/attention/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
