@@ -55,7 +55,7 @@ table.dataTable .actions li a {
   align-items: center;
 }
 
-table.dataTable td:not(.actions) {
+table.dataTable td:not(.actions):not(.overflow) {
   max-width: 100px;
   white-space: nowrap;
   overflow: hidden;

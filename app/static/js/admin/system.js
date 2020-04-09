@@ -10,7 +10,8 @@ $(document).ready(function() {
         columnDefs: [
             {
                 targets: 4,
-                width: "40%"
+                width: "40%",
+                className: "overflow"
             }
         ]
     });
