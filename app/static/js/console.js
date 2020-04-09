@@ -105,6 +105,10 @@ $(document).ready(function() {
                 if (data.stats && data.stats['epoch']) {
                     $(".epoch-no").html(data.stats['epoch'])
                 }
+
+                if (data.power) {
+                    $(".gpu-power").html(data.power);
+                }
             }
         });
     }
@@ -120,41 +124,21 @@ $(document).ready(function() {
         $(this).closest('[class*="col-"]').removeClass("fullscreen-chart");
     })
 
-    let log_pager = { start: -1, offset: 50 }
-    let log_feed = () => {
-        $.ajax({
-            url: "../log",
-            method: "post",
-            data: { 
-                engine_id: engine_id,
-                start: log_pager.start,
-                offset: log_pager.offset
-            },
-            success: (data) => {
-                if (data.log && data.log.length > 0) {
-                    let scroll_bottom = $('.log').scrollTop() == ($('.log')[0].scrollHeight - $('.log').height()) || log_pager.start == 0;
-                    let template = document.importNode(document.querySelector("#log-entry-template").content, true);
-                    let log_entry_template = $(template).find('.log-entry')[0];
-                    $(template).find('.log-entry').remove();
-
-                    for (let entry of data.log) {
-                        let log_entry = log_entry_template.cloneNode(true);
-                        $(log_entry).html(entry);
-                        $(template).find('.log-group').append(log_entry);
-                    }
-
-                    $('.log').append(template);
-                    if (scroll_bottom) {
-                        $('.log').scrollTop($('.log')[0].scrollHeight);
-                    }
-
-                    console.log(data.start);
-                    log_pager.start = data.start;
-                }
+    $(document).ready(function() {
+        let log_table = $(".log-table").DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            order: [[ 0, "desc" ]],
+            ajax: {
+                url: "../log",
+                method: "post",
+                data: { engine_id: engine_id }
             }
         });
-    }
 
-    setInterval(log_feed, 5000)
-    log_feed()
+        setInterval(() => {
+            log_table.ajax.reload()
+        }, 5000);
+    });
 });

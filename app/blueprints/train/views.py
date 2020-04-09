@@ -18,7 +18,8 @@ import sys
 import ntpath
 import subprocess
 import glob
-import nvidia_smi
+import pynvml
+import re
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
@@ -45,8 +46,8 @@ def train_index():
 
     random_name = " ".join(random_name.split("-")[:2])
 
-    nvidia_smi.nvmlInit()
-    gpus = list(range(0, nvidia_smi.nvmlDeviceGetCount()))
+    pynvml.nvmlInit()
+    gpus = list(range(0, pynvml.nvmlDeviceGetCount()))
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
     return render_template('train.html.jinja2', page_name='train', 
                             corpora=corpora, random_name=random_name,
@@ -241,7 +242,10 @@ def train_status():
                 if data.value > epoch_no:
                     epoch_no = data.value
             stats["epoch"] = epoch_no
+        except:
+            pass
 
+        try:
             done = False
             for data in eacc.Scalars("train/done"):
                 if data.value == 1:
@@ -250,7 +254,14 @@ def train_status():
         except:
             pass
 
-        return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
+        power = 0
+        pynvml.nvmlInit()
+        for i in range(0, pynvml.nvmlDeviceGetCount()):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
+        power = round(power / pynvml.nvmlDeviceGetCount())
+            
+        return jsonify({ "stopped": engine.status == "stopped", "stats": stats, "power": power })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
@@ -258,24 +269,61 @@ def train_status():
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_log():
     engine_id = request.form.get('engine_id')
+    draw = request.form.get('draw')
+    search = request.form.get('search[value]')
     start = int(request.form.get('start'))
-    offset = int(request.form.get('offset'))
+    length = int(request.form.get('length'))
+    order = int(request.form.get('order[0][column]'))
+    dir = request.form.get('order[0][dir]')
 
     engine = Engine.query.filter_by(id = engine_id).first()
-    
-    result = { "result": 200, "log": [], "start": start }
-
     train_log_path = os.path.join(engine.path, 'model/train.log')
+
+    rows = []
     try:
         with open(train_log_path, 'r') as train_log:
-            for i, line in enumerate(train_log):
-                if start == -1 or i >= start and i < (start + offset):
-                    result['start'] = i + 1
-                    result['log'].append(line.strip())
+            i = 0
+            for line in train_log:
+                m = re.search(r'(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}).*Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)',
+                                line.strip())
+
+                print(["match", line.strip(), m], file=sys.stderr)
+                if m:                
+                    if i >= start and i < (start + length):
+                            date_string = m.group(1)
+                            time_string = m.group(2)
+                            epoch, step = m.group(3), m.group(4)
+                            batch_loss, tps, lr = m.group(5), m.group(6), m.group(7)
+
+                            # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+                            rows.append([time_string, epoch, step, batch_loss, tps, lr])
+                    i = i + 1
     except: 
         pass
 
-    return jsonify(result)
+    if start and length:
+        rows = rows[start:length]
+
+    if order is not None:
+        rows.sort(key=lambda row: row[order], reverse=(dir == "desc"))
+
+    rows_filtered = []
+    if search:
+        for row in rows:
+            found = False
+
+            for col in row:
+                if not found:
+                    if search in col:
+                        rows_filtered.append(row)
+                        found = True
+
+    return jsonify({
+        "draw": int(draw) + 1,
+        "recordsTotal": len(rows),
+        "recordsFiltered": len(rows_filtered) if search else len(rows),
+        "data": rows_filtered if search else rows
+    })
 
 
 @train_blueprint.route('/attention/<id>')
