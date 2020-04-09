@@ -8,6 +8,7 @@ from flask_login import login_required
 import shutil
 import psutil
 import nvidia_smi
+import subprocess
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 
@@ -57,6 +58,52 @@ def user_datatables_feed():
                         "", user.admin, user.expert])
 
     return dt.response(rows, rows_filtered, user_data)
+
+@admin_blueprint.route('/python_feed', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def python_feed():
+    draw = request.form.get('draw')
+    search = request.form.get('search[value]')
+    start = int(request.form.get('start'))
+    length = int(request.form.get('length'))
+    order = int(request.form.get('order[0][column]'))
+    dir = request.form.get('order[0][dir]')
+
+    ps = subprocess.Popen("ps aux | grep python", shell=True, stdout=subprocess.PIPE)
+    ps.wait()
+
+    rows = []
+    for line_raw in ps.stdout:
+        line = line_raw.decode("utf-8").strip()
+        if line:
+            data = line.split(None)
+            command = " ".join(data[10:])
+            if not any(x in command for x in ["ps aux", "grep python", "<defunct>"]):
+                rows.append([data[1], data[8], data[2], data[3], command])
+
+    if start and length:
+        rows = rows[start:length]
+
+    if order is not None:
+        rows.sort(key=lambda row: row[order], reverse=(dir == "desc"))
+
+    rows_filtered = []
+    if search:
+        for row in rows:
+            found = False
+
+            for col in row:
+                if not found:
+                    if search in col:
+                        rows_filtered.append(row)
+                        found = True
+
+    return jsonify({
+        "draw": int(draw) + 1,
+        "recordsTotal": len(rows),
+        "recordsFiltered": len(rows_filtered) if search else len(rows),
+        "data": rows_filtered if search else rows
+    })
 
 
 @admin_blueprint.route('/instances_feed', methods=["POST"])
