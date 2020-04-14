@@ -287,7 +287,6 @@ def train_log():
                 m = re.search(r'(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}).*Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)',
                                 line.strip())
 
-                print(["match", line.strip(), m], file=sys.stderr)
                 if m:                
                     if i >= start and i < (start + length):
                             date_string = m.group(1)
