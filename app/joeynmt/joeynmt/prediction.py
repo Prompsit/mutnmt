@@ -388,6 +388,7 @@ def translate(cfg_file, ckpt: str, output_path: str = None, sm: bool = False, n_
         sys.stdout.flush()
         while True:
             src_input = input()
+
             if not src_input.strip():
                 print("!:SLAVE_ERROR")
                 sys.stdout.flush()
@@ -404,7 +405,7 @@ def translate(cfg_file, ckpt: str, output_path: str = None, sm: bool = False, n_
                     print(hyp)
                 print("!:SLAVE_END_NBEST")
             else:
-                print(hypotheses[0])
+                print(hypotheses[0] if len(hypotheses) > 0 else "")
             sys.stdout.flush()
 
     elif not sys.stdin.isatty():

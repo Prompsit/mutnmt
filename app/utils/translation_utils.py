@@ -2,7 +2,6 @@ from app import app
 from app.utils import user_utils
 from app.utils.tokenizer import Tokenizer
 from app.models import Engine
-from toolwrapper import ToolWrapper
 from lxml import etree
 from nltk.tokenize import sent_tokenize
 from sqlalchemy import inspect as sa_inspect
@@ -36,6 +35,9 @@ class TranslationUtils:
 
         self.sentences = {}
 
+    def is_running(self, user_id, id):
+        return self.running_users[user_id] == id
+
     def reload_engine(self, id):
         if id in self.running_joey.keys():
             engine = self.running_joey[id]['engine']
@@ -46,7 +48,7 @@ class TranslationUtils:
 
     def launch(self, user_id, id, inspect = False):
         if user_id in self.running_users:
-            if self.running_joey[self.running_users[user_id]].engine.id != id:
+            if self.running_joey[self.running_users[user_id]]['engine'].id != id:
                 self.deattach(user_id)
             else:
                 return True
@@ -63,10 +65,10 @@ class TranslationUtils:
             joey_params.append("-n")
             joey_params.append("3")
         
-        slave = ToolWrapper(joey_params,
-                            cwd=app.config['JOEYNMT_FOLDER'])
+        slave = subprocess.Popen(" ".join(joey_params), shell=True, stdout=subprocess.PIPE,
+                            stdin=subprocess.PIPE, cwd=app.config['JOEYNMT_FOLDER'], encoding='utf-8')
 
-        welcome = slave.readline()
+        welcome = slave.stdout.readline().strip()
         if welcome == "!:SLAVE_READY":
             self.running_joey[id] = { "slave": slave, "engine": engine, "tokenizer": Tokenizer(engine), "users": [user_id] }
             self.running_users[user_id] = id
@@ -84,10 +86,20 @@ class TranslationUtils:
                 user_context['tokenizer'].load()
 
             joey = user_context['slave']
-            joey.writeline(user_context['tokenizer'].tokenize(text))
+            joey.stdin.write('{}\n'.format(user_context['tokenizer'].tokenize(text)))
 
-            translation = joey.readline()
-            return user_context['tokenizer'].detokenize(translation)
+            try:
+                joey.stdin.flush()
+
+                translation = joey.stdout.readline().strip()
+                translation_detok = user_context['tokenizer'].detokenize(translation)
+
+                if translation_detok == "!:SLAVE_ERROR":
+                    return None
+                else:
+                    return translation_detok
+            except BrokenPipeError:
+                return None
         else:
             return None
 
@@ -128,7 +140,7 @@ class TranslationUtils:
             del self.running_users[user_id]
 
             if len(self.running_joey[engine_id]['users']) == 0:
-                self.running_joey[engine_id]['slave'].close()
+                self.running_joey[engine_id]['slave'].kill()
                 del self.running_joey[engine_id]
 
     def norm_extension(self, extension):

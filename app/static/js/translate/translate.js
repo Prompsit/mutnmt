@@ -1,31 +1,48 @@
 $(document).ready(function() {
-    $('.engine-select').on('change', function() {
-        $('.translate-form').attr('data-status', 'false');
-    });
+    let call_count = 0;
+    let force_call = false;
 
-    let onclick = (e) => {
-        if ($('.translate-form').attr('data-status') == 'ready') {
+    let ontranslate = (e) => {
+        call_count += 1;
+        if (!force_call && call_count < 5 && $('.live-translate-form').attr('data-status') == 'ready') {
+            return;
+        }
+
+        call_count = 0;
+        force_call = false;
+
+        if ($('.live-translate-form').attr('data-status') == 'ready') {
+            if ($('.live-translate-source').val() == "") {
+                $('.live-translate-target').html("");
+                return;
+            }
+
             $.ajax({
                 url: `get`,
                 method: "POST",
                 data: {
-                    text: $('.translate-text').val()
+                    text: $('.live-translate-source').val()
                 }
             }).done(function(raw) {
-                $('.translation-target-text').html(raw);
+                if (raw == "-1") {
+                    $('.live-translate-form').attr('data-status', 'error')
+                    $('.live-translate-target').html("");
+                } else {
+                    $('.live-translate-target').html(raw);
+                }
             });
-        } else {
-            $('.translate-form').attr('data-status', 'launching');
+        } else if ($('.live-translate-form').attr('data-status') != 'launching') {
+            $('.live-translate-form').attr('data-status', 'launching');
 
             $.ajax({
                 url: `attach_engine/${$('.engine-select option:selected').val()}`
             }).done(function(raw) {
-                console.log(raw);
                 if (raw == "0") {
-                    $('.translate-form').attr('data-status', 'ready');
-                    onclick()
+                    $('.live-translate-form').attr('data-status', 'ready');
+                    force_call = true
+                    ontranslate()
                 } else {
-                    $('.translate-form').attr('data-status', 'error');
+                    $('.live-translate-form').attr('data-status', 'error');
                 }
             });
         }
@@ -33,8 +50,46 @@ $(document).ready(function() {
         return false;
     }
 
-    $('.translate-form .translate-btn').on('click', function() {
-        return onclick()
+    $('.engine-select').on('change', function() {
+        $('.live-translate-form').attr('data-status', 'false');
+
+        if ($('.live-translate-source').val() != "") {
+            ontranslate()
+        }
+    });
+
+    let watcher;
+
+    $('.live-translate-source').on('keyup', function() {
+        ontranslate();
+
+        if (watcher) clearTimeout(watcher);
+        watcher = setTimeout(() => {
+            force_call = true
+            ontranslate()
+        }, 500);
+
+        if ($(this).val() != "") {
+            $(this).parent().addClass("filled");
+        } else {
+            $(this).parent().removeClass("filled");
+        }
+    });
+
+    $('.engine-relaunch-btn').on('click', function(e) {
+        e.preventDefault();
+        ontranslate();
+    })
+
+    // Live translation
+    $('.custom-textarea textarea').on('focus', function() {
+        $(this).parent().addClass("focus");
+        $(this).parent().find(".custom-textarea-placeholder").addClass("d-none");
+    });
+
+    $('.custom-textarea textarea').on('blur', function() {
+        $(this).parent().removeClass("focus");
+        $(this).parent().find(".custom-textarea-placeholder").removeClass("d-none");
     });
 });
 
@@ -44,4 +99,4 @@ $(window).on('unload', function() {
     } else {
         $.ajax({ url: `leave`, async: false, type: "post" });
     }
-})
+});

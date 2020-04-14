@@ -1,20 +1,99 @@
-.translate-form .engine-status-container .alert {
+.tmx-mode-select-content {
+    position: relative;
+    top: -12px;
+}
+
+.custom-textarea {
+    border: solid 2px transparent;
+    border-right: solid 8px var(--white);
+    background-color: var(--light);
+    position: relative;
+    font-size: 125%;
+}
+
+.custom-textarea.focus:not(.readonly) {
+    border: solid 2px var(--primary);
+}
+
+.custom-textarea textarea {
+    width: 100%;
+    height: 300px;
+    outline: 0;
+    box-shadow: none !important;
+    border: 0;
+    resize: none;
+    background-color: transparent;
+    padding: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.custom-textarea .custom-textarea-placeholder {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    color: var(--gray);
+}
+
+.custom-textarea.filled .custom-textarea-placeholder {
     display: none;
 }
 
-.translate-form[data-status="launching"] .engine-status-container .engine-launching {
-    display: block;
+.custom-textarea .custom-textarea-separator {
+    position: absolute;
+    right: -19px;
+    top: 0px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
 }
 
-.translate-form[data-status="ready"] .engine-status-container .engine-ready {
-    display: block;
+.custom-textarea.focus .custom-textarea-separator {
+    right: -13px;
 }
 
-.translate-form[data-status="error"] .engine-status-container .engine-error {
-    display: block;
-}
-
-.tmx-mode-select-content {
+.custom-textarea .custom-textarea-separator .icon {
+    background-color: var(--white);
+    padding: 0.5rem;
+    font-size: 12px;
+    width: 26px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
-    top: -12px;  
+    border-radius: 16px;
+}
+
+.custom-textarea.focus .custom-textarea-separator .icon {
+    border: solid 2px var(--primary);
+}
+
+.live-translate-form .engine-status-container .engine-status {
+   display: none;
+   z-index: 3;
+   position: relative;
+}
+
+.live-translate-form[data-status="launching"] .engine-status-container .engine-launching {
+    display: block;
+}
+
+.live-translate-form[data-status="ready"] .engine-status-container .engine-ready {
+    display: block;
+}
+
+.live-translate-form[data-status="error"] .engine-status-container .engine-error {
+    display: block;
+}
+
+.spinner {
+    animation: spinner 4s cubic-bezier(0.65, 0, 0.35, 1) 0s infinite;
+}
+
+@keyframes spinner {
+    20%, 80% { transform: rotate(0deg); }
+    50% { transform: rotate(360deg); }
 }

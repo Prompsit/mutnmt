@@ -33,7 +33,7 @@ def translate_attach(id):
 def translate_get():
     text = request.form.get('text')
     translation = translators.get(user_utils.get_uid(), text)
-    return translation if translation else "-1"
+    return translation if translation is not None else "-1"
 
 @translate_blueprint.route('/leave', methods=['POST'])
 def translate_leave():
