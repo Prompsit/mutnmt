@@ -7,7 +7,7 @@ from flask_login import login_required
 
 import shutil
 import psutil
-import nvidia_smi
+import pynvml
 import subprocess
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
@@ -25,10 +25,11 @@ def admin_system():
     ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) }
 
     gpus = []
-    nvidia_smi.nvmlInit()
-    for i in range(0, nvidia_smi.nvmlDeviceGetCount()):
-        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
-        resources = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
+    
+    pynvml.nvmlInit()
+    for i in range(0, pynvml.nvmlDeviceGetCount()):
+        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+        resources = pynvml.nvmlDeviceGetUtilizationRates(handle)
         gpus.append({ "id": i, 
                         "memory": resources.memory,
                         "proc": resources.gpu
