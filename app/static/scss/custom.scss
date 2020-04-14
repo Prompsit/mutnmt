@@ -2,6 +2,18 @@
 $primary: #577790 !default;
 $font-family-sans-serif: "Montserrat", Arial, Helvetica, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
 
+/* More spacers */
+$spacer: 1rem !default;
+$spacers: (
+    6: ($spacer * 4),
+    7: ($spacer * 5),
+    8: ($spacer * 6),
+    9: ($spacer * 7),
+    10: ($spacer * 8),
+    11: ($spacer * 9),
+    12: ($spacer * 10)
+);
+
 /* Required imports */
 @import "../bootstrap-base/scss/functions";
 @import "../bootstrap-base/scss/variables";
