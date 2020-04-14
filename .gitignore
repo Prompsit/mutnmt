@@ -4,6 +4,7 @@ samples
 app/preloaded
 app/app.db
 **/*.min.*
+app/static/css/bootstrap.css
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
