@@ -25,7 +25,6 @@ login_manager.login_message = ''
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def logout():
     logout_user()
-    flash(_('You logged out successfully'), 'success')
     return redirect(url_for('index'))
 
 google_blueprint = make_google_blueprint(
@@ -84,7 +83,6 @@ def google_logged_in(blueprint, token):
       return False
       
     login_user(user)
-    flash(_('You have been logged in successfully'), "success")
 
   else:
     print("No account info available")
