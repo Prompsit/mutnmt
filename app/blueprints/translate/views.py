@@ -32,7 +32,7 @@ def translate_attach(id):
 
 @translate_blueprint.route('/get', methods=["POST"])
 def translate_get():
-    text = request.form.get('text')
+    text = request.form.getlist('text[]')
     translation = translators.get(user_utils.get_uid(), text)
     return jsonify({ "result": 200, "lines": translation }) if translation is not None else jsonify({ "result": -1 })
 

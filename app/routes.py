@@ -1,8 +1,8 @@
 from flask import render_template, url_for, redirect
 from flask_login import current_user
-from app import app, login_manager, flash
+from app import app, login_manager, flash, db
 from app.utils import utils, user_utils, lang_utils
-from .models import User
+from .models import User, RunningEngines
 
 app.jinja_env.globals.update(**{
     "get_locale": lang_utils.get_locale,
@@ -16,6 +16,10 @@ app.jinja_env.globals.update(**{
     "Flash": flash.Flash,
     "len": len
 })
+
+for running_engine in RunningEngines.query.all():
+    db.session.delete(running_engine)    
+    db.session.commit()
 
 @app.route('/')
 @app.route('/index')

@@ -1,37 +1,44 @@
 $(document).ready(function() {
-    let call_count = 0;
-    let force_call = false;
 
-    let ontranslate = (e) => {
-        call_count += 1;
-        if (!force_call && call_count < 5 && $('.live-translate-form').attr('data-status') == 'ready') {
-            return;
-        }
+    // Translates the source text and displays
+    // the translation in a textarea
+    let translate = () => {
 
-        call_count = 0;
-        force_call = false;
-
+        // If the engine is ready, we capture each line of text and
+        // we send it to the server
         if ($('.live-translate-form').attr('data-status') == 'ready') {
+            // If there is no text, we do nothing
             if ($('.live-translate-source').val() == "") {
                 $('.live-translate-target').html("");
                 return;
             }
 
+            let text = [];
+            for (let line of $('.live-translate-source').val().split('\n')) {
+                text.push(line)
+            }
+
             $.ajax({
                 url: `get`,
                 method: "POST",
-                data: {
-                    text: $('.live-translate-source').val()
-                }
-            }).done(function(raw) {
-                if (raw == "-1") {
+                data: { text: text }
+            }).done(function(data) {
+                // We fill target text depending on the result from the server
+                $('.live-translate-target').html("");
+
+                if (data.result == -1) {
                     $('.live-translate-form').attr('data-status', 'error')
-                    $('.live-translate-target').html("");
                 } else {
-                    $('.live-translate-target').html(raw);
+                    if (data.lines) {
+                        for (let line of data.lines) {
+                            let line_element = document.createTextNode(line + '\n');
+                            $('.live-translate-target').append(line_element);
+                        }
+                    }
                 }
             });
         } else if ($('.live-translate-form').attr('data-status') != 'launching') {
+            // If the engine is not ready (and it is not launching), we launch it
             $('.live-translate-form').attr('data-status', 'launching');
 
             $.ajax({
@@ -39,8 +46,7 @@ $(document).ready(function() {
             }).done(function(raw) {
                 if (raw == "0") {
                     $('.live-translate-form').attr('data-status', 'ready');
-                    force_call = true
-                    ontranslate()
+                    translate()
                 } else {
                     $('.live-translate-form').attr('data-status', 'error');
                 }
@@ -50,24 +56,33 @@ $(document).ready(function() {
         return false;
     }
 
+    // When we change the selected engine, we automatically translate
     $('.engine-select').on('change', function() {
         $('.live-translate-form').attr('data-status', 'false');
 
         if ($('.live-translate-source').val() != "") {
-            ontranslate()
+            translate()
         }
     });
 
+    // Translation is performed when the user types. We skip some
+    // of the calls for performace sake. Anyway, when the user stops
+    // typing, we translate the whole text (that's what the watcher is for)
     let watcher;
+    let count = 0;
 
     $('.live-translate-source').on('keyup', function() {
-        ontranslate();
-
         if (watcher) clearTimeout(watcher);
         watcher = setTimeout(() => {
-            force_call = true
-            ontranslate()
-        }, 500);
+            translate()
+        }, 700);
+
+        if (count > 5) {
+            translate();
+            count = 0;
+        }
+
+        count++;
 
         if ($(this).val() != "") {
             $(this).parent().addClass("filled");
@@ -76,12 +91,12 @@ $(document).ready(function() {
         }
     });
 
+    // Some functionality for links and textareas
     $('.engine-relaunch-btn').on('click', function(e) {
         e.preventDefault();
-        ontranslate();
+        translate();
     })
 
-    // Live translation
     $('.custom-textarea textarea').on('focus', function() {
         $(this).parent().addClass("focus");
         $(this).parent().find(".custom-textarea-placeholder").addClass("d-none");
@@ -93,6 +108,7 @@ $(document).ready(function() {
     });
 });
 
+// We let the server know we quit this window, to close the translator
 $(window).on('unload', function() {
     if (navigator.sendBeacon) {
         navigator.sendBeacon('leave');

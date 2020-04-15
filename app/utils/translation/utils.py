@@ -57,7 +57,8 @@ class TranslationUtils:
         engine = Engine.query.filter_by(id=id).first()
 
         if not self.get_running_engine(id):
-            self.translators[id] = JoeyWrapper(engine.path)
+            self.translators[engine.id] = JoeyWrapper(engine.path)
+            self.translators[engine.id].load()
 
         # If this user is already using another engine, we switch
         user_engine = self.get_user_running_engine(user_id)
@@ -66,10 +67,26 @@ class TranslationUtils:
 
         user.user_running_engines.append(RunningEngines(engine=engine, user=user))
 
+        db.session.commit()
+
+        return True
+
     def get(self, user_id, lines):
         user_engine = self.get_user_running_engine(user_id)
         if user_engine:
-            return [self.translators[user_engine.engine_id].translate(line)[0] for line in lines]
+            tokenizer = Tokenizer(user_engine.engine)
+            tokenizer.load()
+
+            translations = []
+            for line in lines:
+                if line != "":
+                    line_tok = tokenizer.tokenize(line)
+                    translation = self.translators[user_engine.engine_id].translate(line_tok)
+                    translations.append(tokenizer.detokenize(translation))
+                else:
+                    translations.append("")
+
+            return translations
         else:
             return None
 
@@ -85,9 +102,11 @@ class TranslationUtils:
         if user_engine:
             db.session.delete(user_engine)
 
-        # We check again, if nothing is found, no user is translating with that engine
-        if not self.get_running_engine(user_engine.engine_id):
-            del self.translators[user_engine.engine_id]
+            # We check again, if nothing is found, no user is translating with that engine
+            if not self.get_running_engine(user_engine.engine_id):
+                del self.translators[user_engine.engine_id]
+
+        db.session.commit()
 
     def norm_extension(self, extension):
         if extension in [".ppt", ".doc", ".xls"]:
