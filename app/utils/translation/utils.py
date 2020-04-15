@@ -79,7 +79,7 @@ class TranslationUtils:
 
             translations = []
             for line in lines:
-                if line != "":
+                if line.strip() != "":
                     line_tok = tokenizer.tokenize(line)
                     translation = self.translators[user_engine.engine_id].translate(line_tok)
                     translations.append(tokenizer.detokenize(translation))
@@ -89,6 +89,10 @@ class TranslationUtils:
             return translations
         else:
             return None
+
+    def get_line(self, user_id, line):
+        translation = self.get(user_id, [line])
+        return translation[0] if translation else None
 
     def get_inspect(self, user_id, lines):
         user_engine = self.get_user_running_engine(user_id)
@@ -121,18 +125,17 @@ class TranslationUtils:
         with open(file_path, 'r') as source:
             with open(translated_path, 'w+') as target:
                 for line in source:
-                    if line.strip():
-                        translation = self.get(user_id, line.strip())
-                        if as_tmx: self.sentences[str(user_id)].append({ "source": line.strip(), "target": [translation] })
-                        print(translation, file=target)
-        
+                    translation = self.get_line(user_id, line)
+                    if as_tmx: self.sentences[str(user_id)].append({ "source": line.strip(), "target": [translation] })
+                    print(translation, file=target)
+    
         os.remove(file_path)
         shutil.move(translated_path, file_path)
 
     def translate_xml(self, user_id, xml_path, mode = "xml", as_tmx = False):
         def explore_node(node):
             if node.text and node.text.strip():
-                translation = self.get(user_id, node.text)
+                translation = self.get_line(user_id, node.text)
                 if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": [translation] })
                 node.text = translation
             for child in node:
@@ -258,8 +261,8 @@ class TranslationUtils:
         else:
             self.translate_office(user_id, file_path, as_tmx)
 
-        engine = self.running_joey[self.running_users[user_id]]['engine']
-        file_path_translated = '{}.{}-{}{}'.format(filename, engine.source.code, engine.target.code, extension)
+        engine = self.get_user_running_engine(user_id)
+        file_path_translated = '{}.{}-{}{}'.format(filename, engine.engine.source.code, engine.engine.target.code, extension)
         shutil.move(file_path, file_path_translated)
         file_path = file_path_translated
 

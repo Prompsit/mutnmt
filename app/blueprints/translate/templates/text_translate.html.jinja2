@@ -10,7 +10,7 @@
         <div class="col-6 col-sm-3">
             <h2 class="h5">Translate</h2>
         </div>
-        <div class="col-6 col-sm-3 text-right pr-sm-0">
+        <div class="col-6 col-sm-3 text-right" style="padding-right: 0.4rem;">
             <select class="custom-select mr-1 engine-select" name="engine_id">
                 {% for engine_entry in engines %}
                     <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
