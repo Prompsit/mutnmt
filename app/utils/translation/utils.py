@@ -1,10 +1,13 @@
-from app import app
+from app import app, db
 from app.utils import user_utils
 from app.utils.tokenizer import Tokenizer
-from app.models import Engine
+from app.models import Engine, RunningEngines, User
+from app.utils.translation.joeywrapper import JoeyWrapper
 from lxml import etree
 from nltk.tokenize import sent_tokenize
 from sqlalchemy import inspect as sa_inspect
+from nltk.tokenize import sent_tokenize
+
 # from bs4 import BeautifulSoup, Doctype
 
 import zipfile
@@ -18,8 +21,8 @@ import sys
 
 class TranslationUtils:
     def __init__(self):
-        self.running_joey = {}
-        self.running_users = {}
+        # { engine: JoeyWrapper }
+        self.translators = {}
 
         self.format_mappings = {
             ".pptx": r'.*(slide(s*))$',
@@ -35,113 +38,56 @@ class TranslationUtils:
 
         self.sentences = {}
 
-    def is_running(self, user_id, id):
-        return self.running_users[user_id] == id
+    # Checks if an engine is running
+    def get_running_engine(self, id):
+        try:
+            return RunningEngines.query.filter_by(id=id).first()
+        except:
+            return None
 
-    def reload_engine(self, id):
-        if id in self.running_joey.keys():
-            engine = self.running_joey[id]['engine']
-            if int(engine.id) == int(id):
-                if sa_inspect(engine).detached:
-                    self.running_joey[id]['engine'] = Engine.query.filter_by(id = id).first()
+    def get_user_running_engine(self, user_id):
+        try:
+            return RunningEngines.query.filter_by(user_id=user_id).first()
+        except:
+            return None
 
 
-    def launch(self, user_id, id, inspect = False):
-        if user_id in self.running_users:
-            if self.running_joey[self.running_users[user_id]]['engine'].id != id:
-                self.deattach(user_id)
-            else:
-                return True
+    def launch(self, user_id, id):
+        user = User.query.filter_by(id=user_id).first()
+        engine = Engine.query.filter_by(id=id).first()
 
-        if id in self.running_joey.keys():
-            self.running_joey[id]['users'].append(user_id)
-            self.running_users[user_id] = id
-            return True
+        if not self.get_running_engine(id):
+            self.translators[id] = JoeyWrapper(engine.path)
 
-        engine = Engine.query.filter_by(id = id).first()
-        joey_params = ["python3", "-m", "joeynmt", "translate", os.path.join(engine.path, "config.yaml"), "-sm"]
+        # If this user is already using another engine, we switch
+        user_engine = self.get_user_running_engine(user_id)
+        if user_engine:
+            db.session.delete(user_engine)
 
-        if inspect:
-            joey_params.append("-n")
-            joey_params.append("3")
-        
-        slave = subprocess.Popen(" ".join(joey_params), shell=True, stdout=subprocess.PIPE,
-                            stdin=subprocess.PIPE, cwd=app.config['JOEYNMT_FOLDER'], encoding='utf-8')
+        user.user_running_engines.append(RunningEngines(engine=engine, user=user))
 
-        welcome = slave.stdout.readline().strip()
-        if welcome == "!:SLAVE_READY":
-            self.running_joey[id] = { "slave": slave, "engine": engine, "tokenizer": Tokenizer(engine), "users": [user_id] }
-            self.running_users[user_id] = id
-            return True
-
-        return False
-
-    def get(self, user_id, text):
-        if user_id in self.running_users.keys():
-            engine_id = self.running_users[user_id]
-            self.reload_engine(engine_id)
-
-            user_context = self.running_joey[engine_id]
-            if not user_context['tokenizer'].loaded:
-                user_context['tokenizer'].load()
-
-            joey = user_context['slave']
-            joey.stdin.write('{}\n'.format(user_context['tokenizer'].tokenize(text)))
-
-            try:
-                joey.stdin.flush()
-
-                translation = joey.stdout.readline().strip()
-                translation_detok = user_context['tokenizer'].detokenize(translation)
-
-                if translation_detok == "!:SLAVE_ERROR":
-                    return None
-                else:
-                    return translation_detok
-            except BrokenPipeError:
-                return None
+    def get(self, user_id, lines):
+        user_engine = self.get_user_running_engine(user_id)
+        if user_engine:
+            return [self.translators[user_engine.engine_id].translate(line)[0] for line in lines]
         else:
             return None
 
-    def get_inspect(self, user_id, text):
-        if user_id in self.running_users.keys():
-            engine_id = self.running_users[user_id]
-            self.reload_engine(engine_id)
-
-            user_context = self.running_joey[engine_id]
-
-            if not user_context['tokenizer'].loaded:
-                user_context['tokenizer'].load()
-
-            joey = user_context['slave']
-            joey.writeline(user_context['tokenizer'].tokenize(text))
-
-            translation = joey.readline()
-            n_best = []
-            while translation != "!:SLAVE_END_NBEST":
-                n_best.append(translation)
-                translation = joey.readline()
-
-            return {
-                "source": user_context['engine'].source.code,
-                "target": user_context['engine'].target.code,
-                "preproc": n_best[0], 
-                "nbest": [user_context['tokenizer'].detokenize(s) for s in n_best],
-                "alignments": [],
-                "postproc": user_context['tokenizer'].detokenize(n_best[0])
-            }
+    def get_inspect(self, user_id, lines):
+        user_engine = self.get_user_running_engine(user_id)
+        if user_engine:
+            return [self.translators[user_engine.engine_id].translate(line) for line in lines]
         else:
             return None
 
     def deattach(self, user_id):
-        if user_id in self.running_users.keys():
-            engine_id = self.running_users[user_id]
-            self.running_joey[engine_id]['users'].remove(user_id)
-            del self.running_users[user_id]
+        user_engine = self.get_user_running_engine(user_id)
+        if user_engine:
+            db.session.delete(user_engine)
 
-            if len(self.running_joey[engine_id]['users']) == 0:
-                self.running_joey[engine_id]['slave'].kill()
-                del self.running_joey[engine_id]
+        # We check again, if nothing is found, no user is translating with that engine
+        if not self.get_running_engine(user_engine.engine_id):
+            del self.translators[user_engine.engine_id]
 
     def norm_extension(self, extension):
         if extension in [".ppt", ".doc", ".xls"]:

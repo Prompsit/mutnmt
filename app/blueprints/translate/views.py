@@ -1,15 +1,16 @@
 from app import app
 from app.flash import Flash
 from app.models import LibraryEngine, Engine
-from app.utils import user_utils, translation_utils, utils
-from flask import Blueprint, render_template, request, send_file, after_this_request, url_for, redirect
+from app.utils import user_utils, utils
+from app.utils.translation.utils import TranslationUtils
+from flask import Blueprint, render_template, request, send_file, after_this_request, url_for, redirect, jsonify
 from werkzeug.utils import secure_filename
 
 import subprocess, sys, logging, os, glob, shutil
 
 translate_blueprint = Blueprint('translate', __name__, template_folder='templates')
         
-translators = translation_utils.TranslationUtils()
+translators = TranslationUtils()
 
 @translate_blueprint.route('/')
 @translate_blueprint.route('/text')
@@ -33,7 +34,7 @@ def translate_attach(id):
 def translate_get():
     text = request.form.get('text')
     translation = translators.get(user_utils.get_uid(), text)
-    return translation if translation is not None else "-1"
+    return jsonify({ "result": 200, "lines": translation }) if translation is not None else jsonify({ "result": -1 })
 
 @translate_blueprint.route('/leave', methods=['POST'])
 def translate_leave():

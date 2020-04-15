@@ -1,11 +1,12 @@
 from app import app
 from app.models import LibraryEngine
-from app.utils import user_utils, translation_utils
+from app.utils import user_utils
+from app.utils.translation.utils import TranslationUtils
 from flask import Blueprint, render_template, request, jsonify
 
 inspect_blueprint = Blueprint('inspect', __name__, template_folder='templates')
 
-translators = translation_utils.TranslationUtils()
+translators = TranslationUtils()
 
 @inspect_blueprint.route('/')
 @inspect_blueprint.route('/details')
