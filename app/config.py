@@ -2,6 +2,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
+    BASEDIR = basedir
     MUTNMT_FOLDER = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
     PRELOADED_ENGINES_FOLDER = os.path.join(basedir, "preloaded")
     JOEYNMT_FOLDER = os.path.join(basedir, "joeynmt")

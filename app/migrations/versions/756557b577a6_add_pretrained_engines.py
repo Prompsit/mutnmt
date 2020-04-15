@@ -11,6 +11,8 @@ import sqlalchemy as sa
 from app import app, db
 from app.models import Engine
 
+import os
+
 # revision identifiers, used by Alembic.
 revision = '756557b577a6'
 down_revision = '3b9ad36f5408'
@@ -18,7 +20,7 @@ branch_labels = None
 depends_on = None
 
 engines = [
-    ["Transformer en-es", "../preloaded/transformer-new", "en", "es"]
+    ["Transformer en-es", os.path.join(app.config['BASEDIR'], "preloaded/transformer-new"), "en", "es"]
 ]
 
 def upgrade():

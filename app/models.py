@@ -128,6 +128,7 @@ class User(UserMixin, db.Model):
 
     corpora = association_proxy("user_corpora", "corpora")
     engines = association_proxy("user_engines", "engines")
+    running_engines = association_proxy("user_running_engines", "running_engines")
 
 class LibraryCorpora(db.Model):
     __tablename__ = 'library_corpora'
@@ -155,6 +156,24 @@ class LibraryEngine(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     user = db.relationship(User, backref = db.backref("user_engines", cascade="all, delete-orphan"))
+    engine = db.relationship("Engine")
+
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'engine_id'),
+    )
+
+    def __init__(self, engine=None, user=None):
+        self.user = user
+        self.engine = engine
+
+class RunningEngines(db.Model):
+    __tablename__ = 'running_engines'
+    id = db.Column(db.Integer, primary_key=True)
+
+    engine_id = db.Column(db.Integer, db.ForeignKey('engine.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    user = db.relationship(User, backref = db.backref("user_running_engines", cascade="all, delete-orphan"))
     engine = db.relationship("Engine")
 
     __table_args__ = (
