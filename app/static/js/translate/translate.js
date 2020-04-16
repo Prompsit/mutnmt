@@ -1,4 +1,18 @@
 $(document).ready(function() {
+    $(".translate-file-btn").on('mouseenter', function() {
+        $('.source-placeholder').css({ display: 'none' })
+        $('.custom-textarea-file-upload').css({ display: 'block' });
+        $('.custom-textarea-file-upload').animate({ opacity: 1 }, 500);
+    });
+
+    $(".translate-file-btn").on('mouseleave', function() {
+        $('.custom-textarea-file-upload').animate({ opacity: 0 }, 250, function() {
+            $('.custom-textarea-file-upload').css({ display: 'none' });
+            if ($(".live-translate-source").val() == "") {
+                $('.source-placeholder').css({ display: 'block' })
+            }
+        });
+    });
 
     // Translates the source text and displays
     // the translation in a textarea
@@ -106,6 +120,53 @@ $(document).ready(function() {
         $(this).parent().removeClass("focus");
         $(this).parent().find(".custom-textarea-placeholder").removeClass("d-none");
     });
+
+    // File translation
+    let translate_file = (file) => {
+        $('.live-translate-form').attr('data-status', 'file-translating');
+
+        let data = new FormData();
+        data.append("user_file", file);
+        data.append("engine_id", $(".engine-select option:selected").val());
+        data.append("as_tmx", $("#as_tmx").val());
+        data.append("tmx_mode", $(".tmx-mode-select .form-check-input:checked").val())
+
+        $.ajax({
+            url: '/translate/file',
+            method: 'POST',
+            data: data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(key_url) {
+                $('.live-translate-form').attr('data-status', 'ready');
+                $(".file-label-name").html("");
+                $(".file-label-text").css({ display: 'inline' })
+                window.location.href = key_url;
+            }
+        });
+    }
+
+    FileDnD(".file-dnd", function(file) {
+        $(".live-translate-target").html("");
+        $(".file-label-text").css({ display: 'none' })
+        $(".file-label-name").html(file.name);
+
+        let re = /(?:\.([^.]+))?$/;
+        let extension = re.exec(file.name)[1];
+        if (extension == "tmx") {
+            $(".tmx-mode-select").removeClass("d-none");
+        } else {
+            $(".tmx-mode-select").addClass("d-none");
+            translate_file(file);
+        }
+    }, true);
+    
+    $(".live-translate-form").on('submit', function() {
+        if ($(".live-translate-source").val() == "") {
+            return false;
+        }
+    })
 });
 
 // We let the server know we quit this window, to close the translator

@@ -1,6 +1,7 @@
 {% extends "translate.html.jinja2" %}
 
 {% block resources %}
+<script src="{{ url_for('static', filename='js/file-dnd.js') }}"></script>
 <script src="{{ url_for('static', filename='js/translate/translate.js') }}"></script>
 {% endblock %}
 
@@ -21,10 +22,33 @@
 
     <div class="row no-gutters mt-2">
         <div class="col-12 col-sm-6">
-            <div class="custom-textarea">
+            <div class="custom-textarea file-dnd">
+                <input type=file class="file-dnd-input" id="file_to_translate" />
+
                 <textarea name="text" class="live-translate-source" autocomplete="off"></textarea>
-                <div class="custom-textarea-placeholder">
+                <div class="custom-textarea-placeholder source-placeholder">
                     Type, paste text or drop a document
+                </div>
+                <div class="custom-textarea-file-upload w-100 h-100 d-flex align-items-center justify-content-center">
+                    <div class="text-center w-75">
+                        <div class="h1">
+                            <i class="fas fa-file-word"></i>
+                            <i class="fas fa-file-powerpoint"></i>
+                            <i class="fas fa-file-excel"></i>
+                            <i class="fas fa-file-pdf"></i>
+                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <p class="h2">Drop files here</p>
+                        <small>DOCX, ODT, PPTX, ODP, XLSX, ODS, PDF, TXT, HTML</small>
+                    </div>
+                </div>
+                <div class="custom-textarea-tools">
+                    <label class="file-dnd-label btn btn-link translate-file-btn" for="file_to_translate">
+                        <i class="far fa-file-alt"></i> 
+                        <span class="file-label-text">Translate file</span>
+                        <span class="file-label-name"></span>
+                    </label>
                 </div>
                 <div class="custom-textarea-separator">
                     <div class="icon">
@@ -38,6 +62,12 @@
             <div class="custom-textarea readonly">
                 <textarea readonly name="text" class="live-translate-target" autocomplete="off"></textarea>
 
+                <div class="custom-textarea-tools">
+                    <button type=submit class="btn btn-link">
+                        <i class="fas fa-file-download"></i> As TMX
+                    </button>
+                </div>
+
                 <div class="custom-textarea-placeholder engine-status-container px-3 w-100 h-100">
                     <div class="engine-status engine-launching h-100">
                         <div class="d-flex align-items-center justify-content-center w-100 h-100">
@@ -49,6 +79,17 @@
                                 <p class="mb-0">
                                     Keep typing, translations will appear here
                                 </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="engine-status engine-file-translating h-100">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <div class="h1 spinner mr-3">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div>
+                                <p class="h5 mb-0">Launching engine <br /> and translating your file...</p>
                             </div>
                         </div>
                     </div>

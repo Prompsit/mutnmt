@@ -2,3 +2,13 @@
     background: transparent;
     border: dashed 3px var(--primary);
 }
+
+.file-dnd.dragging {
+    border: dashed 3px var(--blue);
+    color: var(--blue);
+}
+
+.file-dnd:hover {
+    border: dashed 2px var(--dark);
+    cursor: pointer;
+}

@@ -41,7 +41,7 @@ class TranslationUtils:
     # Checks if an engine is running
     def get_running_engine(self, id):
         try:
-            return RunningEngines.query.filter_by(id=id).first()
+            return RunningEngines.query.filter_by(engine_id=id).first()
         except:
             return None
 
@@ -56,15 +56,24 @@ class TranslationUtils:
         user = User.query.filter_by(id=user_id).first()
         engine = Engine.query.filter_by(id=id).first()
 
-        if not self.get_running_engine(id):
+        # If the engine is currently running, we add the user to it
+        # If the user is already added, we do nothing
+        # If the user is running another engine, we switch
+        # If the user is not running anything, we add them to the engine
+        engine_entry = self.get_running_engine(id)
+        user_engine = self.get_user_running_engine(user_id)
+
+        print([engine_entry, user_engine], file=sys.stderr)
+        
+        if engine_entry:
+            if user_engine and engine_entry.engine.id == user_engine.engine.id:
+                return True
+        else:
             self.translators[engine.id] = JoeyWrapper(engine.path)
             self.translators[engine.id].load()
 
         # If this user is already using another engine, we switch
-        user_engine = self.get_user_running_engine(user_id)
-        if user_engine:
-            db.session.delete(user_engine)
-
+        if user_engine: db.session.delete(user_engine)
         user.user_running_engines.append(RunningEngines(engine=engine, user=user))
 
         db.session.commit()
@@ -210,7 +219,7 @@ class TranslationUtils:
         os.remove(dest_path)
 
     def tmx_builder(self, user_id, sentences):
-        engine = self.running_joey[self.running_users[user_id]]['engine']
+        engine = self.get_user_running_engine(user_id).engine
         source_lang = engine.source.code
         target_lang = engine.target.code
 
@@ -243,7 +252,7 @@ class TranslationUtils:
         sentences_raw = sent_tokenize(text)
         sentences = []
         for sentence in sentences_raw:
-            sentences.append({ "source": sentence, "target": [self.get(user_id, sentence)] })
+            sentences.append({ "source": sentence, "target": [self.get_line(user_id, sentence)] })
         return self.tmx_builder(user_id, sentences)
 
     def translate_file(self, user_id, file_path, as_tmx = False, tmx_mode = None):

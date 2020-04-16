@@ -6,18 +6,7 @@
     display: block;
     width: 100%;
     background: var(--light);
-    border: dashed 2px var(--gray);
     padding: 1rem;
-}
-
-.file-dnd.dragging {
-    border: dashed 3px var(--blue);
-    color: var(--blue);
-}
-
-.file-dnd:hover {
-    border: dashed 2px var(--dark);
-    cursor: pointer;
 }
 
 .file-dnd .file-dnd-label {

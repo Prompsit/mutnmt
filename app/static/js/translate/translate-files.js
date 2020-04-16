@@ -1,4 +1,8 @@
 $(document).ready(function() {
+
+});
+
+$(document).ready(function() {
     let dragged_file = null;
     FileDnD(".file-dnd", function(file) {
         dragged_file = file;

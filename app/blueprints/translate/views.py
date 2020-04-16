@@ -85,5 +85,6 @@ def as_tmx():
         tmx_path = translators.generate_tmx(user_utils.get_uid(), text)
         return send_file(tmx_path, as_attachment=True)
     except Exception as e:
+        print(e, file=sys.stderr)
         Flash.issue("The TMX file could not be generated", Flash.ERROR)
         return redirect(request.referrer)

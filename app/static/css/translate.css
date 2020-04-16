@@ -8,6 +8,7 @@
     background-color: var(--light);
     position: relative;
     font-size: 125%;
+    padding: 0 !important;
 }
 
 @media screen and (min-width: 576px) {
@@ -56,6 +57,21 @@
     display: none;
 }
 
+.custom-textarea .custom-textarea-tools {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    z-index: 3;
+}
+
+.custom-textarea .custom-textarea-file-upload {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    opacity: 0;
+    display: none;
+}
+
 .custom-textarea .custom-textarea-separator {
     position: absolute;
     display: flex;
@@ -96,6 +112,7 @@
     position: relative;
     border-radius: 16px;
 }
+
 @media screen and (max-width: 576px) {
     .custom-textarea .custom-textarea-separator .icon {
         transform: rotate(90deg);
@@ -106,6 +123,21 @@
     border: solid 2px var(--primary);
 }
 
+/* File drop */
+.custom-textarea .file-dnd {
+    border: 0 !important;
+}
+
+.custom-textarea.dragging .custom-textarea-file-upload {
+    display: block;
+    opacity: 1;
+}
+
+.custom-textarea.dragging .custom-textarea-placeholder {
+    display: none;
+}
+
+/* Target status */
 .live-translate-form .engine-status-container .engine-status {
    display: none;
    z-index: 3;
@@ -121,6 +153,10 @@
 }
 
 .live-translate-form[data-status="error"] .engine-status-container .engine-error {
+    display: block;
+}
+
+.live-translate-form[data-status="file-translating"] .engine-status-container .engine-file-translating {
     display: block;
 }
 
