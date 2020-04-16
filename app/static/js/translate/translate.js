@@ -100,8 +100,10 @@ $(document).ready(function() {
 
         if ($(this).val() != "") {
             $(this).parent().addClass("filled");
+            $(".btn-as-tmx").removeClass("d-none");
         } else {
             $(this).parent().removeClass("filled");
+            $(".btn-as-tmx").addClass("d-none");
         }
     });
 
