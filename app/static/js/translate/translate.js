@@ -157,9 +157,12 @@ $(document).ready(function() {
         let re = /(?:\.([^.]+))?$/;
         let extension = re.exec(file.name)[1];
         if (extension == "tmx") {
-            $(".tmx-mode-select").removeClass("d-none");
+            $('.live-translate-form').attr('data-status', 'tmx-dialog');
+            $('.btn-confirm-tmx').on('click', function() {
+                translate_file(file);
+            })
         } else {
-            $(".tmx-mode-select").addClass("d-none");
+            $('.live-translate-form').attr('data-status', 'ready');
             translate_file(file);
         }
     }, true);

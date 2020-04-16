@@ -160,6 +160,10 @@
     display: block;
 }
 
+.live-translate-form[data-status="tmx-dialog"] .engine-status-container .engine-tmx-dialog {
+    display: block;
+}
+
 .spinner {
     animation: spinner 4s cubic-bezier(0.65, 0, 0.35, 1) 0s infinite;
 }

@@ -68,7 +68,7 @@
                     </button>
                 </div>
 
-                <div class="custom-textarea-placeholder engine-status-container px-3 w-100 h-100">
+                <div class="custom-textarea-placeholder engine-status-container px-3 w-100 h-100 d-flex align-items-center justify-content-center">
                     <div class="engine-status engine-launching h-100">
                         <div class="d-flex align-items-center justify-content-center w-100 h-100">
                             <div class="h1 spinner mr-3">
@@ -91,6 +91,27 @@
                             <div>
                                 <p class="h5 mb-0">Launching engine <br /> and translating your file...</p>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="engine-status engine-tmx-dialog w-75">
+                        <div class="tmx-mode-select border rounded border-primary">
+                            <div class="tmx-mode-select-content ml-2">
+                                <div class="badge badge-primary">TMX</div>
+                                <div class="p-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tmx_mode" id="tmx_mode_replace" value="replace" checked="checked">
+                                        <label class="form-check-label" for="tmx_mode_replace">Replace target</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tmx_mode" id="tmx_mode_create" value="create">
+                                        <label class="form-check-label" for="tmx_mode_create">Create a new target</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-1 text-right">
+                            <button class="btn btn-primary btn-sm btn-confirm-tmx">Continue</button>
                         </div>
                     </div>
 

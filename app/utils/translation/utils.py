@@ -110,7 +110,7 @@ class TranslationUtils:
             n_best = []
             if line.strip() != "":
                 line_tok = tokenizer.tokenize(line)
-                n_best = self.translators[user_engine.engine_id].translate(line_tok, 5)
+                nbest = self.translators[user_engine.engine_id].translate(line_tok, 5)
             else:
                 return None
 
@@ -124,7 +124,7 @@ class TranslationUtils:
             }
         else:
             return None
-
+            
     def deattach(self, user_id):
         user_engine = self.get_user_running_engine(user_id)
         if user_engine:
@@ -188,7 +188,7 @@ class TranslationUtils:
                     else:
                         if tmx_mode == "create":
                             sentence.get('target').append(text)
-                        sentence.get('target').append(self.get(user_id, text))
+                        sentence.get('target').append(self.get_line(user_id, text))
 
                 sentences.append(sentence)
             
