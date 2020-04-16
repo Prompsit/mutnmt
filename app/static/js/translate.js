@@ -105,6 +105,15 @@ $(document).ready(function() {
             $(this).parent().removeClass("filled");
             $(".btn-as-tmx").addClass("d-none");
         }
+
+        // Trick to make it shrink
+        $(".live-translate-source, .live-translate-target").css({
+            height: 'auto'
+        });
+
+        $(".live-translate-source, .live-translate-target").css({
+            height: `${$(this)[0].scrollHeight}px`
+        })
     });
 
     // Some functionality for links and textareas

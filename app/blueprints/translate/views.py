@@ -15,7 +15,7 @@ translators = TranslationUtils()
 @translate_blueprint.route('/')
 def translate_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
-    return render_template('text_translate.html.jinja2', page_name='translate_text', engines = engines)
+    return render_template('translate.html.jinja2', page_name='translate_text', engines = engines)
 
 @translate_blueprint.route('/attach_engine/<id>')
 def translate_attach(id):

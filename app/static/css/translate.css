@@ -29,15 +29,19 @@
 
 .custom-textarea textarea {
     width: 100%;
-    height: 300px;
+    min-height: 300px;
+    height: auto;
     outline: 0;
     box-shadow: none !important;
     border: 0;
     resize: none;
     background-color: transparent;
     padding: 1rem;
+    padding-bottom: 2rem;
     position: relative;
     z-index: 1;
+    overflow: hidden;
+    transition: height 0.1s ease;
 }
 
 @media screen and (max-width: 576px) {
