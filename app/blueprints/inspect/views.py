@@ -31,7 +31,7 @@ def translate_leave():
 
 @inspect_blueprint.route('/attach_engine/<id>')
 def translate_attach(id):
-    if translators.launch(user_utils.get_uid(), id, True):
+    if translators.launch(user_utils.get_uid(), id):
         return "0"
     else:
         return "-1"

@@ -114,7 +114,7 @@ class JoeyWrapper:
             model=model, data=test_data, batch_size=1, level=level,
             max_output_length=max_output_length, eval_metric=None,
             use_cuda=use_cuda, loss_function=None, beam_size=beam_size,
-            beam_alpha=beam_alpha, logger=logger)
+            beam_alpha=beam_alpha, logger=logger, n_best=nbest)
 
         return hypotheses[0] if nbest == 1 else hypotheses
 

@@ -62,8 +62,6 @@ class TranslationUtils:
         # If the user is not running anything, we add them to the engine
         engine_entry = self.get_running_engine(id)
         user_engine = self.get_user_running_engine(user_id)
-
-        print([engine_entry, user_engine], file=sys.stderr)
         
         if engine_entry:
             if user_engine and engine_entry.engine.id == user_engine.engine.id:
@@ -103,10 +101,27 @@ class TranslationUtils:
         translation = self.get(user_id, [line])
         return translation[0] if translation else None
 
-    def get_inspect(self, user_id, lines):
+    def get_inspect(self, user_id, line):
         user_engine = self.get_user_running_engine(user_id)
         if user_engine:
-            return [self.translators[user_engine.engine_id].translate(line) for line in lines]
+            tokenizer = Tokenizer(user_engine.engine)
+            tokenizer.load()
+
+            n_best = []
+            if line.strip() != "":
+                line_tok = tokenizer.tokenize(line)
+                n_best = self.translators[user_engine.engine_id].translate(line_tok, 5)
+            else:
+                return None
+
+            return {
+                "source": user_engine.engine.source.code,
+                "target": user_engine.engine.target.code,
+                "preproc": n_best[0],
+                "nbest": [tokenizer.detokenize(n) for n in n_best],
+                "alignments": [],
+                "postproc": tokenizer.detokenize(n_best[0])
+            }
         else:
             return None
 
