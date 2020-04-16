@@ -13,15 +13,9 @@ translate_blueprint = Blueprint('translate', __name__, template_folder='template
 translators = TranslationUtils()
 
 @translate_blueprint.route('/')
-@translate_blueprint.route('/text')
 def translate_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
     return render_template('text_translate.html.jinja2', page_name='translate_text', engines = engines)
-
-@translate_blueprint.route('/files')
-def translate_files():
-    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
-    return render_template('files_translate.html.jinja2', page_name='translate_files', engines = engines)
 
 @translate_blueprint.route('/attach_engine/<id>')
 def translate_attach(id):
