@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>MutNMT</title>
-
+    <link rel="icon" href="{{ url_for('static', filename='img/icon.svg') }}" />
+    
     {% include "head.html.jinja2" %}
 
     <link rel="stylesheet" href="/css/base.css" />
@@ -19,7 +20,8 @@
                     </button>
 
                     <a class="h4 mb-0 text-dark" href="{{ url_for('index') }}">
-                        MultiTraiNMT
+                        <img alt="MutNMT Logo" src="{{ url_for('static', filename='img/icon.svg') }}" style="width: 48px;" class="d-none d-sm-inline" />
+                        MutNMT
                     </a>
                 </div>
 
@@ -32,7 +34,7 @@
                             </button>
 
                             <a class="h4 mb-0 text-dark" href="{{ url_for('index') }}">
-                                MultiTraiNMT
+                                MutNMT
                             </a>
                         </div>
 
