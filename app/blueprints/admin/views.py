@@ -1,4 +1,4 @@
-from app.models import User, Corpus, Engine
+from app.models import User, Corpus, Engine, RunningEngines
 from app.utils import user_utils, utils, datatables
 from app.utils.trainer import Trainer
 from app import db
@@ -117,7 +117,13 @@ def instances_datatables_feed():
 
     user_data = []
     for engine in (rows_filtered if search else rows):
-        user_data.append([engine.id, engine.name, engine.uploader.email if engine.uploader else ""])
+        user_data.append([engine.id, engine.name, engine.uploader.email if engine.uploader else "", "Training"])
+
+    columns_translating = [RunningEngines.id]
+    rows_translating, rows_translating_filtered, search_translating = dt.parse(RunningEngines, columns_translating, request)
+
+    for engine_entry in (rows_translating_filtered if search_translating else rows_translating):
+        user_data.append([engine_entry.engine.id, engine_entry.engine.name, engine_entry.engine.uploader.email if engine_entry.engine.uploader else "", "Translating"])
 
     return dt.response(rows, rows_filtered, user_data)
 

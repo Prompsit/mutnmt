@@ -16,7 +16,7 @@ $(document).ready(function() {
                 }
             },
             { 
-                targets: 3,
+                targets: 4,
                 responsivePriority: 1,
                 className: "actions",
                 searchable: false,
