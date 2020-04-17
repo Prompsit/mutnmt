@@ -110,7 +110,7 @@ class TranslationUtils:
             n_best = []
             if line.strip() != "":
                 line_tok = tokenizer.tokenize(line)
-                nbest = self.translators[user_engine.engine_id].translate(line_tok, 5)
+                n_best = self.translators[user_engine.engine_id].translate(line_tok, 5)
             else:
                 return None
 
