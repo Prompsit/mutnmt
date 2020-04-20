@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $(".translate-file-btn").on('mouseenter', function() {
-        $('.source-placeholder').css({ display: 'none' })
+        $('.source-placeholder').addClass("d-none");
         $('.custom-textarea-file-upload').css({ display: 'block' });
         $('.custom-textarea-file-upload').animate({ opacity: 1 }, 500);
     });
@@ -9,7 +9,7 @@ $(document).ready(function() {
         $('.custom-textarea-file-upload').animate({ opacity: 0 }, 250, function() {
             $('.custom-textarea-file-upload').css({ display: 'none' });
             if ($(".live-translate-source").val() == "") {
-                $('.source-placeholder').css({ display: 'block' })
+                $('.source-placeholder').removeClass("d-none");
             }
         });
     });
