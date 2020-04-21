@@ -1,7 +1,7 @@
 from app.models import User, Corpus, Engine, RunningEngines
 from app.utils import user_utils, utils, datatables
 from app.utils.trainer import Trainer
-from app import db
+from app import db, app
 from flask import Blueprint, render_template, request, jsonify, redirect
 from flask_login import login_required
 
@@ -22,10 +22,15 @@ def admin_index():
 def admin_system():
     factor = 1073741824
     vmem = psutil.virtual_memory()
-    ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) }
-
-    gpus = []
+    ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) } # GB
     
+    hdd = psutil.disk_usage(app.config['UPLOAD_FOLDER'])
+    import sys
+    print(hdd, file=sys.stderr)
+    disk_usage = { "percent": round((hdd.used / hdd.total) * 100, 2), "used": round(hdd.used / factor, 2), 
+                    "total": round(hdd.total / factor, 2)} # GB
+    
+    gpus = []
     pynvml.nvmlInit()
     for i in range(0, pynvml.nvmlDeviceGetCount()):
         handle = pynvml.nvmlDeviceGetHandleByIndex(i)
@@ -36,7 +41,8 @@ def admin_system():
                     })
 
     return render_template('system.admin.html.jinja2', page_name='admin_system', 
-                            ram=ram, cpu=round(psutil.cpu_percent(), 2), gpus=gpus)
+                            ram=ram, cpu=round(psutil.cpu_percent(), 2), gpus=gpus,
+                            disk_usage=disk_usage)
 
 
 @admin_blueprint.route('/instances')

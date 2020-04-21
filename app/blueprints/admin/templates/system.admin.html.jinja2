@@ -27,7 +27,7 @@
 </div>
 
 <div class="row">
-    <div class="col-12 col-sm-4 mb-2 mb-sm-0" title="RAM usage" aria-label="RAM usage">
+    <div class="col-12 col-sm-4 mb-2" title="RAM usage" aria-label="RAM usage">
         <div class="bg-light p-3 d-flex align-items-center h-100">
             <div class="mr-3 h1">
                 <i class="fas fa-memory"></i>
@@ -40,7 +40,20 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-sm-4 mb-2 mb-sm-0" title="CPU usage" aria-label="CPU usage">
+    <div class="col-12 col-sm-4 mb-2" title="Disk usage" aria-label="Disk usage">
+        <div class="bg-light p-3 d-flex align-items-center h-100">
+            <div class="mr-3 h1">
+                <i class="fas fa-hdd"></i>
+            </div>
+            <div>
+                <p class="h2">
+                    {{ disk_usage.percent }}%
+                </p>
+                {{ disk_usage.used }}GB out of {{ disk_usage.total }}GB
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-4 mb-2" title="CPU usage" aria-label="CPU usage">
         <div class="bg-light p-3 d-flex align-items-center h-100">
             <div class="mr-3 h1">
                 <i class="fas fa-microchip"></i>
@@ -55,7 +68,7 @@
     </div>
 
     {% for gpu in gpus %}
-    <div class="col-12 col-sm-4 mb-2 mb-sm-0" title="GPU usage" aria-label="GPU usage">
+    <div class="col-12 col-sm-4 mb-2" title="GPU usage" aria-label="GPU usage">
         <div class="bg-light p-3 d-flex align-items-center h-100">
             <div class="mr-3 h1">
                 <i class="fas fa-desktop"></i>
