@@ -12,6 +12,14 @@
     cursor: pointer;
 }
 
+.file-item .file-item-preview {
+    display: none;
+}
+
+.file-item:hover .file-item-preview {
+    display: block;
+}
+
 .tokenizer-animation {
     width: 85px;
     height: 80px;

@@ -37,6 +37,18 @@ def data_upload(type):
     languages = Language.query.all()
     return render_template('upload.data.html.jinja2', page_name='data', type=type, languages=languages)
 
+@data_blueprint.route('/preview/<file_id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def data_preview(file_id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    file = File.query.filter_by(id=file_id).first()
+    lines = []
+    with open(file.path, 'r') as reader:
+        lines = [next(reader) for i in range(50)]
+
+    return render_template('preview.data.html.jinja2', page_name='data', file=file, lines=lines)
+
 @data_blueprint.route('/upload/<type>/perform', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload_perform(type):

@@ -1,0 +1,35 @@
+{% extends "data.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/preview.css') }}" />
+{% endblock %}
+
+{% block resources %}
+{% endblock %}
+
+{% block content %}
+<h2 class="h5">Preview file</h2>
+
+<div class="row parafile">
+    <div class="col-12 col-sm mt-3 mt-sm-0">
+        <h3 class="h6">
+            <i class="fas fa-file"></i> {{ file.name }}
+        </h3>
+
+        <div class="parafile-showcase" data-file-id="{{ file.id }}" data-start="0" data-offset="50" style="max-height: 80vh;">
+            {% for line in lines %}
+                <div class="parafile-line">
+                    <span class="parafile-line-content">{{ line }}<span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<template id="parafile-line-template">
+    <div class="parafile-line">
+        <span class="parafile-line-content"><span>
+    </div>
+</template>
+
+{% endblock %}

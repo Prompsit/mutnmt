@@ -1,5 +1,9 @@
 {% extends "base.html.jinja2" %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/data.css') }}" />
+{% endblock %}
+
 {% block content %}
 
 <h2 class="h5">Upload corpora</h2>
@@ -50,8 +54,12 @@
 
         <div class="col-12 order-sm-3 pl-4 mt-2">
             {% for file_entry in corpus.corpus_files %}
-            <div class="d-flex align-items-center">
-                <i class="fas fa-file ml-4 mr-2"></i> {{ file_entry.file.name }}
+            <div class="d-flex align-items-center file-item">
+                <i class="fas fa-file ml-4 mr-2"></i>
+                {{ file_entry.file.name }}
+                <a class="pl-2 file-item-preview" href="{{ url_for('data.data_preview', file_id=file_entry.file.id) }}" title="Preview file">
+                    <i class="far fa-eye"></i>
+                </a>
             </div>
             {% endfor %}
         </div>
