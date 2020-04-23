@@ -46,6 +46,10 @@ from app import routes, models
 db.create_all()
 db.session.commit()
 
+for running_engine in models.RunningEngines.query.all():
+    db.session.delete(running_engine)    
+    db.session.commit()
+
 try:
     os.stat(app.config['UPLOAD_FOLDER'])
 except:
