@@ -11,7 +11,8 @@ RUN apt-get update -q --fix-missing && \
     apt-get -y install  python3 \
                         python3-dev \
                         virtualenv \
-                        curl && \
+                        curl &&
+                        tzdata && \
     apt-get autoremove -y && \
     apt-get autoclean
 
