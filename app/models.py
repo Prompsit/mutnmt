@@ -17,7 +17,7 @@ class Resource(db.Model):
     name = db.Column(db.String(64))
     path = db.Column(db.String(250), unique=True)
     hash = db.Column(db.String(250))
-    uploaded = db.Column(db.Date, default=datetime.datetime.utcnow)
+    uploaded = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     public = db.Column(db.Boolean, default=False)
 
     uploader_id = db.Column(db.Integer, db.ForeignKey('user.id'))
