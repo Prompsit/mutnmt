@@ -45,7 +45,11 @@ def data_preview(file_id):
     file = File.query.filter_by(id=file_id).first()
     lines = []
     with open(file.path, 'r') as reader:
-        lines = [next(reader) for i in range(50)]
+        for i, line in enumerate(reader):
+            if i < 50:
+                lines.append(line)
+            else:
+                break
 
     return render_template('preview.data.html.jinja2', page_name='data', file=file, lines=lines)
 
