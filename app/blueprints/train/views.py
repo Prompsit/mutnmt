@@ -5,7 +5,6 @@ from app.utils.trainer import Trainer
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
-from toolwrapper import ToolWrapper
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import namegenerator
 import datetime
