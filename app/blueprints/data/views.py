@@ -61,38 +61,59 @@ def data_upload_perform(type):
     try:
         if request.method == 'POST':
             try:
+                print("first", file=sys.stderr)
                 # Data folder
                 source_file = request.files.get('source_file')
                 source_db_file = upload_file(source_file, request.form['source_lang'])
+                target_db_file = None
 
                 corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
-                corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
                 corpus.source_id = request.form['source_lang']
-                
+                db.session.add(source_db_file)
+                corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
+
                 if type == "bilingual":
                     target_file = request.files.get('target_file')
                     target_db_file = upload_file(target_file, request.form['target_lang'])
-                    corpus.files.append(target_db_file)
                     corpus.target_id = request.form['target_lang']
+
+                    db.session.add(target_db_file)
+                    corpus.files.append(target_db_file)
+
+                db.session.add(corpus)
             except Exception as e:
                 print(e, file=sys.stderr)
                 raise Exception("Database error")
 
             try:
+                print("tokenize", file=sys.stderr)
                 tokenize(corpus)
             except Exception as e:
                 print(e, file=sys.stderr)
                 raise Exception("Tokenization error")
             else:
-                db.session.add(corpus)
+                if target_db_file:
+                    with open(source_db_file.path, 'r') as srcfreader:
+                        for source_lines, line in enumerate(srcfreader):
+                            pass
+
+                    with open(target_db_file.path, 'r') as trgfreader:
+                        for target_lines, line in enumerate(trgfreader):
+                            pass
+
+                    if source_lines != target_lines:
+                        raise Exception("Files have not the same length")
+
                 db.session.commit()
         else:
             raise Exception("Request not allowed")
     except Exception as e:
+        print(e, file=sys.stderr)
         Flash.issue(e, Flash.ERROR)
     else:
         Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
 
+    print("ok", file=sys.stderr)
     return url_for('data.data_index')
 
 def upload_file(file, language):
@@ -136,10 +157,6 @@ def upload_file(file, language):
                         hash = hash, uploader_id = user_utils.get_uid(),
                         lines = lines, words = words, chars = chars,
                         uploaded = datetime.datetime.utcnow())
-    finally:
-        if db_file is not None:
-            db.session.add(db_file)
-            db.session.commit()
 
     return db_file
 
