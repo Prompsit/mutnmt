@@ -10,5 +10,5 @@ virtualenv -p /usr/bin/python3 venv
 source venv/bin/activate
 pip3 install -r scripts/requirements.txt
 
-cd joeynmt
+cd app/joeynmt
 pip3 install .
