@@ -21,9 +21,7 @@ app.jinja_env.globals.update(**{
 @app.route('/index')
 def index():
     if current_user.is_authenticated:
-        if user_utils.is_normal():
-            return redirect(url_for('library.library_corpora'))
-        return redirect(url_for('data.data_index'))
+        return redirect(url_for('library.library_corpora'))
     else:
         return render_template('index.html.jinja2')
 
