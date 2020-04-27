@@ -1,15 +1,20 @@
 {% extends "base.html.jinja2" %}
 
 {% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap4.min.css" integrity="sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.css') }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}" />
 {% endblock %}
 
-{% block content %}
+{% block resources %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/jquery.dataTables.js" integrity="sha256-BFIKaFl5uYR8kP6wcRxaAqJpfZfC424TBccBBVjVzuY=" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/js/dataTables.bootstrap4.min.js" integrity="sha256-hJ44ymhBmRPJKIaKRf3DSX5uiFEZ9xB/qx8cNbJvIMU=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/library.js') }}"></script>
+{% endblock %}
 
-<div class="btn-group mb-3">
-    <a href="{{ url_for('library.library_index') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_corpora' or page_name == 'library_preview' else '' }}"><i class="fas fa-file"></i> Corpora</a>
-    <a href="{{ url_for('library.library_engines') }}" class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'library_engines' else '' }}"><i class="fas fa-cogs"></i> Engines</a>
-</div>
+{% block content %}
 
 {% block library_content %}
 {% endblock %}

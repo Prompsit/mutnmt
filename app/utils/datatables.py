@@ -4,7 +4,7 @@ from sqlalchemy.orm import load_only
 
 class Datatables(object):
     def __init__(self):
-        self.draw = None
+        self.draw = 1
         self.search = None
 
     def parse(self, table, columns, request, condition = None):
@@ -24,7 +24,7 @@ class Datatables(object):
                 .limit(length).offset(start) \
                 .all()
     
-        rows_filtered = None
+        rows_filtered = []
         if self.search:
             rows_filtered = table.query.options(load_only(*columns)) \
                                 .filter(or_(*[c.ilike('%{}%'.format(self.search)) for c in columns])) \

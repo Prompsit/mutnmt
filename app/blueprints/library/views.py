@@ -1,21 +1,22 @@
 from app import app, db
-from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus
-from app.utils import user_utils, utils
+from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine
+from app.utils import user_utils, utils, datatables
 from app.flash import Flash
 from flask_login import login_required
-from sqlalchemy import and_
+from sqlalchemy import and_, not_
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
-
+from datetime import datetime
+from dateutil import tz
 import os
 import hashlib
 import sys
 import shutil
+import pytz
 
 library_blueprint = Blueprint('library', __name__, template_folder='templates')
 
-@library_blueprint.route('/')
 @library_blueprint.route('/corpora')
-def library_index():
+def library_corpora():
     user_library = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
     public_files = Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid()))
 
@@ -33,6 +34,68 @@ def library_engines():
 
     return render_template('library_engines.html.jinja2', page_name = 'library_engines', 
             user_library = user_library, public_engines = public_engines)
+
+@library_blueprint.route('/corpora_feed', methods=["POST"])
+def library_corpora_feed():
+    public = request.form.get('public') == "true"
+
+    user_library =  Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid())) if public \
+                        else Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
+
+    dt = datatables.Datatables()
+    rows, rows_filtered, search = [], [], None
+
+    corpus_data = []
+    for corpus in user_library:
+        columns = [File.id, File.name, File.language_id, File.lines, File.words, File.chars, File.uploaded]
+
+        rows, rows_filtered, search = dt.parse(File, columns, request, File.corpora.any(Corpus_File.corpus_id == corpus.id))
+
+        for file in (rows_filtered if search else rows):
+            uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
+            corpus_data.append([file.id, file.name, file.language.name, file.lines, file.words, file.chars, uploaded_date, "",
+                                {
+                                    "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
+                                    "corpus_id": corpus.id,
+                                    "corpus_name": corpus.name,
+                                    "corpus_source": corpus.source.name,
+                                    "corpus_target": corpus.target.name,
+                                    "corpus_public": corpus.public,
+                                    "corpus_preview": url_for('library.corpora_preview', id = corpus.id),
+                                    "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
+                                    "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
+                                    "corpus_grab": url_for('library.library_grab', id = corpus.id, type = 'library_corpora'),
+                                    "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora')
+                                }])
+
+    return dt.response(rows, rows_filtered, corpus_data)
+
+@library_blueprint.route('/engines_feed', methods=["POST"])
+def library_engines_feed():
+    public = request.form.get('public') == "true"
+    columns = [Engine.id, Engine.name, Engine.source_id, Engine.target_id, Engine.uploaded]
+    dt = datatables.Datatables()
+
+    rows, rows_filtered, search = dt.parse(Engine, columns, request, 
+                                    and_(Engine.public == True, not_(Engine.engine_users.any(LibraryEngine.user_id == user_utils.get_uid()))) if public 
+                                    else Engine.engine_users.any(LibraryEngine.user_id == user_utils.get_uid()))
+
+    engine_data = []
+    for engine in (rows_filtered if search else rows):
+        uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
+        engine_data.append([engine.id, engine.name, engine.source.name, 
+                            engine.target.name, uploaded_date, engine.uploader.username if engine.uploader else "", "",
+                            {
+                                "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
+                                "engine_public": engine.public,
+                                "engine_share": url_for('library.library_share_toggle', type = "library_engines", id = engine.id),
+                                "engine_summary": url_for('train.train_console', id = engine.id),
+                                "engine_delete": url_for('library.library_delete', id = engine.id, type = "library_engines"),
+                                "engine_grab": url_for('library.library_grab', id = engine.id, type = "library_engines"),
+                                "engine_ungrab": url_for('library.library_ungrab', id = engine.id, type = "library_engines")
+                            }])
+
+    return dt.response(rows, rows_filtered, engine_data)
 
 @library_blueprint.route('/preview/<id>')
 def corpora_preview(id):
@@ -70,7 +133,7 @@ def library_share_toggle(type, id):
         db_resource.public = not db_resource.public
         db.session.commit()
 
-    return redirect(url_for('library.library_index'))
+    return redirect(request.referrer)
 
 @library_blueprint.route('/grab/<type>/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

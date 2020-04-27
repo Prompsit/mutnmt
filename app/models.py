@@ -156,7 +156,7 @@ class LibraryEngine(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     user = db.relationship(User, backref = db.backref("user_engines", cascade="all, delete-orphan"))
-    engine = db.relationship("Engine")
+    engine = db.relationship("Engine", backref = db.backref("engine_users"))
 
     __table_args__ = (
         db.UniqueConstraint('user_id', 'engine_id'),

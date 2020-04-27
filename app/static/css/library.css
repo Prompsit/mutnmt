@@ -18,6 +18,19 @@
 }
 
 .folder-indicator .second-icon::before {
-    background: white;
+    background: transparent;
+}
 
+.corpus-header {
+    background-color: var(--light);
+}
+
+.corpus-header .corpus_icon {
+    text-align: center;
+}
+
+.corpus-header th {
+    border-left: 0;
+    border-bottom: 0;
+    border-right: 0;
 }

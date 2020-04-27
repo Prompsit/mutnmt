@@ -48,9 +48,15 @@
                             </li>
                             {% endif %}
                             <li class="nav-item mb-2">
-                                <a class="nav-link {{ 'active' if page_name.startswith('library') else '' }}" href="{{ url_for('library.library_index') }}">
-                                    <i class="fas fa-folder-open mr-2"></i>
-                                    Library
+                                <a class="nav-link {{ 'active' if page_name == 'library_corpora' else '' }}" href="{{ url_for('library.library_corpora') }}">
+                                    <i class="fas fa-database mr-2"></i>
+                                    Corpora
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link {{ 'active' if page_name == 'library_engines' else '' }}" href="{{ url_for('library.library_engines') }}">
+                                    <i class="fas fa-cogs mr-2"></i>
+                                    Engines
                                 </a>
                             </li>
                             {% if not is_normal() %}

@@ -1,13 +1,23 @@
 {% extends "library.html.jinja2" %}
 
 {% block library_content %}
-<h2 class="h5">Your corpora</h2>
 
-{% if user_library|length > 0 %}
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
+<h2 class="h5 sr-only">Your corpora</h2>
+<ul class="nav nav-tabs corpora-nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link public-nav-tab" data-toggle="tab" href="#public-corpora">Public corpora</a>
+    </li>
+</ul>
+
+<div class="tab-content corpora-tab">
+    <div class="tab-pane fade show active pt-4" id="private-corpora">
+        {% if user_library|length > 0 %}
+        <table class="table table-bordered corpora-table w-100">
+            <thead>
+                <th></th>
                 <th>File name</th>
                 <th>Language</th>
                 <th>Lines</th>
@@ -15,125 +25,85 @@
                 <th>Chars</th>
                 <th>Date</th>
                 <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for corpus in user_library %}
-                <tr class="bg-light">
-                    <td colspan="6" class="align-middle">
-                        <div class="d-flex align-items-center">
-                            {% if corpus.owner_id == get_user().id and corpus.public %}
-                            <div class="folder-indicator mr-3">
-                                <i class="folder-icon fas fa-folder mr-2"></i>
-                                <i class="second-icon fas fa-share-alt-square text-success"></i>
-                            </div>
-                            {% elif corpus.owner_id != get_user().id %}
-                            <div class="folder-indicator mr-3">
-                                <i class="folder-icon fas fa-folder mr-2"></i>
-                                <i class="second-icon fas fas fa-user text-warning"></i>
-                            </div>
-                            {% else %}
-                                <i class="folder-icon fas fa-folder mr-2"></i>
-                            {% endif %}
-                            <div>
-                                {{ corpus.name }} 
-                                ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
-                            </div>
-                        </div>
-                    </td>
-                    <td class="text-right">
-                        <div class="dropdown">
-                            <button class="btn btn-link btn-sm" id="dropdownMenuButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                                <a href="{{ url_for('library.corpora_preview', id = corpus.id) }}" class="dropdown-item">
-                                    <i class="fas fa-stream"></i> Preview
-                                </a>
-                                {% if corpus.owner_id == get_user().id %}
-                                    {% if corpus.public %}
-                                    <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
-                                        <i class="fas fa-lock"></i> Stop sharing
-                                    </a>
-                                    {% else %}
-                                    <a href="{{ url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id) }}" class="dropdown-item">
-                                        <i class="fas fa-lock-open"></i> Share
-                                    </a>
-                                    {% endif %}
+            </thead>
+        </table>
+        {% else %}
+        <div class="jumbotron p-3 text-center">
+            <p class="h6 m-0">
+                Nothing yet! <a href="{{ url_for('data.data_index') }}">Upload a corpus now</a> or grab one
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    <div class="tab-pane fade pt-4" id="public-corpora">
+        <table class="table table-bordered corpora-table w-100" data-public="true">
+                <thead>
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Lines</th>
+                    <th>Words</th>
+                    <th>Chars</th>
+                    <th>Date</th>
+                    <th></th>
+                </thead>
+            </table>
+    </div>
+</div>
 
-                                    <a href="{{ url_for('library.library_delete', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </a>
-                                {% else %}
-                                    <a href="{{ url_for('library.library_ungrab', id = corpus.id, type = page_name) }}" class="dropdown-item text-danger">
-                                        <i class="fas fa-times"></i> Remove
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                {% for user_file in corpus.corpus_files %}
-                <tr>
-                    <td>{{ user_file.file.name }}</td>
-                    <td>{{ user_file.file.language.name }}</td>
-                    <td>{{ user_file.file.lines }}</td>
-                    <td>{{ user_file.file.words }}</td>
-                    <td>{{ user_file.file.chars }}</td>
-                    <td>{{ user_file.file.uploaded }}</td>
-                    <td></td>
-                </tr>
-                {% endfor %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-<div class="jumbotron p-3 text-center">
-    <p class="h6 m-0">
-        Nothing yet! <a href="{{ url_for('data.data_index') }}">Upload a corpus now</a>
-    </p>
-</div>
-{% endif %}
+<template id="corpus-header-template">
+    <tr class="corpus-header">
+        <th class="corpus_icon">
+            <div class="folder-shared folder-indicator d-none">
+                <i class="folder-icon fas fa-folder mr-2"></i>
+                <i class="second-icon fas fa-share-alt-square text-success bg-white"></i>
+            </div>
+            <div class="folder-grabbed folder-indicator d-none">
+                <i class="folder-icon fas fa-folder mr-2"></i>
+                <i class="second-icon fas fas fa-user text-warning"></i>
+            </div>
+            <div class="folder-owner d-none">
+                <i class="folder-icon fas fa-folder mr-2"></i>
+            </div>
+        </th>
+        <th class="corpus_name"></th>
+        <th class="corpus_lang" colspan="6">
+            <span class="corpus_lang_src"></span> — <span class="corpus_lang_trg"></span>
+        </th>
+    </tr>
+</template>
 
-<h2 class="h5">Public corpora</h2>
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>File name</th>
-                <th>Language</th>
-                <th>Lines</th>
-                <th>Words</th>
-                <th>Date</th>
-                <th>Uploader</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for corpus in public_files %}
-                <tr class="bg-light">
-                    <td colspan="6" class="align-middle">
-                        <i class="fas fa-folder mr-2"></i> {{ corpus.name }} 
-                        ({{ corpus.source.name }} {% if corpus.type == "bilingual" %} — {{ corpus.target.name }}{% endif %})
-                    </td>
-                    <td class="text-right">
-                        <a href="{{ url_for('library.library_grab', id = corpus.id, type = page_name) }}" class="btn btn-sm btn-outline-primary">Grab</a>
-                    </td>
-                </tr>
-                {% for user_file in corpus.corpus_files %}
-                <tr>
-                    <td>{{ user_file.file.name }}</td>
-                    <td>{{ user_file.file.language.name }}</td>
-                    <td>{{ user_file.file.lines }}</td>
-                    <td>{{ user_file.file.words }}</td>
-                    <td>{{ user_file.file.uploaded }}</td>
-                    <td>{{ user_file.file.uploader.username }}</td>
-                    <td></td>
-                </tr>
-                {% endfor %}
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<template id="corpus-actions-template">
+    <div class="dropdown">
+        <button class="btn btn-link btn-sm px-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a href="#" class="corpus-preview dropdown-item">
+                <i class="fas fa-stream"></i> Preview
+            </a>
+
+            <a href="#" class="corpus-stop-share d-none dropdown-item">
+                <i class="fas fa-lock"></i> Stop sharing
+            </a>
+
+            <a href="#" class="corpus-share d-none dropdown-item">
+                <i class="fas fa-lock-open"></i> Share
+            </a>
+
+            <a href="#" class="corpus-delete d-none dropdown-item text-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+
+            <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
+                <i class="fas fa-times"></i> Remove
+            </a>
+
+            <a href="#" class="grab-btn dropdown-item d-none">
+                <i class="fas fa-file-import"></i> Grab
+            </a>
+        </div>
+    </div>
+</template>
+
 {% endblock %}
