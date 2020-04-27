@@ -46,10 +46,13 @@ def evaluate_perform():
 
     metrics = []
     for evaluator in evaluators:
-        metrics.append({
-            "name": evaluator.get_name(),
-            "value": evaluator.get_value(mt_path, ht_path)
-        })
+        try:
+            metrics.append({
+                "name": evaluator.get_name(),
+                "value": evaluator.get_value(mt_path, ht_path)
+            })
+        except:
+            pass
 
     bpl_result = bpl(mt_path, ht_path)
 
