@@ -34,6 +34,30 @@ $(document).ready(function() {
                         } else {
                             $(template).find(".folder-grabbed").removeClass("d-none");
                         }
+                        
+                        if (public_mode) {
+                            $(".grab-btn").attr("href", corpus_data.corpus_grab);
+                            $(".grab-btn").removeClass("d-none");
+                        } else {
+                            if (corpus_data.corpus_owner) {
+                                if (corpus_data.corpus_public) {
+                                    $(template).find(".corpus-stop-share").attr("href", corpus_data.corpus_share);
+                                    $(template).find(".corpus-stop-share").removeClass("d-none");
+                                } else {
+                                    $(template).find(".corpus-share").attr("href", corpus_data.corpus_share);
+                                    $(template).find(".corpus-share").removeClass("d-none");
+                                }
+
+                                $(template).find(".corpus-delete").attr("href", corpus_data.corpus_delete);
+                                $(template).find(".corpus-delete").removeClass("d-none");
+                            } else {
+                                $(template).find(".corpus-ungrab").attr("href", corpus_data.corpus_ungrab);
+                                $(template).find(".corpus-ungrab").removeClass("d-none");
+                            }
+
+                            $(template).find(".corpus-preview").attr("href", corpus_data.corpus_preview);
+                        }
+
 
                         $(row).before(template);
                         last_group = corpus_data.corpus_id;
@@ -60,36 +84,7 @@ $(document).ready(function() {
                     searchable: false,
                     sortable: false,
                     render: function(data, type, row) {
-                        let corpus_data = row[8];
-                        let template = document.importNode(document.querySelector("#corpus-actions-template").content, true);
-                        
-                        if (public_mode) {
-                            $(".grab-btn").attr("href", corpus_table.corpus_grab);
-                            $(".grab-btn").removeClass("d-none");
-                        } else {
-                            if (corpus_data.corpus_owner) {
-                                if (corpus_data.corpus_public) {
-                                    $(template).find(".corpus-stop-share").attr("href", corpus_data.corpus_share);
-                                    $(template).find(".corpus-stop-share").removeClass("d-none");
-                                } else {
-                                    $(template).find(".corpus-share").attr("href", corpus_data.corpus_share);
-                                    $(template).find(".corpus-share").removeClass("d-none");
-                                }
-
-                                $(template).find(".corpus-delete").attr("href", corpus_data.corpus_delete);
-                                $(template).find(".corpus-delete").removeClass("d-none");
-                            } else {
-                                $(template).find(".corpus-ungrab").attr("href", corpus_data.corpus_ungrab);
-                                $(template).find(".corpus-ungrab").removeClass("d-none");
-                            }
-
-                            $(template).find(".corpus-preview").attr("href", corpus_data.corpus_preview);
-                        }
-
-                        let ghost = document.createElement('div');
-                        $(ghost).append(template);
-
-                        return ghost.innerHTML;
+                        return ""
                     }
                 }
             ]

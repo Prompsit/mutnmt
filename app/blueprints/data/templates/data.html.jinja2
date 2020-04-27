@@ -6,6 +6,8 @@
 
 {% block content %}
 
+{% if not is_normal() %}
+
 <h2 class="h5">Upload corpora</h2>
                 
 <div class="jumbotron p-4 text-center">
@@ -31,6 +33,8 @@
         </div>
     </div>
 </div>
+
+{% endif %}
 
 <h2 class="h5">Your corpora</h2>
 {% if corpora|length > 0 %}

@@ -20,23 +20,6 @@ import sentencepiece as spm
 
 data_blueprint = Blueprint('data', __name__, template_folder='templates')
 
-@data_blueprint.route('/')
-@utils.condec(login_required, user_utils.isUserLoginEnabled())
-def data_index():
-    if user_utils.is_normal(): return redirect(url_for('index'))
-
-    corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-
-    return render_template('data.html.jinja2', page_name='data', corpora = corpora)
-
-@data_blueprint.route('/upload/<type>')
-@utils.condec(login_required, user_utils.isUserLoginEnabled())
-def data_upload(type):
-    if user_utils.is_normal(): return redirect(url_for('index'))
-
-    languages = Language.query.all()
-    return render_template('upload.data.html.jinja2', page_name='data', type=type, languages=languages)
-
 @data_blueprint.route('/preview/<file_id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_preview(file_id):
@@ -53,9 +36,11 @@ def data_preview(file_id):
 
     return render_template('preview.data.html.jinja2', page_name='data', file=file, lines=lines)
 
-@data_blueprint.route('/upload/<type>/perform', methods=['POST'])
+@data_blueprint.route('/upload/perform', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
-def data_upload_perform(type):
+def data_upload_perform():
+    type = "bilingual" if "target_file" in request.files.keys() else "monolingual"
+
     if user_utils.is_normal(): return redirect(url_for('index'))
 
     try:
@@ -83,7 +68,7 @@ def data_upload_perform(type):
                 db.session.add(corpus)
             except Exception as e:
                 print(e, file=sys.stderr)
-                raise Exception("Database error")
+                raise Exception("Something went wrong on our end... Please, try again later")
 
             try:
                 print("tokenize", file=sys.stderr)
@@ -102,11 +87,11 @@ def data_upload_perform(type):
                             pass
 
                     if source_lines != target_lines:
-                        raise Exception("Files have not the same length")
+                        raise Exception("Source and target file should have the same length")
 
                 db.session.commit()
         else:
-            raise Exception("Request not allowed")
+            raise Exception("Sorry, but we couldn't handle your request")
     except Exception as e:
         print(e, file=sys.stderr)
         Flash.issue(e, Flash.ERROR)
@@ -114,7 +99,7 @@ def data_upload_perform(type):
         Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
 
     print("ok", file=sys.stderr)
-    return url_for('data.data_index')
+    return request.referrer
 
 def upload_file(file, language):
     norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)

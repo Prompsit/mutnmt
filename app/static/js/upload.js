@@ -18,6 +18,20 @@ $(document).ready(function() {
         drag_callback($(".target_file"), file)
     });
 
+    $(".monolingual-nav-tab").on('click', function() {
+        $(".target-file-col").addClass("target-col-disabled");
+        $(".target_file").removeClass("dragged");
+        $(".upload-nav-tabs .nav-link").removeClass("active");
+        $(this).addClass("active");
+        file_target = null;
+    });
+
+    $(".bilingual-nav-tab").on('click', function() {
+        $(".target-file-col").removeClass("target-col-disabled");
+        $(".upload-nav-tabs .nav-link").removeClass("active");
+        $(this).addClass("active");
+    });
+
     $(".data-upload-form").on("submit", function(e) {
         e.preventDefault();
         $(".token-alert").addClass("d-none");

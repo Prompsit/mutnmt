@@ -2,8 +2,86 @@
 
 {% block library_content %}
 
+<h2 class="h5">Upload corpora</h2>
+
+<form class="data-upload-form" action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
+    <div class="row bg-light p-3">
+        <div class="col-12">
+            <div class="form-group">
+                <div class="w-50">
+                    <label for="name">Name</label>
+                    <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <ul class="nav nav-tabs upload-nav-tabs">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active bilingual-nav-tab">Bilingual</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link monolingual-nav-tab">Monolingual</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-12 col-sm-6">
+                    <label for="source_file">Source file</label>
+                    <select class="custom-select mb-2 source_lang" name="source_lang">
+                        {% for language in languages %}
+                            <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% with file_dnd_id = "source_file" %}
+                        {% include "file-dnd.html.jinja2" %}
+                    {% endwith %}
+                </div>
+
+                <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
+                    <label for="target_file">Target file</label>
+                    <select class="custom-select mb-2 target_lang" name="target_lang">
+                        {% for language in languages %}
+                            <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% with file_dnd_id = "target_file" %}
+                        {% include "file-dnd.html.jinja2" %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group row mt-4">
+        <div class="col-12 col-sm-4">
+            <div class="token-alert d-none">
+                <div class="d-flex align-items-center">
+                    <div class="tokenizer-animation">
+                        <i class="ta-cloud fas fa-cloud"></i>
+                        <div class="cogs">
+                            <i class="cog fas fa-cog"></i>
+                            <i class="cog fas fa-cog"></i>
+                            <i class="cog fas fa-cog"></i>
+                        </div>
+                    </div>
+                    <div class="h6 ml-5">
+                        We are making sure that your data is all right...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-1 offset-sm-7">
+            <input class="btn btn-primary" type="submit" id="submit" value="Upload" />
+        </div>
+    </div>
+</form>
+
 <h2 class="h5 sr-only">Your corpora</h2>
-<ul class="nav nav-tabs corpora-nav-tabs">
+<ul class="mt-4 nav nav-tabs corpora-nav-tabs">
     <li class="nav-item">
         <a class="nav-link active private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
     </li>
@@ -67,43 +145,42 @@
             </div>
         </th>
         <th class="corpus_name"></th>
-        <th class="corpus_lang" colspan="6">
+        <th class="corpus_lang" colspan="5">
             <span class="corpus_lang_src"></span> — <span class="corpus_lang_trg"></span>
         </th>
+        <th class="corpus_actions">
+            <div class="dropdown">
+                <button class="btn btn-link btn-sm px-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="#" class="corpus-preview dropdown-item">
+                        <i class="fas fa-stream"></i> Preview
+                    </a>
+
+                    <a href="#" class="corpus-stop-share d-none dropdown-item">
+                        <i class="fas fa-lock"></i> Stop sharing
+                    </a>
+
+                    <a href="#" class="corpus-share d-none dropdown-item">
+                        <i class="fas fa-lock-open"></i> Share
+                    </a>
+
+                    <a href="#" class="corpus-delete d-none dropdown-item text-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+
+                    <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
+                        <i class="fas fa-times"></i> Remove
+                    </a>
+
+                    <a href="#" class="grab-btn dropdown-item d-none">
+                        <i class="fas fa-file-import"></i> Grab
+                    </a>
+                </div>
+            </div>
+        </th>
     </tr>
-</template>
-
-<template id="corpus-actions-template">
-    <div class="dropdown">
-        <button class="btn btn-link btn-sm px-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-right">
-            <a href="#" class="corpus-preview dropdown-item">
-                <i class="fas fa-stream"></i> Preview
-            </a>
-
-            <a href="#" class="corpus-stop-share d-none dropdown-item">
-                <i class="fas fa-lock"></i> Stop sharing
-            </a>
-
-            <a href="#" class="corpus-share d-none dropdown-item">
-                <i class="fas fa-lock-open"></i> Share
-            </a>
-
-            <a href="#" class="corpus-delete d-none dropdown-item text-danger">
-                <i class="fas fa-trash"></i> Delete
-            </a>
-
-            <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
-                <i class="fas fa-times"></i> Remove
-            </a>
-
-            <a href="#" class="grab-btn dropdown-item d-none">
-                <i class="fas fa-file-import"></i> Grab
-            </a>
-        </div>
-    </div>
 </template>
 
 {% endblock %}

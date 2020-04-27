@@ -20,6 +20,11 @@
     display: block;
 }
 
+.target-col-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
 .tokenizer-animation {
     width: 85px;
     height: 80px;

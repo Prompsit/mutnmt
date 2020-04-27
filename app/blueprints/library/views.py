@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine
+from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language
 from app.utils import user_utils, utils, datatables
 from app.flash import Flash
 from flask_login import login_required
@@ -19,9 +19,10 @@ library_blueprint = Blueprint('library', __name__, template_folder='templates')
 def library_corpora():
     user_library = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
     public_files = Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid()))
+    languages = Language.query.all()
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', 
-            user_library = user_library, public_files = public_files)
+            user_library = user_library, public_files = public_files, languages=languages)
 
 @library_blueprint.route('/engines')
 def library_engines():
