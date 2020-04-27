@@ -35,3 +35,11 @@
     border-right: 0;
     vertical-align: middle;
 }
+
+.corpus_lang_trg::before {
+    content: "— ";
+}
+
+.corpus_lang_trg:empty::before {
+    content: "";
+}

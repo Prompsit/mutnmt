@@ -60,7 +60,7 @@ def library_corpora_feed():
                                     "corpus_id": corpus.id,
                                     "corpus_name": corpus.name,
                                     "corpus_source": corpus.source.name,
-                                    "corpus_target": corpus.target.name,
+                                    "corpus_target": corpus.target.name if corpus.target else "",
                                     "corpus_public": corpus.public,
                                     "corpus_preview": url_for('library.corpora_preview', id = corpus.id),
                                     "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
