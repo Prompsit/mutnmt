@@ -5,51 +5,53 @@
 <h2 class="h5">Upload corpora</h2>
 
 <form class="data-upload-form" action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
-    <div class="row bg-light p-3">
+    <div class="row">
         <div class="col-12">
-            <div class="form-group">
-                <div class="w-50">
-                    <label for="name">Name</label>
-                    <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
-                </div>
-            </div>
-
-            <div class="form-group">
-                <ul class="nav nav-tabs upload-nav-tabs">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active bilingual-nav-tab">Bilingual</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link monolingual-nav-tab">Monolingual</a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-12 col-sm-6">
-                    <label for="source_file">Source file</label>
-                    <select class="custom-select mb-2 source_lang" name="source_lang">
-                        {% for language in languages %}
-                            <option value="{{ language.code }}">{{ language.name }}</option>
-                        {% endfor %}
-                    </select>
-
-                    {% with file_dnd_id = "source_file" %}
-                        {% include "file-dnd.html.jinja2" %}
-                    {% endwith %}
+            <div class="bg-light p-3">
+                <div class="form-group">
+                    <div class="w-50">
+                        <label for="name">Name</label>
+                        <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
+                    </div>
                 </div>
 
-                <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
-                    <label for="target_file">Target file</label>
-                    <select class="custom-select mb-2 target_lang" name="target_lang">
-                        {% for language in languages %}
-                            <option value="{{ language.code }}">{{ language.name }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="form-group">
+                    <ul class="nav nav-tabs upload-nav-tabs">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active bilingual-nav-tab">Bilingual</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link monolingual-nav-tab">Monolingual</a>
+                        </li>
+                    </ul>
+                </div>
 
-                    {% with file_dnd_id = "target_file" %}
-                        {% include "file-dnd.html.jinja2" %}
-                    {% endwith %}
+                <div class="form-group row">
+                    <div class="col-12 col-sm-6">
+                        <label for="source_file">Source file</label>
+                        <select class="custom-select mb-2 source_lang" name="source_lang">
+                            {% for language in languages %}
+                                <option value="{{ language.code }}">{{ language.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        {% with file_dnd_id = "source_file" %}
+                            {% include "file-dnd.html.jinja2" %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
+                        <label for="target_file">Target file</label>
+                        <select class="custom-select mb-2 target_lang" name="target_lang">
+                            {% for language in languages %}
+                                <option value="{{ language.code }}">{{ language.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        {% with file_dnd_id = "target_file" %}
+                            {% include "file-dnd.html.jinja2" %}
+                        {% endwith %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -74,7 +76,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-1 offset-sm-7">
+        <div class="col-12 col-sm-2 offset-sm-10 text-right">
             <input class="btn btn-primary" type="submit" id="submit" value="Upload" />
         </div>
     </div>

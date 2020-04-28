@@ -15,7 +15,7 @@
 
 {% if engines | length > 0 %}
 
-<form action="{{ url_for('translate.as_tmx') }}" method="post" class="live-translate-form" data-status="false">
+<form action="{{ url_for('translate.as_tmx') }}" method="post" class="live-translate-form" data-status="false">    
     <div class="row mt-4 align-items-center">
         <div class="col-6 col-sm-3">
             <h2 class="h5">Translate</h2>
@@ -53,11 +53,22 @@
                     </div>
                 </div>
                 <div class="custom-textarea-tools">
-                    <label class="file-dnd-label btn btn-link translate-file-btn" for="file_to_translate">
-                        <i class="far fa-file-alt"></i> 
-                        <span class="file-label-text">Translate file</span>
-                        <span class="file-label-name"></span>
-                    </label>
+                    <div class="btn-group dropright">
+                        <label class="file-dnd-label btn btn-link translate-file-btn pr-0" for="file_to_translate">
+                            <i class="far fa-file-alt mr-2"></i>
+                            <span class="file-label-text">Translate file</span>
+                            <span class="file-label-name"></span>
+                        </label>
+                        <button class="btn btn-link dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <label class="dropdown-item translate-file-tmx-btn mb-0" for="file_to_translate">
+                                <i class="fas fa-box mr-2"></i>
+                                Translate file and generate TMX
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="custom-textarea-separator">
                     <div class="icon">
@@ -72,7 +83,7 @@
                 <textarea readonly name="text" class="live-translate-target" autocomplete="off"></textarea>
 
                 <div class="custom-textarea-tools">
-                    <button type=submit class="btn btn-link btn-as-tmx d-none">
+                    <button type=submit class="btn btn-link btn-as-tmx">
                         <i class="fas fa-file-download"></i> As TMX
                     </button>
                 </div>

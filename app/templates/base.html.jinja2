@@ -12,7 +12,7 @@
 </head>
 <body>
     <div class="container-fluid px-sm-12">
-        <div class="row mt-3">
+        <div class="row my-3">
             <div class="col-12 col-sm-3">
                 <div class="d-flex align-items-center">
                     <button class="btn btn-light mr-2 d-sm-none" data-toggle="hamburger" data-target="#navbar">
@@ -78,7 +78,7 @@
                                 </a>
                             </li>
                             {% if is_admin() %}
-                            <li class="nav-item">
+                            <li class="nav-item mt-2">
                                 <a class="nav-link {{ 'active' if page_name.startswith('admin') else '' }}" href="{{ url_for('admin.admin_index') }}">
                                     <i class="fas fa-user-tie mr-2"></i>
                                     Admin

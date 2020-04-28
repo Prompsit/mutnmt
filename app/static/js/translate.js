@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    let file_as_tmx = false;
+
     $(".translate-file-btn").on('mouseenter', function() {
         $('.source-placeholder').addClass("d-none");
         $('.custom-textarea-file-upload').css({ display: 'block' });
@@ -13,6 +15,10 @@ $(document).ready(function() {
             }
         });
     });
+
+    $(".translate-file-tmx-btn").on('click', function() {
+        file_as_tmx = true;
+    })
 
     // Translates the source text and displays
     // the translation in a textarea
@@ -99,11 +105,9 @@ $(document).ready(function() {
         count++;
 
         if ($(this).val() != "") {
-            $(this).parent().addClass("filled");
-            $(".btn-as-tmx").removeClass("d-none");
+            $('.custom-textarea').addClass("filled");
         } else {
-            $(this).parent().removeClass("filled");
-            $(".btn-as-tmx").addClass("d-none");
+            $('.custom-textarea').removeClass("filled");
         }
 
         // Trick to make it shrink
@@ -135,11 +139,14 @@ $(document).ready(function() {
     // File translation
     let translate_file = (file) => {
         $('.live-translate-form').attr('data-status', 'file-translating');
+        $('.live-translate-source').val('');
+        $('.live-translate-source').prop('disabled', true);
+        $('.custom-textarea').removeClass("filled");
 
         let data = new FormData();
         data.append("user_file", file);
         data.append("engine_id", $(".engine-select option:selected").val());
-        data.append("as_tmx", $("#as_tmx").val());
+        data.append("as_tmx", file_as_tmx);
         data.append("tmx_mode", $(".tmx-mode-select .form-check-input:checked").val())
 
         $.ajax({
@@ -150,6 +157,9 @@ $(document).ready(function() {
             cache: false,
             processData: false,
             success: function(key_url) {
+                file_as_tmx = false;
+                $('.btn-as-tmx').removeClass("d-none");
+                $('.live-translate-source').prop('disabled', false);
                 $('.live-translate-form').attr('data-status', 'ready');
                 $(".file-label-name").html("");
                 $(".file-label-text").css({ display: 'inline' })
