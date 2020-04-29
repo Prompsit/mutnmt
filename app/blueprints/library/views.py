@@ -66,7 +66,8 @@ def library_corpora_feed():
                                     "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
                                     "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
                                     "corpus_grab": url_for('library.library_grab', id = corpus.id, type = 'library_corpora'),
-                                    "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora')
+                                    "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora'),
+                                    "file_preview": url_for('data.data_preview', file_id=file.id)
                                 }])
 
     return dt.response(rows, rows_filtered, corpus_data)

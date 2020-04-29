@@ -65,17 +65,35 @@ $(document).ready(function() {
                 })
             },
             columnDefs: [
-                { 
-                    targets: 0,
-                    responsivePriority: 1,
-                    className: "border-right-0",
-                    render: function(data, type, row) {
-                        return ""
-                    }
-                },
                 {
                     targets: [0, 1, 2, 3, 4, 5, 6, 7],
                     responsivePriority: 1
+                },
+                { 
+                    targets: 0,
+                    responsivePriority: 1,
+                    className: "border-right-0 align-middle text-center",
+                    render: function(data, type, row) {
+                        let corpus_data = row[8];
+                        let template = document.importNode(document.querySelector("#preview-button-template").content, true);
+                        $(template).find(".file-item-preview").attr("href", corpus_data.file_preview);
+                        let ghost = document.createElement('div');
+                        $(ghost).append(template);
+                        return ghost.innerHTML;
+                    }
+                },
+                {
+                    targets: 1,
+                    responsivePriority: 1,
+                    render: function(data, type, row) {
+                        let corpus_data = row[8];
+                        let template = document.importNode(document.querySelector("#corpus-entry-template").content, true);
+                        $(template).find(".file-name").html(data);
+
+                        let ghost = document.createElement('div');
+                        $(ghost).append(template);
+                        return ghost.innerHTML;
+                    }
                 },
                 { 
                     targets: 7,

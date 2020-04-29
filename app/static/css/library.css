@@ -43,3 +43,11 @@
 .corpus_lang_trg:empty::before {
     content: "";
 }
+
+.corpora-table tr .file-item-preview {
+    display: none;
+}
+
+.corpora-table tr:hover .file-item-preview {
+    display: block;
+}
