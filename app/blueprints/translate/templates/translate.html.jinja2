@@ -54,15 +54,20 @@
                 </div>
                 <div class="custom-textarea-tools">
                     <div class="btn-group dropright">
-                        <label class="file-dnd-label btn btn-link translate-file-btn pr-0" for="file_to_translate">
+                        <button class="btn btn-link file-dnd-label pr-0" data-toggle="dropdown">
                             <i class="far fa-file-alt mr-2"></i>
-                            <span class="file-label-text">Translate file</span>
+                            <span class="file-label-text">File translation</span>
                             <span class="file-label-name"></span>
-                        </label>
+                        </button>
                         <button class="btn btn-link dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <div class="dropdown-menu">
+                            <label class="dropdown-item translate-file-btn pr-0" for="file_to_translate">
+                                <i class="far fa-file-alt mr-2"></i>
+                                <span class="file-label-text">Translate file</span>
+                                <span class="file-label-name"></span>
+                            </label>
                             <label class="dropdown-item translate-file-tmx-btn mb-0" for="file_to_translate">
                                 <i class="fas fa-box mr-2"></i>
                                 Translate file and generate TMX
