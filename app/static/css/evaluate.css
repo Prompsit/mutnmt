@@ -9,11 +9,15 @@
     top: 50%;
 }
 
-.evaluate-status {
+.evaluate-status .alert {
     display: none;
 }
 
-.evaluate-status[data-status="pending"] {
+.evaluate-status[data-status="pending"] .evaluate-status-pending {
+    display: block;
+}
+
+.evaluate-status[data-status="error"] .evaluate-status-error {
     display: block;
 }
 

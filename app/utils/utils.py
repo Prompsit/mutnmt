@@ -23,3 +23,10 @@ def file_reader(file_path, start, offset):
         for i, line in enumerate(file):
             if i >= start and i < (start + offset):
                 yield line
+
+def file_length(file_path):
+    with open(file_path, 'r') as file_reader:
+        for i, line in enumerate(file_reader):
+            pass
+
+    return i + 1

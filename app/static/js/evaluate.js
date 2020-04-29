@@ -24,55 +24,59 @@ $(document).ready(function() {
             cache: false,
             processData: false,
             success: function(evaluation) {
-                for (metric of evaluation.metrics) {
-                    let template = document.importNode(document.querySelector("#metric-template").content, true);
-                    let [min, value, max] = metric.value;
-                    let proportion = max - min;
-                    let norm_value = (100 * value) / proportion;
+                if (evaluation.result == 200) {
+                    for (metric of evaluation.metrics) {
+                        let template = document.importNode(document.querySelector("#metric-template").content, true);
+                        let [min, value, max] = metric.value;
+                        let proportion = max - min;
+                        let norm_value = (100 * value) / proportion;
 
-                    $(template).find(".metric-name").html(metric.name);
-                    $(template).find(".metric-value").html(value);
-                    $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
-                    $(".evaluate-results-row").append(template);
-                }
-
-
-                bpl_table.rows.add(evaluation.bpl).draw();
-
-
-                $("#blp-graph canvas").remove();
-                $("#blp-graph").append(document.createElement("canvas"));
-
-                let bpl_chart = new Chart(document.querySelector("#blp-graph").querySelector("canvas"), {
-                    type: 'bar',
-                    data: {
-                        labels: Array.from(Array(evaluation.bpl.length), (x, index) => index + 1),
-                        datasets: [{
-                            backgroundColor: 'rgba(87, 119, 144, 1)',
-                            data: evaluation.bpl.map(m => m[3]),
-                            categoryPercentage: 1.0,
-                            barPercentage: 1.0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        legend: {
-                            display: false
-                        },
-                        scales: {
-                            yAxes: [{
-                                display: true,
-                                ticks: {
-                                    suggestedMin: 0, //min
-                                    suggestedMax: 100 //max 
-                                }
-                            }]
-                        }
+                        $(template).find(".metric-name").html(metric.name);
+                        $(template).find(".metric-value").html(value);
+                        $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
+                        $(".evaluate-results-row").append(template);
                     }
-                });
 
-                $('.evaluate-status').attr('data-status', 'none');
-                $(".evaluate-results").removeClass("d-none");
+
+                    bpl_table.rows.add(evaluation.bpl).draw();
+
+
+                    $("#blp-graph canvas").remove();
+                    $("#blp-graph").append(document.createElement("canvas"));
+
+                    let bpl_chart = new Chart(document.querySelector("#blp-graph").querySelector("canvas"), {
+                        type: 'bar',
+                        data: {
+                            labels: Array.from(Array(evaluation.bpl.length), (x, index) => index + 1),
+                            datasets: [{
+                                backgroundColor: 'rgba(87, 119, 144, 1)',
+                                data: evaluation.bpl.map(m => m[3]),
+                                categoryPercentage: 1.0,
+                                barPercentage: 1.0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            legend: {
+                                display: false
+                            },
+                            scales: {
+                                yAxes: [{
+                                    display: true,
+                                    ticks: {
+                                        suggestedMin: 0, //min
+                                        suggestedMax: 100 //max 
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    $('.evaluate-status').attr('data-status', 'none');
+                    $(".evaluate-results").removeClass("d-none");
+                } else {
+                    $('.evaluate-status').attr('data-status', 'error');
+                }
             }
         })
 

@@ -34,6 +34,10 @@ def evaluate_perform():
     mt_file.save(mt_path)
     ht_file.save(ht_path)
 
+    if utils.file_length(mt_path) != utils.file_length(ht_path):
+        return ({ "result": "-1" })
+
+
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
     for minfo in pkgutil.iter_modules([os.path.join(os.path.dirname(os.path.abspath(__file__)), "evaluators")]):
@@ -59,7 +63,7 @@ def evaluate_perform():
     os.remove(mt_path)
     os.remove(ht_path)
 
-    return jsonify({ "metrics": metrics, "bpl": bpl_result })
+    return jsonify({ "result": 200, "metrics": metrics, "bpl": bpl_result })
 
 def bpl(mt_path, ht_path):
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
