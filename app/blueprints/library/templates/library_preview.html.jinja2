@@ -15,7 +15,7 @@
     {% for file_entry in corpus.corpus_files %}
     <div class="col-12 col-sm mt-3 mt-sm-0">
         <h3 class="h6">
-            <i class="fas fa-file"></i> {{ file_entry.file.name }}
+            <i class="fas fa-file"></i> {{ file_entry.file.name }} ({{ file_entry.file.lines }} lines)
         </h3>
 
         <div class="parafile-showcase" data-file-id="{{ file_entry.file.id }}" data-start="0" data-offset="50">
