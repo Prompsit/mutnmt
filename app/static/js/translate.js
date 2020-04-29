@@ -1,13 +1,13 @@
 $(document).ready(function() {
     let file_as_tmx = false;
 
-    $(".translate-file-btn").on('mouseenter', function() {
+    $(".file-dnd-label").on('mouseenter', function() {
         $('.source-placeholder').addClass("d-none");
         $('.custom-textarea-file-upload').css({ display: 'block' });
         $('.custom-textarea-file-upload').animate({ opacity: 1 }, 500);
     });
 
-    $(".translate-file-btn").on('mouseleave', function() {
+    $(".file-dnd-label").on('mouseleave', function() {
         $('.custom-textarea-file-upload').animate({ opacity: 0 }, 250, function() {
             $('.custom-textarea-file-upload').css({ display: 'none' });
             if ($(".live-translate-source").val() == "") {
