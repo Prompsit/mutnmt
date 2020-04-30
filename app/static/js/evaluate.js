@@ -49,6 +49,8 @@ $(document).ready(function() {
             processData: false,
             success: function(evaluation) {
                 if (evaluation.result == 200) {
+                    $(".btn-xlsx-download").attr("href", evaluation.xlsx_url)
+
                     for (metric of evaluation.metrics) {
                         let template = document.importNode(document.querySelector("#metric-template").content, true);
                         let [min, value, max] = metric.value;

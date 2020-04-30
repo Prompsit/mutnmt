@@ -1,10 +1,11 @@
 from app import app
 from .evaluator import Evaluator
 from app.utils import user_utils, utils
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, url_for, send_file
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 import pyter
+import xlsxwriter
 
 import os
 import pkgutil
@@ -19,6 +20,11 @@ evaluate_blueprint = Blueprint('evaluate', __name__, template_folder='templates'
 @evaluate_blueprint.route('/', methods=["GET", "POST"])
 def evaluate_index():
     return render_template('evaluate.html.jinja2', page_name='evaluate')
+
+@evaluate_blueprint.route('/download/<name>')
+def evaluate_download(name):
+    file_path = os.path.join('/tmp', name)
+    return send_file(file_path)
 
 @evaluate_blueprint.route('/perform', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -59,8 +65,7 @@ def evaluate_perform():
         #except:
         #    pass
 
-    spl_result = spl(mt_path, ht_path)
-
+    spl_result, xlsx_name = spl(mt_path, ht_path)
     os.remove(mt_path)
     try:
         os.remove(ht_path)
@@ -68,7 +73,7 @@ def evaluate_perform():
         # It was the same file, we just pass
         pass
 
-    return jsonify({ "result": 200, "metrics": metrics, "spl": spl_result })
+    return jsonify({ "result": 200, "metrics": metrics, "spl": spl_result, "xlsx_url": url_for('evaluate.evaluate_download', name=xlsx_name) })
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
@@ -95,4 +100,25 @@ def spl(mt_path, ht_path):
             ter = round(pyter.ter(ht_line.split(), mt_line.split()), 2)
             rows.append(row + [100 if ter > 1 else (ter * 100)])
 
-    return rows
+    xlsx_name = generate_xlsx(rows)
+
+    return rows, xlsx_name
+
+def generate_xlsx(rows):
+    file_name = utils.normname(user_utils.get_uid(), "evaluation") + ".xlsx"
+    file_path = os.path.join('/tmp', file_name)
+
+    workbook = xlsxwriter.Workbook(file_path)
+    worksheet = workbook.add_worksheet()
+
+    rows = [["Line", "Machine translation", "Human translation", "Bleu", "TER"]] + rows
+
+    row_cursor = 0
+    for row in rows:
+        for col_cursor, col in enumerate(row):
+            worksheet.write(row_cursor, col_cursor, col)
+        row_cursor  += 1
+
+    workbook.close()
+
+    return file_name
