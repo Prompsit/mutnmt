@@ -22,6 +22,7 @@ $(document).ready(function() {
                     if (corpus_data.corpus_id != last_group) {
                         let template = document.importNode(document.querySelector("#corpus-header-template").content, true);
                         $(template).find(".corpus_name").html(corpus_data.corpus_name);
+                        $(template).find(".corpus_description").html(corpus_data.corpus_description);
                         $(template).find(".corpus_lang_src").html(corpus_data.corpus_source);
                         $(template).find(".corpus_lang_trg").html(corpus_data.corpus_target);
 

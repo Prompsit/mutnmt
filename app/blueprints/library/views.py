@@ -59,6 +59,7 @@ def library_corpora_feed():
                                     "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
                                     "corpus_id": corpus.id,
                                     "corpus_name": corpus.name,
+                                    "corpus_description": corpus.description,
                                     "corpus_source": corpus.source.name,
                                     "corpus_target": corpus.target.name if corpus.target else "",
                                     "corpus_public": corpus.public,

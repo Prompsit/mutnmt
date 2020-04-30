@@ -62,6 +62,7 @@ class Corpus(db.Model):
     __tablename__ = 'corpus'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
+    description = db.Column(db.String(280))
     type = db.Column(db.String(64))
     public = db.Column(db.Boolean, default=False)
 

@@ -42,6 +42,7 @@ $(document).ready(function() {
 
         let data = new FormData();
         data.append("name", $("#name").val());
+        data.append("description", $("#description").val());
         data.append("source_lang", $(".source_lang option:selected").val());
         data.append("target_lang", $(".target_lang option:selected").val());
         data.append("source_file", file_source)

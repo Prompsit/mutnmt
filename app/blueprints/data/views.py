@@ -46,13 +46,13 @@ def data_upload_perform():
     try:
         if request.method == 'POST':
             try:
-                print("first", file=sys.stderr)
                 # Data folder
                 source_file = request.files.get('source_file')
                 source_db_file = upload_file(source_file, request.form['source_lang'])
                 target_db_file = None
 
-                corpus = Corpus(name = request.form['name'], type = type, owner_id = user_utils.get_uid())
+                corpus = Corpus(name = request.form['name'], type = type, 
+                                owner_id = user_utils.get_uid(), description = request.form['description'])
                 corpus.source_id = request.form['source_lang']
                 db.session.add(source_db_file)
                 corpus.corpus_files.append(Corpus_File(source_db_file, role="source"))
@@ -98,7 +98,6 @@ def data_upload_perform():
     else:
         Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
 
-    print("ok", file=sys.stderr)
     return request.referrer
 
 def upload_file(file, language):
