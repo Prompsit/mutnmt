@@ -61,7 +61,12 @@
     <div class="row evaluate-results-row">
     </div>
 
-    <h2 class="h5 mt-5">Bleu per line</h2>
+    <h2 class="h5 mt-5">Score map</h2>
+    <div class="scores-btn-group btn-group">
+        <button class="bleu-btn btn btn-sm btn-outline-primary active">Bleu</button>
+        <button class="ter-btn btn btn-sm btn-outline-primary">TER</button>
+    </div>
+
     <div class="my-3 chart-container">
         <div id="blp-graph">
             <canvas></canvas>
@@ -74,6 +79,7 @@
                 <th>Machine translation</th>
                 <th>Human translation</th>
                 <th>Bleu</th>
+                <th>TER</th>
             </thead>
         </table>
     </div>

@@ -1,8 +1,32 @@
 $(document).ready(function() {
+    let bpl_chart, bleu_dataset, ter_dataset;
+
     let bpl_table = $(".bleu-line").DataTable({
-        "lengthMenu": [5, 10, 15, 25, 50, 100]
+        lengthMenu: [5, 10, 15, 25, 50, 100],
+        columnDefs: [{
+            targets: 4,
+            render: function(data, type, row) {
+                return data + "%"
+            }
+        }]
     });
 
+    $('.bleu-btn').on('click', function() {
+        $('.scores-btn-group .btn').removeClass("active");
+        $(this).addClass('active');
+
+        bpl_chart.config.data.datasets[0] = bleu_dataset;
+        bpl_chart.update();
+    });
+
+    $('.ter-btn').on('click', function() {
+        $('.scores-btn-group .btn').removeClass("active");
+        $(this).addClass('active');
+        console.log(bpl_chart);
+
+        bpl_chart.config.data.datasets[0] = ter_dataset;
+        bpl_chart.update();
+    });
 
     $('.evaluate-form').on('submit', function() {
         // Clean previous
@@ -37,23 +61,31 @@ $(document).ready(function() {
                         $(".evaluate-results-row").append(template);
                     }
 
-
-                    bpl_table.rows.add(evaluation.bpl).draw();
-
+                    bpl_table.rows.add(evaluation.spl).draw();
 
                     $("#blp-graph canvas").remove();
                     $("#blp-graph").append(document.createElement("canvas"));
 
-                    let bpl_chart = new Chart(document.querySelector("#blp-graph").querySelector("canvas"), {
+                    bleu_dataset = {
+                        backgroundColor: 'rgba(87, 119, 144, 1)',
+                        data: evaluation.spl.map(m => m[3]),
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0,
+                        label: "Bleu"
+                    };
+
+                    ter_dataset = {
+                        backgroundColor: '#ffc107',
+                        data: evaluation.spl.map(m => m[4]),
+                        categoryPercentage: 1.0,
+                        barPercentage: 1.0
+                    };
+
+                    bpl_chart = new Chart(document.querySelector("#blp-graph").querySelector("canvas"), {
                         type: 'bar',
                         data: {
-                            labels: Array.from(Array(evaluation.bpl.length), (x, index) => index + 1),
-                            datasets: [{
-                                backgroundColor: 'rgba(87, 119, 144, 1)',
-                                data: evaluation.bpl.map(m => m[3]),
-                                categoryPercentage: 1.0,
-                                barPercentage: 1.0
-                            }]
+                            labels: Array.from(Array(evaluation.spl.length), (x, index) => index + 1),
+                            datasets: [bleu_dataset]
                         },
                         options: {
                             responsive: true,
@@ -66,6 +98,16 @@ $(document).ready(function() {
                                     ticks: {
                                         suggestedMin: 0, //min
                                         suggestedMax: 100 //max 
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Score'
+                                    }
+                                }],
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Lines'
                                     }
                                 }]
                             }

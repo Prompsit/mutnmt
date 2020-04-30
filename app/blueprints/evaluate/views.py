@@ -4,6 +4,7 @@ from app.utils import user_utils, utils
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required
 from werkzeug.utils import secure_filename
+import pyter
 
 import os
 import pkgutil
@@ -50,22 +51,27 @@ def evaluate_perform():
 
     metrics = []
     for evaluator in evaluators:
-        try:
-            metrics.append({
-                "name": evaluator.get_name(),
-                "value": evaluator.get_value(mt_path, ht_path)
-            })
-        except:
-            pass
+        #try:
+        metrics.append({
+            "name": evaluator.get_name(),
+            "value": evaluator.get_value(mt_path, ht_path)
+        })
+        #except:
+        #    pass
 
-    bpl_result = bpl(mt_path, ht_path)
+    spl_result = spl(mt_path, ht_path)
 
     os.remove(mt_path)
-    os.remove(ht_path)
+    try:
+        os.remove(ht_path)
+    except FileNotFoundError:
+        # It was the same file, we just pass
+        pass
 
-    return jsonify({ "result": 200, "metrics": metrics, "bpl": bpl_result })
+    return jsonify({ "result": 200, "metrics": metrics, "spl": spl_result })
 
-def bpl(mt_path, ht_path):
+def spl(mt_path, ht_path):
+    # Scores per line (bleu and ter)
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
                         cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
     sacreBLEU.wait()
@@ -76,9 +82,17 @@ def bpl(mt_path, ht_path):
     per_line = []
     for line in bpl_result.stdout:
         line = line.decode("utf-8")
-        per_line.append([line_number] + re.split(r'\t', line))
+        per_line.append([line_number] + [i.strip() for i in re.split(r'\t', line)])
         line_number += 1
 
     os.remove("{}.bpl".format(mt_path))
 
-    return per_line
+    rows = []
+    for row in per_line:
+        ht_line = row[2].strip()
+        mt_line = row[1].strip()
+        if ht_line and mt_line:
+            ter = round(pyter.ter(ht_line.split(), mt_line.split()), 2)
+            rows.append(row + [100 if ter > 1 else (ter * 100)])
+
+    return rows
