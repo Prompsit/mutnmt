@@ -70,6 +70,7 @@ def train_start():
 
     engine = Engine(path = engine_path)
     engine.name = request.form['nameText']
+    engine.description = request.form['descriptionText']
     engine.source = train_corpus.source
     engine.target = train_corpus.target
 

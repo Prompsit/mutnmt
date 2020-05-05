@@ -76,7 +76,7 @@ def library_corpora_feed():
 @library_blueprint.route('/engines_feed', methods=["POST"])
 def library_engines_feed():
     public = request.form.get('public') == "true"
-    columns = [Engine.id, Engine.name, Engine.source_id, Engine.target_id, Engine.uploaded]
+    columns = [Engine.id, Engine.name, Engine.description, Engine.source_id, Engine.target_id, Engine.uploaded]
     dt = datatables.Datatables()
 
     rows, rows_filtered, search = dt.parse(Engine, columns, request, 
@@ -86,8 +86,8 @@ def library_engines_feed():
     engine_data = []
     for engine in (rows_filtered if search else rows):
         uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
-        engine_data.append([engine.id, engine.name, engine.source.name, 
-                            engine.target.name, uploaded_date, engine.uploader.username if engine.uploader else "", "",
+        engine_data.append([engine.id, engine.name, engine.description, "{} — {}".format(engine.source.name, engine.target.name),
+                            uploaded_date, engine.uploader.username if engine.uploader else "", "",
                             {
                                 "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
                                 "engine_public": engine.public,

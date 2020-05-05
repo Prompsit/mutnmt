@@ -39,6 +39,7 @@ class Engine(Resource):
     __tablename__ = 'engine'
     id = db.Column(db.Integer, db.ForeignKey('resource.id'), primary_key=True)
     
+    description = db.Column(db.String(280))
     status = db.Column(db.String(64))
     launched = db.Column(db.DateTime)
     finished = db.Column(db.DateTime)
