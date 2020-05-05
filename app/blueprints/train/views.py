@@ -1,13 +1,15 @@
 from app import app, db
-from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User
+from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
 from app.utils import user_utils, utils
 from app.utils.trainer import Trainer
+from app.blueprints.data.views import upload_file, tokenize
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import namegenerator
 import datetime
+from werkzeug.datastructures import FileStorage
 
 import hashlib
 import os
@@ -47,7 +49,7 @@ def train_index():
 
     pynvml.nvmlInit()
     gpus = list(range(0, pynvml.nvmlDeviceGetCount()))
-    corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
+    corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
     return render_template('train.html.jinja2', page_name='train', 
                             corpora=corpora, random_name=random_name,
                             gpus=gpus)
@@ -55,7 +57,7 @@ def train_index():
 @train_blueprint.route('/start', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_start():
-    if user_utils.is_normal(): return redirect(url_for('index'))
+    if user_utils.is_normal(): return url_for('index')
 
     uengines_path = user_utils.get_user_folder("engines")
     blake = hashlib.blake2b()
@@ -64,9 +66,28 @@ def train_start():
 
     engine_path = os.path.join(uengines_path, name_footprint)
 
-    train_corpus = Corpus.query.filter_by(id = request.form['train_corpus']).first()
-    dev_corpus = Corpus.query.filter_by(id = request.form['dev_corpus']).first()
-    test_corpus = Corpus.query.filter_by(id = request.form['test_corpus']).first()
+    train_corpora = request.form.getlist('training[]')
+
+    def join_corpora(list_name):
+        corpus = Corpus(owner_id=user_utils.get_uid(), visible=False)
+        for train_corpus_id in request.form.getlist(list_name):
+            og_corpus = Corpus.query.filter_by(id = train_corpus_id).first()
+            corpus.source_id = og_corpus.source_id
+            corpus.target_id = og_corpus.target_id
+            for file_entry in og_corpus.corpus_files:
+                with open(file_entry.file.path, 'rb') as file_d:
+                    db_file = upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id)
+                corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
+
+        db.session.add(corpus)
+        db.session.commit()
+        tokenize(corpus)
+
+        return corpus
+
+    train_corpus = join_corpora('training[]')
+    dev_corpus = join_corpora('dev[]')
+    test_corpus = join_corpora('test[]')
 
     engine = Engine(path = engine_path)
     engine.name = request.form['nameText']
@@ -149,16 +170,14 @@ def train_start():
     with open(config_file_path, 'w') as config_file:
         yaml.dump(config, config_file)
 
-    return redirect(url_for('train.train_launch', id=engine.id))
+    return train_launch(engine.id)
 
-@train_blueprint.route('/launch/<id>')
-@utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_launch(id):
-    if user_utils.is_normal(): return redirect(url_for('index'))
+    if user_utils.is_normal(): return url_for('index')
 
     Trainer.launch(user_utils.get_uid(), id)
 
-    return redirect(url_for('train.train_console', id=id))
+    return url_for('train.train_console', id=id)
 
 @train_blueprint.route('/console/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

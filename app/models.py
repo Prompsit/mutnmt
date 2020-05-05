@@ -66,6 +66,7 @@ class Corpus(db.Model):
     description = db.Column(db.String(280))
     type = db.Column(db.String(64))
     public = db.Column(db.Boolean, default=False)
+    visible = db.Column(db.Boolean, default=True)
 
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     owner = db.relationship("User", backref="corpora")
