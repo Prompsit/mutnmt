@@ -63,33 +63,26 @@ def data_upload_perform():
                     corpus.target_id = request.form['target_lang']
 
                     db.session.add(target_db_file)
-                    corpus.files.append(target_db_file)
+                    corpus.corpus_files.append(Corpus_File(target_db_file, role="target"))
 
                 db.session.add(corpus)
             except Exception as e:
                 print(e, file=sys.stderr)
                 raise Exception("Something went wrong on our end... Please, try again later")
 
-            try:
-                print("tokenize", file=sys.stderr)
-                tokenize(corpus)
-            except Exception as e:
-                print(e, file=sys.stderr)
-                raise Exception("Tokenization error")
-            else:
-                if target_db_file:
-                    with open(source_db_file.path, 'r') as srcfreader:
-                        for source_lines, line in enumerate(srcfreader):
-                            pass
+            if target_db_file:
+                with open(source_db_file.path, 'r') as srcfreader:
+                    for source_lines, line in enumerate(srcfreader):
+                        pass
 
-                    with open(target_db_file.path, 'r') as trgfreader:
-                        for target_lines, line in enumerate(trgfreader):
-                            pass
+                with open(target_db_file.path, 'r') as trgfreader:
+                    for target_lines, line in enumerate(trgfreader):
+                        pass
 
-                    if source_lines != target_lines:
-                        raise Exception("Source and target file should have the same length")
+                if source_lines != target_lines:
+                    raise Exception("Source and target file should have the same length")
 
-                db.session.commit()
+            db.session.commit()
         else:
             raise Exception("Sorry, but we couldn't handle your request")
     except Exception as e:
@@ -121,7 +114,6 @@ def upload_file(file, language):
         if db_file is None: raise NoResultFound
 
         os.link(db_file.path, path)
-        os.link('{}.mut.spe'.format(db_file.path), '{}.mut.spe'.format(path))
 
         db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
                         hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
@@ -143,6 +135,63 @@ def upload_file(file, language):
                         uploaded = datetime.datetime.utcnow())
 
     return db_file
+
+def shuffle_sentences(corpus):
+    source_files = [f.file for f in corpus.corpus_files if f.role == "source"]
+    target_files = [f.file for f in corpus.corpus_files if f.role == "target"]
+
+    # Only shuffle single file corpora
+    if len(source_files) == 1 and len(target_files) == 1:
+        source_file, target_file = source_files[0], target_files[0]
+        
+        shuff_proc = subprocess.Popen("paste {} {} | shuf > mut.{}.shuf".format(source_file.path, target_file.path, corpus.id), shell=True)
+        shuff_proc.wait()
+
+        extract_source = subprocess.Popen("cat mut.{}.shuf | awk -F '\\t' '{{ print $1 }}' > {}".format(corpus.id, source_file.path), shell=True)
+        extract_source.wait()
+
+        extract_target = subprocess.Popen("cat mut.{}.shuf | awk -F '\\t' '{{ print $2 }}' > {}".format(corpus.id, target_file.path), shell=True)
+        extract_target.wait()
+    else:
+        raise Exception("Corpora with multiple files cannot be shuffled")
+
+def join_corpus_files(corpus, shuffle=False):
+    # If a corpus has several source and target files, we need to put their contents in
+    # a single file. This method shuffles and prints the contents to a new file
+
+    source_single_file = File(path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.single.src'.format(corpus.id)), 
+                        name = 'mut.{}.single.src'.format(corpus.id), 
+                        uploader_id = user_utils.get_uid(),
+                        uploaded = datetime.datetime.utcnow())
+            
+    target_single_file = File(path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.single.trg'.format(corpus.id)), 
+                    name = 'mut.{}.single.trg'.format(corpus.id), 
+                    uploader_id = user_utils.get_uid(),
+                    uploaded = datetime.datetime.utcnow())
+
+    def dump_files(files, single_file):
+        with open(single_file.path, 'w') as single_file:
+            for file_entry in files:
+                with open(file_entry.file.path, 'r') as corpus_file:
+                    for line in corpus_file:
+                        single_file.write(line)
+
+                os.remove(file_entry.file.path)
+
+                db.session.delete(file_entry.file)
+                corpus.corpus_files.remove(file_entry)
+                db.session.commit()
+
+    dump_files([f for f in corpus.corpus_files if f.role == "source"], source_single_file)
+    dump_files([f for f in corpus.corpus_files if f.role == "target"], target_single_file)
+
+    corpus.corpus_files.append(Corpus_File(source_single_file, role="source"))
+    corpus.corpus_files.append(Corpus_File(target_single_file, role="target"))
+    db.session.commit()
+
+    if shuffle: shuffle_sentences(corpus)
+
+    return corpus
 
 def tokenize(corpus):
     model_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.model'.format(corpus.id))

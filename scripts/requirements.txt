@@ -30,7 +30,6 @@ isort
 itsdangerous
 Jinja2
 joblib
-joeynmt @ file:///opt/mutnmt/app/joeynmt
 jsmin
 Keras-Applications
 Keras-Preprocessing
@@ -78,7 +77,7 @@ subword-nmt
 tensorboard
 tensorboard-plugin-wit
 tensorflow
-tensorflow-estimator
+tensorflow-estimator==2.1.0
 termcolor
 toml
 torch
@@ -91,3 +90,4 @@ URLObject
 Werkzeug
 wrapt
 XlsxWriter
+joeynmt @ file:///opt/mutnmt/app/joeynmt

@@ -2,7 +2,7 @@ from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
 from app.utils import user_utils, utils
 from app.utils.trainer import Trainer
-from app.blueprints.data.views import upload_file, tokenize
+from app.blueprints.data.views import upload_file, tokenize, join_corpus_files
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
@@ -66,8 +66,6 @@ def train_start():
 
     engine_path = os.path.join(uengines_path, name_footprint)
 
-    train_corpora = request.form.getlist('training[]')
-
     def join_corpora(list_name):
         corpus = Corpus(owner_id=user_utils.get_uid(), visible=False)
         for train_corpus_id in request.form.getlist(list_name):
@@ -81,6 +79,9 @@ def train_start():
 
         db.session.add(corpus)
         db.session.commit()
+
+        # We put the contents of the several files in a new single one, and we shuffle the sentences
+        join_corpus_files(corpus, shuffle=True)
         tokenize(corpus)
 
         return corpus

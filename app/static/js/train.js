@@ -86,6 +86,8 @@ $(document).ready(function() {
     draw_stacks(corpora_stacks);
 
     $(".train-form").on('submit', function() {
+        $(".token-alert").removeClass("d-none");
+        
         let data = new FormData();
         $(".train-form input").each(function(i, el) {
             if ($(el).attr("name")) {
