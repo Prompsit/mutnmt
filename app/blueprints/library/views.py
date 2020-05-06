@@ -40,8 +40,8 @@ def library_engines():
 def library_corpora_feed():
     public = request.form.get('public') == "true"
 
-    user_library =  Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid())) if public \
-                        else Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
+    user_library =  Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid(), Corpus.visible == True)) if public \
+                        else Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
 
     dt = datatables.Datatables()
     rows, rows_filtered, search = [], [], None
