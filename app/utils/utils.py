@@ -1,6 +1,8 @@
+from app import app
 from app.utils import user_utils
 import hashlib
 import time
+import tempfile
 
 class condec(object):
     def __init__(self, dec, condition):
@@ -30,3 +32,6 @@ def file_length(file_path):
             pass
 
     return i + 1
+
+def tmpfolder():
+    return tempfile.mkdtemp(dir=app.config['TMP_FOLDER'])

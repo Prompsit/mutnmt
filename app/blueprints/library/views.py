@@ -4,7 +4,7 @@ from app.utils import user_utils, utils, datatables
 from app.flash import Flash
 from flask_login import login_required
 from sqlalchemy import and_, not_
-from flask import Blueprint, render_template, redirect, url_for, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, jsonify, send_file
 from datetime import datetime
 from dateutil import tz
 import os
@@ -12,6 +12,7 @@ import hashlib
 import sys
 import shutil
 import pytz
+import ntpath
 
 library_blueprint = Blueprint('library', __name__, template_folder='templates')
 
@@ -68,6 +69,7 @@ def library_corpora_feed():
                                     "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
                                     "corpus_grab": url_for('library.library_grab', id = corpus.id, type = 'library_corpora'),
                                     "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora'),
+                                    "corpus_export": url_for('library.library_export', id= corpus.id, type = "library_corpora"),
                                     "file_preview": url_for('data.data_preview', file_id=file.id)
                                 }])
 
@@ -95,7 +97,8 @@ def library_engines_feed():
                                 "engine_summary": url_for('train.train_console', id = engine.id),
                                 "engine_delete": url_for('library.library_delete', id = engine.id, type = "library_engines"),
                                 "engine_grab": url_for('library.library_grab', id = engine.id, type = "library_engines"),
-                                "engine_ungrab": url_for('library.library_ungrab', id = engine.id, type = "library_engines")
+                                "engine_ungrab": url_for('library.library_ungrab', id = engine.id, type = "library_engines"),
+                                "engine_export": url_for('library.library_export', id= engine.id, type = "library_engines")
                             }])
 
     return dt.response(rows, rows_filtered, engine_data)
@@ -176,3 +179,24 @@ def library_delete(type, id):
     user_utils.library_delete(type, id)
 
     return redirect(request.referrer)
+
+@library_blueprint.route('/export/<type>/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def library_export(type, id):
+    zip_path = None
+
+    if type == 'library_engines':
+        engine = Engine.query.filter_by(id=id).first()
+        zip_path = os.path.join(app.config['TMP_FOLDER'], 'engine-{}.mut'.format(engine.id))
+        shutil.make_archive(zip_path, 'zip', engine.path, '.')
+    else:
+        tmp_folder = utils.tmpfolder()
+        corpus = Corpus.query.filter_by(id=id).first()
+        for file_entry in corpus.corpus_files:
+            filename = ntpath.basename(file_entry.file.path)
+            shutil.copy(file_entry.file.path, os.path.join(tmp_folder, file_entry.file.name))
+        zip_path = os.path.join(app.config['TMP_FOLDER'], 'corpus-{}.mut.zip'.format(corpus.id))
+        shutil.make_archive(zip_path, 'zip', tmp_folder, '.')
+        shutil.rmtree(tmp_folder)
+
+    return send_file(zip_path + '.zip', as_attachment=True)
