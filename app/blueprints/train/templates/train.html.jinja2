@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.19/css/dataTables.bootstrap4.min.css" integrity="sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap.min.css" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/train.css') }}" />
 {% endblock %}
 
@@ -230,8 +231,18 @@
                 </div>
             </div>
 
-            <div class="row mt-4">
-                <div class="col-6 offset-6 text-right">
+            <div class="row mt-4 align-items-center">
+                <div class="col-6">
+                    <div class="token-alert d-none">
+                        <div class="d-flex align-items-center">
+                            {% include "cloud.html.jinja2" %}
+                            <div class="h6 ml-5">
+                                We are getting your data ready for training...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 text-right">
                     <input type=reset class="btn btn-secondary" value="Reset" />
                     <input type=submit class="btn btn-primary" value="Start training" />
                 </div>
