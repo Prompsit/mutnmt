@@ -1,4 +1,4 @@
-FROM nvidia/cuda:latest
+FROM nvidia/cuda:10.2-base
 
 RUN mkdir /opt/mutnmt
 
@@ -8,7 +8,8 @@ RUN echo "Europe/Madrid" > /etc/timezone
 
 RUN apt-get update -q --fix-missing && \
     apt-get -y upgrade && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install  python3 \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install \
+			python3 \
                         python3-dev \
                         virtualenv \
                         curl \

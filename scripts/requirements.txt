@@ -7,7 +7,7 @@ blinker
 cachetools
 certifi
 chardet
-Click
+click
 cssmin
 cycler
 Flask
@@ -30,6 +30,7 @@ isort
 itsdangerous
 Jinja2
 joblib
+joeynmt @ file:///opt/mutnmt/app/joeynmt
 jsmin
 Keras-Applications
 Keras-Preprocessing
@@ -75,6 +76,7 @@ SQLAlchemy
 SQLAlchemy-Utils
 subword-nmt
 tensorboard
+tensorboard-plugin-wit
 tensorflow
 tensorflow-estimator
 termcolor
@@ -88,3 +90,4 @@ urllib3
 URLObject
 Werkzeug
 wrapt
+XlsxWriter
