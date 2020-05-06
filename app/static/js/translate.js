@@ -20,6 +20,18 @@ $(document).ready(function() {
         file_as_tmx = true;
     })
 
+    $(".chain-btn").on('click', function() {
+        $("#chain").val("true");
+        $(".chain-row").removeClass("d-none");
+        $(this).addClass("d-none");
+    });
+
+    $(".chain-remove-btn").on('click', function() {
+        $("#chain").val("false");
+        $(".chain-row").addClass("d-none");
+        $(".chain-btn").removeClass("d-none");
+    });
+
     // Translates the source text and displays
     // the translation in a textarea
     let translate = () => {
@@ -41,7 +53,7 @@ $(document).ready(function() {
             $.ajax({
                 url: `get`,
                 method: "POST",
-                data: { text: text }
+                data: { text: text, chain: $("#chain").val() == "true" ? $('.engine-select-chain option:selected').val() : false }
             }).done(function(data) {
                 // We fill target text depending on the result from the server
                 $('.live-translate-target').html("");
@@ -54,6 +66,10 @@ $(document).ready(function() {
                             let line_element = document.createTextNode(line + '\n');
                             $('.live-translate-target').append(line_element);
                         }
+                    }
+
+                    if (data.detached) {
+                        $('.live-translate-form').attr('data-status', 'none');
                     }
                 }
             });

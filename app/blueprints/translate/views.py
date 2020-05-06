@@ -28,7 +28,15 @@ def translate_attach(id):
 def translate_get():
     text = request.form.getlist('text[]')
     translation = translators.get(user_utils.get_uid(), text)
-    return jsonify({ "result": 200, "lines": translation }) if translation is not None else jsonify({ "result": -1 })
+    detached = False
+
+    if request.form.get('chain') and request.form.get('chain') != "false":
+        chain_id = int(request.form.get('chain'))
+        if translators.launch(user_utils.get_uid(), chain_id):
+            translation = translators.get(user_utils.get_uid(), translation)
+            detached = True
+
+    return jsonify({ "result": 200, "lines": translation, "detached": detached }) if translation is not None else jsonify({ "result": -1, "detached": detached })
 
 @translate_blueprint.route('/leave', methods=['POST'])
 def translate_leave():

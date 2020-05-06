@@ -15,17 +15,41 @@
 
 {% if engines | length > 0 %}
 
-<form action="{{ url_for('translate.as_tmx') }}" method="post" class="live-translate-form" data-status="false">    
+<form action="{{ url_for('translate.as_tmx') }}" method="post" class="live-translate-form" data-status="false">
+    <input type=hidden name="chain" id="chain" value="false" />
     <div class="row mt-4 align-items-center">
-        <div class="col-6 col-sm-3">
+        <div class="col-12">
             <h2 class="h5">Translate</h2>
         </div>
-        <div class="col-6 col-sm-3 text-right" style="padding-right: 0.4rem;">
-            <select class="custom-select mr-1 engine-select" name="engine_id">
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6 d-flex" style="padding-right: 0.4rem;">
+            <select class="custom-select mr-1 engine-select w-75" name="engine_id">
                 {% for engine_entry in engines %}
-                    <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+                    <option value="{{ engine_entry.engine.id }}">
+                        {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                        </option>
                 {% endfor %}
             </select>
+
+            <a href="#" class="btn btn-link chain-btn">
+                <i class="fas fa-plus"></i> Chain
+            </a>
+        </div>
+    </div>
+    <div class="row mt-2 chain-row d-none">
+         <div class="col-12 col-sm-6 d-flex" style="padding-right: 0.4rem;">
+            <select class="custom-select mr-1 engine-select-chain w-75" name="engine_id_chain">
+                {% for engine_entry in engines %}
+                    <option value="{{ engine_entry.engine.id }}">
+                        {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                        </option>
+                {% endfor %}
+            </select>
+
+            <a href="#" class="btn btn-link chain-remove-btn">
+                <i class="fas fa-times"></i>
+            </a>
         </div>
     </div>
 
