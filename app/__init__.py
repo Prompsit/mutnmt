@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_babel import Babel
 from flask_dropzone import Dropzone
+from flask_migrate import upgrade as _upgrade
 
 import os
 
@@ -50,27 +51,10 @@ for running_engine in models.RunningEngines.query.all():
     db.session.delete(running_engine)    
     db.session.commit()
 
-try:
-    os.stat(app.config['UPLOAD_FOLDER'])
-except:
-    os.mkdir(app.config['UPLOAD_FOLDER'])
+folders = ['UPLOAD_FOLDER', 'STORAGE_FOLDER', 'FILES_FOLDER', 'ENGINES_FOLDER', 'USERS_FOLDER']
 
-try:
-    os.stat(app.config['STORAGE_FOLDER'])
-except:
-    os.mkdir(app.config['STORAGE_FOLDER'])
-
-try:
-    os.stat(app.config['FILES_FOLDER'])
-except:
-    os.mkdir(app.config['FILES_FOLDER'])
-
-try:
-    os.stat(app.config['ENGINES_FOLDER'])
-except:
-    os.mkdir(app.config['ENGINES_FOLDER'])
-
-try:
-    os.stat(app.config['USERS_FOLDER'])
-except:
-    os.mkdir(app.config['USERS_FOLDER'])
+for folder in folders:
+    try:
+        os.stat(app.config[folder])
+    except:
+        os.mkdir(app.config[folder])
