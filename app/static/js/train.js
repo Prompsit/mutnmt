@@ -27,17 +27,21 @@ let sentences_amount = (amount) => {
 let draw_stack = (stack, container) => {
     $(container).find(".area-value-current").html(sentences_amount(stack.sentences));
 
+    distance = 0;
     if (stack.sentences > min_amount) {
-        $(container).find(".area-value-current").css({ top: (min_amount * pxps) + ((stack.sentences - min_amount) * pxps_am )});
+        distance = (min_amount * pxps) + ((stack.sentences - min_amount) * pxps_am )
     } else {
-        $(container).find(".area-value-current").css({ top: (stack.sentences * pxps )});
+        distance = (stack.sentences * pxps )
     }
+
+    $(container).find(".area-value-current").css({ top: distance });
+    $(container).find(".area-value-bar-fg").css({ height: `${distance}px` })
 
     if (stack.sentences >= threshold) {
         if (stack.sentences >= min_amount) {
-            $(container).find(".area-value-current").attr("data-valid", "yes");
+            $(container).attr("data-valid", "yes");
         } else {
-            $(container).find(".area-value-current").attr("data-valid", "almost");
+            $(container).attr("data-valid", "almost");
         }
     }
 
@@ -87,7 +91,7 @@ $(document).ready(function() {
 
     $(".train-form").on('submit', function() {
         $(".token-alert").removeClass("d-none");
-        
+
         let data = new FormData();
         $(".train-form input").each(function(i, el) {
             if ($(el).attr("name")) {
