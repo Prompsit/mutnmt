@@ -1,8 +1,8 @@
 from app import app
-from app.utils import user_utils
 import hashlib
 import time
 import tempfile
+import os
 
 class condec(object):
     def __init__(self, dec, condition):
@@ -15,10 +15,17 @@ class condec(object):
             return func
         return self.decorator(func)
 
-def normname(user_id, filename):
+def hash(hashable):
     blake = hashlib.blake2b()
-    blake.update(('{}{}{}'.format(time.time(), user_id, filename).encode("utf-8")))
-    return blake.hexdigest()[:16]
+    for i in hashable:
+        blake.update(i.encode("utf-8") if isinstance(i, str) else i)
+    return blake.hexdigest()
+
+def normname(user_id, filename):
+    return hash('{}{}{}'.format(time.time(), user_id, filename))[:16]
+
+def sub(folder_id, subfolder, filename=None):
+    return os.path.join(os.path.join(app.config[folder_id], subfolder), filename if filename else "")
 
 def file_reader(file_path, start, offset):
     with open(file_path, 'r') as file:

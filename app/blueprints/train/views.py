@@ -1,8 +1,7 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
-from app.utils import user_utils, utils
+from app.utils import user_utils, utils, data_utils
 from app.utils.trainer import Trainer
-from app.blueprints.data.views import upload_file, tokenize, join_corpus_files
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
@@ -74,15 +73,15 @@ def train_start():
             corpus.target_id = og_corpus.target_id
             for file_entry in og_corpus.corpus_files:
                 with open(file_entry.file.path, 'rb') as file_d:
-                    db_file = upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id)
+                    db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id)
                 corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
 
         db.session.add(corpus)
         db.session.commit()
 
         # We put the contents of the several files in a new single one, and we shuffle the sentences
-        join_corpus_files(corpus, shuffle=True)
-        tokenize(corpus)
+        data_utils.join_corpus_files(corpus, shuffle=True)
+        data_utils.tokenize(corpus)
 
         return corpus
 

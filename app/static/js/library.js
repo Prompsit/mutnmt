@@ -36,9 +36,11 @@ $(document).ready(function() {
                             $(template).find(".folder-grabbed").removeClass("d-none");
                         }
                         
+                        $(template).find(".export-btn").attr("href", corpus_data.corpus_export);
+
                         if (public_mode) {
-                            $(".grab-btn").attr("href", corpus_data.corpus_grab);
-                            $(".grab-btn").removeClass("d-none");
+                            $(template).find(".grab-btn").attr("href", corpus_data.corpus_grab);
+                            $(template).find(".grab-btn").removeClass("d-none");
                         } else {
                             if (corpus_data.corpus_owner) {
                                 if (corpus_data.corpus_public) {
@@ -132,7 +134,7 @@ $(document).ready(function() {
                         let engine_data = row[7];
                         let template = document.importNode(document.querySelector("#engines-icon-template").content, true);
 
-                        if (engine_data.owner) {
+                        if (engine_data.engine_owner) {
                             if (engine_data.public) {
                                 $(template).find(".folder-shared").removeClass("d-none");
                             } else {
@@ -158,27 +160,29 @@ $(document).ready(function() {
                         let engine_data = row[7];
                         let template = document.importNode(document.querySelector("#engines-options-template").content, true);
 
+                        $(template).find(".export-btn").attr("href", engine_data.engine_export);
+
                         if (public_mode) {
-                            $(".grab-btn").attr("href", engine_data.engine_grab);
-                            $(".grab-btn").removeClass("d-none");
+                            $(template).find(".grab-btn").attr("href", engine_data.engine_grab);
+                            $(template).find(".grab-btn").removeClass("d-none");
                         } else {
                             if (engine_data.engine_owner) {
                                 if (engine_data.engine_public) {
-                                    $(".stop-sharing-btn").attr("href", engine_data.engine_share);
-                                    $(".stop-sharing-btn").removeClass("d-none");
+                                    $(template).find(".stop-sharing-btn").attr("href", engine_data.engine_share);
+                                    $(template).find(".stop-sharing-btn").removeClass("d-none");
                                 } else {
-                                    $(".share-btn-btn").attr("href", engine_data.engine_share);
-                                    $(".share-btn-btn").removeClass("d-none");
+                                    $(template).find(".share-btn-btn").attr("href", engine_data.engine_share);
+                                    $(template).find(".share-btn-btn").removeClass("d-none");
                                 }
 
-                                $(".summary-btn").attr("href", engine_data.engine_summary);
-                                $(".summary-btn").removeClass("d-none");    
+                                $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
+                                $(template).find(".summary-btn").removeClass("d-none");
 
-                                $(".delete-btn").attr("href", engine_data.engine_delete);
-                                $(".delete-btn").removeClass("d-none");
+                                $(template).find(".delete-btn").attr("href", engine_data.engine_delete);
+                                $(template).find(".delete-btn").removeClass("d-none");
                             } else {
-                                $(".remove-btn").attr("href", engine_data.engine_ungrab);
-                                $(".remove-btn").removeClass("d-none");
+                                $(template).find(".remove-btn").attr("href", engine_data.engine_ungrab);
+                                $(template).find(".remove-btn").removeClass("d-none");
                             }
                         }
 

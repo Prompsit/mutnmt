@@ -95,6 +95,7 @@ $(document).ready(function() {
     // When we change the selected engine, we automatically translate
     $('.engine-select').on('change', function() {
         $('.live-translate-form').attr('data-status', 'false');
+        $('.live-translate-target').html("");
 
         if ($('.live-translate-source').val() != "") {
             translate()
