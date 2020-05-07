@@ -20,7 +20,8 @@ branch_labels = None
 depends_on = None
 
 engines = [
-    ["Transformer en-es", os.path.join(app.config['BASEDIR'], "preloaded/transformer-new"), "en", "es"]
+    ["Transformer en-es", os.path.join(app.config['BASEDIR'], "preloaded/transformer-new"), "en", "es"],
+    ["Transformer es-en", os.path.join(app.config['BASEDIR'], "preloaded/transformer-es-en-2"), "es", "en"]
 ]
 
 def upgrade():
