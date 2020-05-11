@@ -1,5 +1,5 @@
 from app import app
-from app.models import LibraryEngine
+from app.models import LibraryEngine, Engine
 from app.utils import user_utils
 from app.utils.translation.utils import TranslationUtils
 from flask import Blueprint, render_template, request, jsonify
@@ -41,3 +41,22 @@ def inspect_get():
     text = request.form.get('text')
     translation = translators.get_inspect(user_utils.get_uid(), text)
     return jsonify(translation) if translation else "-1"
+
+@inspect_blueprint.route('/get_compare', methods=["POST"])
+def inspect_get_compare():
+    text = request.form.get('text')
+    main_engine = request.form.get('main_engine')
+    engines = request.form.getlist('engines[]')
+
+    translations = []
+    for engine_id in engines:
+        engine = Engine.query.filter_by(id = engine_id).first()
+        translators.launch(user_utils.get_uid(), engine_id)
+        translations.append(
+            {
+                "id": engine_id,
+                "name": engine.name,
+                "text": translators.get(user_utils.get_uid(), [text])
+            })
+
+    return jsonify(translations)
