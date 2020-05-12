@@ -22,7 +22,7 @@ def library_corpora():
     public_files = Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid()))
     languages = Language.query.all()
 
-    return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', 
+    return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',
             user_library = user_library, public_files = public_files, languages=languages)
 
 @library_blueprint.route('/engines')
@@ -34,7 +34,7 @@ def library_engines():
     for engine in public_engines:
         engine.grabbed = engine in user_engines
 
-    return render_template('library_engines.html.jinja2', page_name = 'library_engines', 
+    return render_template('library_engines.html.jinja2', page_name = 'library_engines', page_title = 'Engines',
             user_library = user_library, public_engines = public_engines)
 
 @library_blueprint.route('/engine/<int:id>')
@@ -43,7 +43,7 @@ def library_engine(id):
     corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=True).all()
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
-            engine = engine, corpora = corpora)
+            page_title = 'Engine details', engine = engine, corpora = corpora)
 
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():

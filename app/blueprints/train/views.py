@@ -49,7 +49,7 @@ def train_index():
     pynvml.nvmlInit()
     gpus = list(range(0, pynvml.nvmlDeviceGetCount()))
     corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
-    return render_template('train.html.jinja2', page_name='train', 
+    return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,
                             gpus=gpus)
 

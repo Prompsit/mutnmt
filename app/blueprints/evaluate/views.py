@@ -19,7 +19,7 @@ evaluate_blueprint = Blueprint('evaluate', __name__, template_folder='templates'
 
 @evaluate_blueprint.route('/', methods=["GET", "POST"])
 def evaluate_index():
-    return render_template('evaluate.html.jinja2', page_name='evaluate')
+    return render_template('evaluate.html.jinja2', page_name='evaluate', page_title='Evaluate')
 
 @evaluate_blueprint.route('/download/<name>')
 def evaluate_download(name):

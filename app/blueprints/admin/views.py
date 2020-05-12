@@ -15,7 +15,7 @@ admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 @admin_blueprint.route('/')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_index():
-    return render_template('users.admin.html.jinja2', page_name='admin_users')
+    return render_template('users.admin.html.jinja2', page_name='admin_users', page_title='Users')
 
 @admin_blueprint.route('/system')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -25,8 +25,6 @@ def admin_system():
     ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) } # GB
     
     hdd = psutil.disk_usage(app.config['UPLOAD_FOLDER'])
-    import sys
-    print(hdd, file=sys.stderr)
     disk_usage = { "percent": round((hdd.used / hdd.total) * 100, 2), "used": round(hdd.used / factor, 2), 
                     "total": round(hdd.total / factor, 2)} # GB
     
@@ -40,7 +38,7 @@ def admin_system():
                         "proc": resources.gpu
                     })
 
-    return render_template('system.admin.html.jinja2', page_name='admin_system', 
+    return render_template('system.admin.html.jinja2', page_name='admin_system', page_title='System',
                             ram=ram, cpu=round(psutil.cpu_percent(), 2), gpus=gpus,
                             disk_usage=disk_usage)
 
@@ -48,7 +46,7 @@ def admin_system():
 @admin_blueprint.route('/instances')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_instances():
-    return render_template('instances.admin.html.jinja2', page_name='admin_instances')
+    return render_template('instances.admin.html.jinja2', page_name='admin_instances', page_title='Instances')
 
 @admin_blueprint.route('/users_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
