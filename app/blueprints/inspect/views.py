@@ -59,4 +59,4 @@ def inspect_get_compare():
                 "text": translators.get(user_utils.get_uid(), [text])
             })
 
-    return jsonify(translations)
+    return jsonify({ "source": engine.source.code, "target": engine.target.code, "translations": translations })

@@ -24,10 +24,38 @@
 </div>
 
 <div class="inspect-compare-content mt-5 d-none">
+    <div class="row mb-1">
+        <div class="col-12 col-sm-3">
+            <strong>Bing</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <span class="engine-target bing-target"></span>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col-12 col-sm-3">
+            <strong>Google</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <a href="#" target="_blank" class="google-link">
+                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-3">
+            <strong>DeepL</strong>
+        </div>
+        <div class="col-12 col-sm-9">
+            <a href="#" target="_blank" class="deepl-link">
+                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
+            </a>
+        </div>
+    </div>
 </div>
 
 <template id="translation-template">
-    <div class="row">
+    <div class="row mb-1 translation-row">
         <div class="col-12 col-sm-3">
             <strong class="engine-name"></strong>
         </div>
@@ -35,7 +63,5 @@
             <span class="user-engine-target"></span>
         </div>
     </div>
-
-    <hr />
 </template>
 {% endblock %}

@@ -37,7 +37,7 @@ $(document).ready(function() {
 
         $('.translate-form').attr('data-status', 'launching');
         $(".inspect-compare-content").addClass("d-none");
-        $(".inspect-compare-content").empty();
+        $(".inspect-compare-content .translation-row").remove();
 
         $.ajax({
             url: 'get_compare',
@@ -46,13 +46,16 @@ $(document).ready(function() {
                 text: text, 
                 engines: engines_id
             },
-            success: function(translations) {
-                for (let translation of translations) {
+            success: function(inspection) {
+                $('.google-link').attr('href', `https://translate.google.com/#view=home&op=translate&sl=${inspection['source']}&tl=${inspection['target']}&text=${text}`)
+                $('.deepl-link').attr('href', `https://www.deepl.com/translator#${inspection['source']}/${inspection['target']}/${text}`)
+
+                for (let translation of inspection.translations) {
                     let template = document.importNode(document.querySelector("#translation-template").content, true);
                     $(template).find(".engine-name").html(translation.name);
                     $(template).find(".user-engine-target").html(translation.text)
 
-                    $(".inspect-compare-content").append(template);
+                    $(".inspect-compare-content").prepend(template);
                 }
 
                 $(".inspect-compare-content").removeClass("d-none");
@@ -69,7 +72,7 @@ $(document).ready(function() {
 
     $('.compare-engine').on('click', function() {
         $(".inspect-compare-content").addClass("d-none");
-        $(".inspect-compare-content").empty();
+        $(".inspect-compare-content .translation-row").remove();
     });
 });
 
