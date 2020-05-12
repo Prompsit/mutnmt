@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language
+from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine
 from app.utils import user_utils, utils, datatables
 from app.flash import Flash
 from flask_login import login_required
@@ -36,6 +36,14 @@ def library_engines():
 
     return render_template('library_engines.html.jinja2', page_name = 'library_engines', 
             user_library = user_library, public_engines = public_engines)
+
+@library_blueprint.route('/engine/<int:id>')
+def library_engine(id):
+    engine = Engine.query.filter_by(id=id).first()
+    corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=True).all()
+    
+    return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
+            engine = engine, corpora = corpora)
 
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():
@@ -94,6 +102,7 @@ def library_engines_feed():
                                 "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
                                 "engine_public": engine.public,
                                 "engine_share": url_for('library.library_share_toggle', type = "library_engines", id = engine.id),
+                                "engine_detail": url_for('library.library_engine', id = engine.id),
                                 "engine_summary": url_for('train.train_console', id = engine.id),
                                 "engine_delete": url_for('library.library_delete', id = engine.id, type = "library_engines"),
                                 "engine_grab": url_for('library.library_grab', id = engine.id, type = "library_engines"),

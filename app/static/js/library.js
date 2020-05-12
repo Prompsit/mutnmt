@@ -22,7 +22,13 @@ $(document).ready(function() {
                     if (corpus_data.corpus_id != last_group) {
                         let template = document.importNode(document.querySelector("#corpus-header-template").content, true);
                         $(template).find(".corpus_name").html(corpus_data.corpus_name);
-                        $(template).find(".corpus_description").html(corpus_data.corpus_description);
+
+                        if (corpus_data.corpus_description != "") {
+                            $(template).find(".corpus_description").html(corpus_data.corpus_description);
+                        } else {
+                            $(template).find(".corpus-description-row").addClass("d-none");
+                        }
+                        
                         $(template).find(".corpus_lang_src").html(corpus_data.corpus_source);
                         $(template).find(".corpus_lang_trg").html(corpus_data.corpus_target);
 
@@ -175,6 +181,9 @@ $(document).ready(function() {
                                     $(template).find(".share-btn-btn").removeClass("d-none");
                                 }
 
+                                $(template).find(".detail-btn").attr("href", engine_data.engine_detail);
+                                $(template).find(".detail-btn").removeClass("d-none");
+
                                 $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
                                 $(template).find(".summary-btn").removeClass("d-none");
 
@@ -194,4 +203,6 @@ $(document).ready(function() {
             ]
         });
     });
+
+    $(".details-table").DataTable();
 });

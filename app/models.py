@@ -104,18 +104,20 @@ class Corpus_Engine(db.Model):
     corpus_id = db.Column(db.Integer, db.ForeignKey('corpus.id'))
     engine_id = db.Column(db.Integer, db.ForeignKey('engine.id'))
     phase = db.Column(db.String(64))
+    is_info = db.Column(db.Boolean, default=False) # Whether the corpus is used for training or information purposes
 
-    engine = db.relationship(Engine, backref = db.backref("corpora_engines", cascade="all, delete-orphan"))
+    engine = db.relationship(Engine, backref = db.backref("engine_corpora", cascade="all, delete-orphan"))
     corpus = db.relationship("Corpus")
 
     __table_args__ = (
         db.UniqueConstraint('corpus_id', 'engine_id', 'phase'),
     )
 
-    def __init__(self, corpus = None, engine = None, phase = None):
+    def __init__(self, corpus = None, engine = None, phase = None, is_info = False):
         self.corpus = corpus
         self.engine = engine
         self.phase = phase
+        self.is_info = is_info
 
 class User(UserMixin, db.Model):
     __tablename__   = 'user'

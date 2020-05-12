@@ -12,7 +12,7 @@ import shutil
 
 def upload_file(file, language):
     norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)
-    path = utils.sub('FILES_FOLDER', '.', norm_name)
+    path = utils.filepath('FILES_FOLDER', norm_name)
     
     # Could we already have it stored?
     hash = utils.hash(file)
@@ -114,8 +114,8 @@ def join_corpus_files(corpus, shuffle=False):
     return corpus
 
 def tokenize(corpus):
-    model_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.model'.format(corpus.id))
-    vocab_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(corpus.id))
+    model_path = utils.filepath('FILES_FOLDER', 'mut.{}.model'.format(corpus.id))
+    vocab_path = utils.filepath('FILES_FOLDER', 'mut.{}.vocab'.format(corpus.id))
 
     try:
         os.stat(model_path)
@@ -129,8 +129,8 @@ def tokenize(corpus):
         cat_proc.wait()
 
         spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=6000 --hard_vocab_limit=false".format(random_sample_path, corpus.id))
-        shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.model".format(corpus.id)), model_path)
-        shutil.move(os.path.join(app.config['MUTNMT_FOLDER'], "mut.{}.vocab".format(corpus.id)), vocab_path)
+        shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.model".format(corpus.id)), model_path)
+        shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.vocab".format(corpus.id)), vocab_path)
         os.remove(random_sample_path)
         
         purge_vocab = subprocess.Popen("cat {} | awk -F '\\t' '{{ print $1 }}' > {}.purged".format(vocab_path, vocab_path), shell=True)

@@ -1,0 +1,35 @@
+{% extends "library.html.jinja2" %}
+
+{% block library_content %}
+<h2 class="h5">{{ engine.name }}</h2>
+
+<div class="row">
+    <div class="col-4">
+        <p>
+            {{ engine.description }}
+        </p>
+    </div>
+</div>
+
+<table class="table table-striped details-table">
+    <thead>
+        <tr>
+            <th>Phase</th>
+            <th>Corpus</th>
+            <th>Languages</th>
+            <th>Lines</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for corpus_entry in corpora %}
+            <tr>
+                <td>{{ "Train" if corpus_entry.phase == "train" else "Validation" if corpus_entry.phase == "dev" else "Test" }}</td>
+                <td>{{ corpus_entry.corpus.name }}</td>
+                <td>{{ corpus_entry.corpus.source.name }} — {{ corpus_entry.corpus.target.name }}</td>
+                <td>{{ corpus_entry.corpus.corpus_files[0].file.lines }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

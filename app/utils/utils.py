@@ -27,6 +27,9 @@ def normname(user_id, filename):
 def sub(folder_id, subfolder, filename=None):
     return os.path.join(os.path.join(app.config[folder_id], subfolder), filename if filename else "")
 
+def filepath(folder_id, filename):
+    return os.path.join(app.config[folder_id], filename)
+
 def file_reader(file_path, start, offset):
     with open(file_path, 'r') as file:
         for i, line in enumerate(file):

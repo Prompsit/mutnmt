@@ -21,7 +21,7 @@
 {% if corpora | length == 0 %}
 <div class="jumbotron p-3 text-center">
     <p class="h6 m-0">
-        You need corpora to train an engine. <a href="{{ url_for('library.library_corpora') }}">Upload</a> or <a href="{{ url_for('library.library_engines') }}">grab</a> one
+        You need corpora to train an engine. <a href="{{ url_for('library.library_corpora') }}">Upload</a> a corpus or <a href="{{ url_for('library.library_engines') }}">grab</a> an engine
     </p>
 </div>
 {% else %}

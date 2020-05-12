@@ -64,11 +64,18 @@ def train_start():
     name_footprint = blake.hexdigest()[:16]
 
     engine_path = os.path.join(uengines_path, name_footprint)
+    engine = Engine(path = engine_path)
 
-    def join_corpora(list_name):
+    def join_corpora(list_name, phase):
         corpus = Corpus(owner_id=user_utils.get_uid(), visible=False)
         for train_corpus_id in request.form.getlist(list_name):
             og_corpus = Corpus.query.filter_by(id = train_corpus_id).first()
+
+            # We relate the original corpus with this engine in the database,
+            # for informational purposes. This way the user will be able to know
+            # which corpora were used to train the engine
+            engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True))
+
             corpus.source_id = og_corpus.source_id
             corpus.target_id = og_corpus.target_id
             for file_entry in og_corpus.corpus_files:
@@ -85,19 +92,18 @@ def train_start():
 
         return corpus
 
-    train_corpus = join_corpora('training[]')
-    dev_corpus = join_corpora('dev[]')
-    test_corpus = join_corpora('test[]')
+    train_corpus = join_corpora('training[]', phase="train")
+    dev_corpus = join_corpora('dev[]', phase="dev")
+    test_corpus = join_corpora('test[]', phase="test")
 
-    engine = Engine(path = engine_path)
     engine.name = request.form['nameText']
     engine.description = request.form['descriptionText']
     engine.source = train_corpus.source
     engine.target = train_corpus.target
 
-    engine.corpora_engines.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
-    engine.corpora_engines.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
-    engine.corpora_engines.append(Corpus_Engine(corpus=test_corpus, engine=engine, phase="test"))
+    engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
+    engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
+    engine.engine_corpora.append(Corpus_Engine(corpus=test_corpus, engine=engine, phase="test"))
 
     engine.status = "training_pending"
     engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
@@ -122,7 +128,6 @@ def train_start():
     Trainer.finish(user_utils.get_uid, id)
 
     config = None
-    print(config_file_path, file=sys.stderr)
 
     try:
         with open(config_file_path, 'r') as config_file:
@@ -132,6 +137,7 @@ def train_start():
 
     def link_files(corpus, phase):
         for file_entry in corpus.corpus_files:
+            print([file_entry.file.id, file_entry.file.path], file=sys.stderr)
             tok_path = '{}.mut.spe'.format(file_entry.file.path)
             tok_name = phase
 
@@ -141,17 +147,12 @@ def train_start():
             config["data"][phase] = os.path.join(engine.path, tok_name)
             config["training"]["model_dir"] = os.path.join(engine.path, "model")
 
-    corpus_train = Corpus_Engine.query.filter_by(engine_id = engine.id, phase="train").first().corpus
-    link_files(corpus_train, "train")
-
-    corpus_dev = Corpus_Engine.query.filter_by(engine_id = engine.id, phase="dev").first().corpus
-    link_files(corpus_dev, "dev")
-
-    corpus_test = Corpus_Engine.query.filter_by(engine_id = engine.id, phase="test").first().corpus
-    link_files(corpus_test, "test")
+    link_files(train_corpus, "train")
+    link_files(dev_corpus, "dev")
+    link_files(test_corpus, "test")
 
     # Get vocabulary
-    vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(corpus_train.id))
+    vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(train_corpus.id))
     final_vocabulary_path = os.path.join(engine.path, "train.vocab")
 
     extract_vocabulary = subprocess.Popen("cat {} | head -n {} > {}".format(vocabulary_path, request.form['vocabularySize'], final_vocabulary_path),

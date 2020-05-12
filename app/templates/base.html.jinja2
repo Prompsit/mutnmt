@@ -46,7 +46,7 @@
                                 </a>
                             </li>
                             <li class="nav-item mb-2">
-                                <a class="nav-link {{ 'active' if page_name == 'library_engines' else '' }}" href="{{ url_for('library.library_engines') }}">
+                                <a class="nav-link {{ 'active' if page_name.startswith('library_engines') else '' }}" href="{{ url_for('library.library_engines') }}">
                                     <i class="fas fa-cogs mr-2"></i>
                                     Engines
                                 </a>
