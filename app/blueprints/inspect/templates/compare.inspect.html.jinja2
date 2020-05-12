@@ -11,14 +11,16 @@
 {% block inspect_content %}
 <h3 class="h6">Compare with</h3>
 
-<div class="d-flex">
-    {% for engine_entry in engines %}
-    <div class="btn-group-toggle mr-2" data-toggle="buttons">
-        <label class="btn btn-sm btn-outline-success">
-            <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}" /> {{ engine_entry.engine.name }}
-        </label>
+<div class="compare-btns d-none">
+    <div class="d-flex">
+        {% for engine_entry in engines %}
+        <div class="btn-group-toggle mr-2" data-toggle="buttons">
+            <label class="btn btn-sm btn-outline-success">
+                <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}" /> {{ engine_entry.engine.name }}
+            </label>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 
 <div class="inspect-compare-content mt-5 d-none">

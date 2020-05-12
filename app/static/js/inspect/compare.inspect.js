@@ -1,7 +1,24 @@
 $(document).ready(function() {
+    let hide_selected = () => {
+        $('.compare-btns').addClass("d-none")
+        $('.btn-group-toggle').removeClass('d-none');
+
+        $('.compare-engine').each(function(i, el) {
+            if ($(el).attr("data-engine-id") == $('.engine-select option:selected').val()) {
+                $(el).closest(".btn-group-toggle").addClass("d-none");
+                $(el).prop("checked", false);
+            }
+        });
+
+        $('.compare-btns').removeClass("d-none")
+    }
+
     $('.engine-select').on('change', function() {
         $('.translate-form').attr('data-status', 'false');
+        hide_selected();
     });
+
+    hide_selected();
 
     let onsubmit = (e) => {
         $(".inspect-compare-content").addClass("d-none");
