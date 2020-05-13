@@ -117,10 +117,11 @@ class TranslationUtils:
             return {
                 "source": user_engine.engine.source.code,
                 "target": user_engine.engine.target.code,
-                "preproc": n_best[0],
+                "preproc_input": line_tok,
+                "preproc_output": n_best[0],
                 "nbest": [tokenizer.detokenize(n) for n in n_best],
                 "alignments": [],
-                "postproc": tokenizer.detokenize(n_best[0])
+                "postproc_output": tokenizer.detokenize(n_best[0])
             }
         else:
             return None

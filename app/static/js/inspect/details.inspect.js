@@ -13,8 +13,9 @@ $(document).ready(function() {
                 data: { "text": $('.translate-text').val() },
                 method: "post"
             }).done(function(inspection) {
-                $('.preproc').html(inspection['preproc'])
-                $('.postproc').html(inspection['postproc'])
+                $('.preproc_input').html(inspection['preproc_input'])
+                $('.preproc_output').html(inspection['preproc_output'])
+                $('.postproc_output').html(inspection['postproc_output'])
                 for (sentence of inspection.nbest) {
                     let p = document.createElement("p")
                     $(p).html(sentence)
