@@ -55,6 +55,7 @@ def data_upload_perform():
                 return db_file
 
             # We create the corpus, retrieve the files and attach them to that corpus
+            target_db_file = None
             try:
                 corpus = Corpus(name = request.form['name'], type = type, 
                             owner_id = user_utils.get_uid(), description = request.form['description'])
