@@ -21,44 +21,46 @@ $(document).ready(function() {
 
     $(".parafile-showcase").scrollTop(0);
 
-    let control;
+    let control, scrollend;
     $(".parafile").each(function(i, pa) {
         $(pa).find(".parafile-showcase").each(function(j, sc) {
             fill_showcase(sc);
 
-            let scrollend, offset;
             $(sc).on('scroll', function() {
-                // Propagate scroll
-                if (scrollend) clearTimeout(scrollend)
-                scrollend = setTimeout(() => { 
-                    if (control == $(sc).data("file-id")) {
-                        // Free control
+                let file_id = $(sc).attr("data-file-id");
+                if (!control) control = file_id
+
+                if (control == file_id) {
+                    // Schedule release of control
+                    if (scrollend) clearTimeout(scrollend)
+                    scrollend = setTimeout(() => {
                         control = undefined;
-                        offset = undefined;
-                    }
-                }, 50);
+                    }, 50);
 
-                if (!control) {
-                    control = $(sc).data("file-id");
-                }
+                    let active_line;
+                    let scroll_top = $(sc).offset().top;
 
-                if (control == $(sc).data("file-id")) {
-                    // Highlight line
-                    if ($('.parafile-showcase').not(sc).length > 0) {
-                        let line = { i: -1 };
-                        $(sc).find('.parafile-line').each(function(k, l) {
-                            if (line.i == -1 && (($(l).offset().top + $(l).height() - 25) - $(sc).offset().top) >= 0) {
-                                $('.parafile-line').removeClass("active");
-                                $(l).addClass("active");
-                                line = { i: k, el: l };
-                            }
-                        });
-                        
-                        let other_line = $('.parafile-showcase').not(sc).find('.parafile-line').eq(line.i);
-                        other_line.addClass("active");
+                    let line_index = 0;
+                    for (let line_el of sc.querySelectorAll(".parafile-line")) {
+                        let line_top = $(line_el).offset().top;
+                        if (line_top >= scroll_top) {
+                            $(".parafile-line").removeClass("active");
+                            $(line_el).addClass("active");
+                            active_line = { i: line_index, el: line_el };
+                            break;
+                        }
+
+                        line_index++;
                     }
 
-                    $(".parafile-showcase").not(sc).scrollTop($(sc).scrollTop());
+                    // Highlight line and scroll the other parafile
+                    let other_sc = $(".parafile-showcase").not(sc);
+                    let other_line = $(".parafile-showcase").not(sc).find(".parafile-line").eq(active_line.i)
+                    other_line.addClass("active");
+
+                    let prediction = $(other_line).offset().top - ($(sc).scrollTop() - $(other_sc).scrollTop());
+                    let predicted_offset = prediction - $(active_line.el).offset().top;
+                    other_sc.scrollTop($(sc).scrollTop() + predicted_offset);
                 }
             });
         });
