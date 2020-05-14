@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
-from app.utils import user_utils, utils, data_utils
+from app.utils import user_utils, utils, data_utils, tensor_utils
 from app.utils.trainer import Trainer
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
@@ -48,7 +48,7 @@ def train_index():
 
     pynvml.nvmlInit()
     gpus = list(range(0, pynvml.nvmlDeviceGetCount()))
-    corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
+    corpora = Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True, type = "bilingual").all()
     return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,
                             gpus=gpus)
@@ -211,28 +211,12 @@ def train_graph():
 
     tag = request.form.get('tag')
     id = request.form.get('id')
-    last = request.form.get('last')
+    last = int(request.form.get('last'))
 
-    engine = Engine.query.filter_by(id = id).first()
-    tensor_path = os.path.join(engine.path, "model/tensorboard")
-    files = glob.glob(os.path.join(tensor_path, "*"))
-
-    last = int(last)
-    
-    if len(files) > 0:
-        log = files[0]
-
-        eacc = EventAccumulator(log)
-        eacc.Reload()
-
-        tags = eacc.Tags()
-
-        stats = {}
-        if tag in tags.get('scalars'):
-            stats[tag] = []
-            for data in eacc.Scalars(tag)[last:250]:
-                stats[tag].append({ "time": data.wall_time, "step": data.step, "value": data.value })
-
+    data = tensor_utils.get_tag(id, tag)[last:250]
+    if tags:
+        for item in data:
+            stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
         return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
     else:
         return jsonify({ "stats": [], "stopped": False })

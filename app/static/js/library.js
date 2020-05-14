@@ -43,6 +43,7 @@ $(document).ready(function() {
                         }
                         
                         $(template).find(".export-btn").attr("href", corpus_data.corpus_export);
+                        $(template).find(".corpus-preview").attr("href", corpus_data.corpus_preview);
 
                         if (public_mode) {
                             $(template).find(".grab-btn").attr("href", corpus_data.corpus_grab);
@@ -63,8 +64,6 @@ $(document).ready(function() {
                                 $(template).find(".corpus-ungrab").attr("href", corpus_data.corpus_ungrab);
                                 $(template).find(".corpus-ungrab").removeClass("d-none");
                             }
-
-                            $(template).find(".corpus-preview").attr("href", corpus_data.corpus_preview);
                         }
 
 
@@ -168,6 +167,9 @@ $(document).ready(function() {
 
                         $(template).find(".export-btn").attr("href", engine_data.engine_export);
 
+                        $(template).find(".detail-btn").attr("href", engine_data.engine_detail);
+                        $(template).find(".detail-btn").removeClass("d-none");
+
                         if (public_mode) {
                             $(template).find(".grab-btn").attr("href", engine_data.engine_grab);
                             $(template).find(".grab-btn").removeClass("d-none");
@@ -180,9 +182,6 @@ $(document).ready(function() {
                                     $(template).find(".share-btn-btn").attr("href", engine_data.engine_share);
                                     $(template).find(".share-btn-btn").removeClass("d-none");
                                 }
-
-                                $(template).find(".detail-btn").attr("href", engine_data.engine_detail);
-                                $(template).find(".detail-btn").removeClass("d-none");
 
                                 $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
                                 $(template).find(".summary-btn").removeClass("d-none");
@@ -204,5 +203,12 @@ $(document).ready(function() {
         });
     });
 
-    $(".details-table").DataTable();
+    $(".details-table").DataTable({
+        dom: "t",
+        paging: false,
+        columnDefs: [{
+            targets: 4,
+            sortable: false
+        }]
+    });
 });

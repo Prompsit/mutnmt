@@ -1,18 +1,21 @@
 from app import app, db
 from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine
-from app.utils import user_utils, utils, datatables
+from app.utils import user_utils, utils, datatables, tensor_utils
 from app.flash import Flash
 from flask_login import login_required
 from sqlalchemy import and_, not_
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, send_file
 from datetime import datetime
 from dateutil import tz
+from functools import reduce
+
 import os
 import hashlib
 import sys
 import shutil
 import pytz
 import ntpath
+import re
 
 library_blueprint = Blueprint('library', __name__, template_folder='templates')
 
@@ -41,9 +44,47 @@ def library_engines():
 def library_engine(id):
     engine = Engine.query.filter_by(id=id).first()
     corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=True).all()
+
+    training_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s+Epoch\s+1\s+Step:\s+(\d+)\s+Batch Loss:\s+(\d+\.\d+)\s+Tokens per sec:\s+(\d+),\s+Lr:\s+(\d+\.\d+)$'
+    validation_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s(\w|\s|\(|\))+(\d+),\s+step\s*(\d+):\s+bleu:\s+(\d+\.\d+),\s+loss:\s+(\d+\.\d+),\s+ppl:\s+(\d+\.\d+),\s+duration:\s+(\d+.\d+)s$'
+    re_flags = re.IGNORECASE | re.UNICODE
+
+    score = 0.0
+    tps = []
+    with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
+        first_time, last_time = None, None
+
+        for line in log_file:
+            groups = re.search(training_regex, line, flags=re_flags)
+            if groups:
+                if not first_time: first_time = "{} {}".format(groups[1], groups[2])
+                last_time = "{} {}".format(groups[1], groups[2])
+                tps.append(float(groups[5]))
+            else:
+                # It was not a training line, could be validation
+                groups = re.search(validation_regex, line, flags=re_flags)
+                if groups:
+                    bleu_score = float(groups[6])
+                    score = bleu_score if bleu_score > score else score
+
+    if len(tps) > 0:
+        tps_value = reduce(lambda a, b: a + b, tps)
+        tps_value = round(tps_value / len(tps))
+    else:
+        tps_value = "—"
+    
+    if first_time and last_time:
+        first_datetime = datetime.strptime(first_time, '%Y-%m-%d %H:%M:%S,%f')
+        last_datetime = datetime.strptime(last_time, '%Y-%m-%d %H:%M:%S,%f')
+        time_elapsed = (last_datetime - first_datetime)
+        time_elapsed_format = "{}d {}h {}m {}s".format(time_elapsed.days, 
+                                round(time_elapsed.seconds / 3600), round((time_elapsed.seconds % 3600) / 60), round(time_elapsed.seconds % 60))
+    else:
+        time_elapsed_format = "—"
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
-            page_title = 'Engine details', engine = engine, corpora = corpora)
+            page_title = 'Engine details', engine = engine, corpora = corpora, score = score, tps = tps_value, 
+            time_elapsed = time_elapsed_format)
 
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():
