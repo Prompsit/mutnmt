@@ -20,7 +20,7 @@ $(document).ready(function() {
 
     $(".monolingual-nav-tab").on('click', function() {
         if ($(this).closest("fieldset").prop("disabled") == true) return;
-        
+
         $(".target-file-col").addClass("target-col-disabled");
         $(".target_file").removeClass("dragged");
         $(".upload-nav-tabs .nav-link").removeClass("active");
@@ -70,3 +70,14 @@ $(document).ready(function() {
         return false;
     });
 });
+
+$(window).on('beforeunload', () => {
+    let filled = false;
+    $(".data-upload-form input:not(.btn), .data-upload-form textarea").each(function(i, el) {
+        console.log(el);
+        filled = filled || $(el).val() != "";
+        if (filled) console.log(el);
+    });
+
+    if (filled) return true;
+})
