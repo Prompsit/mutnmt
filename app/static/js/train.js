@@ -77,7 +77,7 @@ $(document).ready(function() {
             })
         },
         columnDefs: [{
-            targets: [0, 1, 2],
+            targets: [1, 2, 3],
             responsivePriority: 1
         },
         {

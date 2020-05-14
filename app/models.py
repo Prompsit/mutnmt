@@ -149,7 +149,7 @@ class LibraryCorpora(db.Model):
         db.UniqueConstraint('user_id', 'corpus_id'),
     )
 
-    def __init__(self, file=None, user=None):
+    def __init__(self, corpus=None, user=None):
         self.user = user
         self.corpus = corpus
 

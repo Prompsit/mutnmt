@@ -197,8 +197,8 @@ def library_grab(type, id):
     user = User.query.filter_by(id = user_utils.get_uid()).first()
 
     if type == "library_corpora":
-        file = File.query.filter_by(id = id).first()
-        user.user_files.append(LibraryCorpora(file=file, user=user))
+        corpus = Corpus.query.filter_by(id = id).first()
+        user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
     else:
         engine = Engine.query.filter_by(id = id).first()
         user.user_engines.append(LibraryEngine(engine=engine, user=user))
