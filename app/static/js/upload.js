@@ -19,6 +19,8 @@ $(document).ready(function() {
     });
 
     $(".monolingual-nav-tab").on('click', function() {
+        if ($(this).closest("fieldset").prop("disabled") == true) return;
+        
         $(".target-file-col").addClass("target-col-disabled");
         $(".target_file").removeClass("dragged");
         $(".upload-nav-tabs .nav-link").removeClass("active");
@@ -34,6 +36,9 @@ $(document).ready(function() {
 
     $(".data-upload-form").on("submit", function(e) {
         e.preventDefault();
+
+        $(".data-upload-form fieldset").prop("disabled", true);
+
         $(".token-alert").addClass("d-none");
 
         if (file_source == null) return false;
