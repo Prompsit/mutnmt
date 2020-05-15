@@ -211,4 +211,10 @@ $(document).ready(function() {
             sortable: false
         }]
     });
+
+    $(".nav-tabs a").on('shown.bs.tab', function() {
+        $(".tab-pane.active .dataTable").each(function(i, el) {
+            $(el).DataTable().ajax.reload();
+        })
+    })
 });

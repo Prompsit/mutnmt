@@ -93,7 +93,7 @@ def library_corpora_feed():
     user_library =  Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid(), Corpus.visible == True)) if public \
                         else Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
 
-    dt = datatables.Datatables()
+    dt = datatables.Datatables(draw=int(request.form.get('draw')))
     rows, rows_filtered, search = [], [], None
 
     corpus_data = []

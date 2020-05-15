@@ -3,9 +3,9 @@ from flask import jsonify
 from sqlalchemy.orm import load_only
 
 class Datatables(object):
-    def __init__(self):
-        self.draw = 1
-        self.search = None
+    def __init__(self, draw = 1, search = None):
+        self.draw = draw
+        self.search = search
 
     def parse(self, table, columns, request, condition = None):
         self.draw = request.form.get('draw')
