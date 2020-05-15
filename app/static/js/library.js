@@ -93,6 +93,7 @@ $(document).ready(function() {
                 {
                     targets: 1,
                     responsivePriority: 1,
+                    className: "overflow",
                     render: function(data, type, row) {
                         let corpus_data = row[8];
                         let template = document.importNode(document.querySelector("#corpus-entry-template").content, true);

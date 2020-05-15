@@ -94,7 +94,7 @@
     <div class="tab-pane fade show active pt-4" id="private-corpora">
         {% if user_library|length > 0 %}
         <table class="table table-bordered corpora-table w-100">
-            <thead>
+            <thead class="d-none">
                 <th></th>
                 <th>File name</th>
                 <th>Language</th>
@@ -115,33 +115,33 @@
     </div>
     <div class="tab-pane fade pt-4" id="public-corpora">
         <table class="table table-bordered corpora-table w-100" data-public="true">
-                <thead>
-                    <th></th>
-                    <th>File name</th>
-                    <th>Language</th>
-                    <th>Lines</th>
-                    <th>Words</th>
-                    <th>Chars</th>
-                    <th>Date</th>
-                    <th></th>
-                </thead>
-            </table>
+            <thead class="d-none">
+                <th></th>
+                <th>File name</th>
+                <th>Language</th>
+                <th>Lines</th>
+                <th>Words</th>
+                <th>Chars</th>
+                <th>Date</th>
+                <th></th>
+            </thead>
+        </table>
     </div>
 </div>
 
 <template id="corpus-header-template">
     <tr class="corpus-header">
         <th class="corpus_icon">
-            <div class="folder-shared folder-indicator d-none">
-                <i class="folder-icon fas fa-folder mr-2"></i>
+            <div class="folder-shared folder-indicator text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
                 <i class="second-icon fas fa-share-alt-square text-success bg-white"></i>
             </div>
-            <div class="folder-grabbed folder-indicator d-none">
-                <i class="folder-icon fas fa-folder mr-2"></i>
+            <div class="folder-grabbed folder-indicator text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
                 <i class="second-icon fas fas fa-user text-warning"></i>
             </div>
-            <div class="folder-owner d-none">
-                <i class="folder-icon fas fa-folder mr-2"></i>
+            <div class="folder-owner text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
             </div>
         </th>
         <th class="corpus_name"></th>
@@ -187,9 +187,19 @@
     </tr>
     <tr class="bg-light corpus-description-row">
         <td class="border-right-0"></td>
-        <td colspan="7">
+        <td class="overflow" colspan="7">
             <div class="font-weight-normal corpus_description"></div>
         </td>
+    </tr>
+    <tr>
+        <th class="border-right-0"></th>
+        <th>File name</th>
+        <th>Language</th>
+        <th>Lines</th>
+        <th>Words</th>
+        <th>Chars</th>
+        <th>Date</th>
+        <th></th>
     </tr>
 </template>
 

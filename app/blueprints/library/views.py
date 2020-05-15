@@ -102,9 +102,16 @@ def library_corpora_feed():
 
         rows, rows_filtered, search = dt.parse(File, columns, request, File.corpora.any(Corpus_File.corpus_id == corpus.id))
 
+        def format_number(number_string):
+            return '{:,}'.format(number_string)
+
         for file in (rows_filtered if search else rows):
-            uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
-            corpus_data.append([file.id, file.name, file.language.name, file.lines, file.words, file.chars, uploaded_date, "",
+            uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y")
+            corpus_data.append([file.id, file.name, file.language.name, 
+                                format_number(file.lines), 
+                                format_number(file.words), 
+                                format_number(file.chars), 
+                                uploaded_date, "",
                                 {
                                     "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
                                     "corpus_id": corpus.id,

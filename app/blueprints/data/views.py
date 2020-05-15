@@ -82,10 +82,8 @@ def data_upload_perform():
         else:
             raise Exception("Sorry, but we couldn't handle your request")
     except Exception as e:
-        raise e
-        print(e, file=sys.stderr)
         Flash.issue(e, Flash.ERROR)
     else:
-        Flash.issue("Corpus successfully uploaded!", Flash.SUCCESS)
+        Flash.issue("Corpus successfully uploaded and added to your corpora.", Flash.SUCCESS)
 
     return request.referrer

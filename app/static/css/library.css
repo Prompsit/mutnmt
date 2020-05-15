@@ -45,11 +45,11 @@
 }
 
 .corpora-table tr .file-item-preview {
-    display: none;
+    visibility: hidden;
 }
 
 .corpora-table tr:hover .file-item-preview {
-    display: block;
+    visibility: visible;
 }
 
 .neural-bg {
