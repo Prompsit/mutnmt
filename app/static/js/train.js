@@ -55,36 +55,41 @@ let draw_stack = (stack, container) => {
 }
 
 $(document).ready(function() {
-    $(".corpus-selector-table").DataTable({
-        dom: "ft",
-        scrollY: "200px",
-        scrollCollapse: true,
-        paging: false,
-        responsive: true,
-        drawCallback: function(settings) {
-            $(".corpus-selector-add").off('click').on('click', function(e) {
-                e.preventDefault();
-                let corpus_type = $(this).data("corpus");
-                if (corpora_stacks[corpus_type].sentences + $(this).data("corpus-lines") <= max_amount) {
-                    corpora_stacks[corpus_type].sentences += $(this).data("corpus-lines");
-                    corpora_stacks[corpus_type].corpora.push({ 
-                        id: $(this).data("corpus-id"),
-                        name: $(this).data("corpus-name"),
-                        size: $(this).data("corpus-lines")
-                    });
-                    draw_stacks(corpora_stacks);
-                }
-            })
-        },
-        columnDefs: [{
-            targets: [1, 2, 3],
-            responsivePriority: 1
-        },
-        {
-            targets: [0, 1],
-            searchable: true,
-            sortable: true
-        }]
+    $(".corpus-selector-table").each(function(i, el) {
+        $(el).DataTable({
+            dom: "ft",
+            scrollY: "200px",
+            scrollCollapse: true,
+            paging: false,
+            responsive: true,
+            drawCallback: function(settings) {
+                $(el).find(".corpus-selector-add").off('click').on('click', function(e) {
+                    e.preventDefault();
+                    let corpus_type = $(el).data("corpus");
+                    if (corpora_stacks[corpus_type].sentences + $(el).data("corpus-lines") <= max_amount) {
+                        corpora_stacks[corpus_type].sentences += $(el).data("corpus-lines");
+                        corpora_stacks[corpus_type].corpora.push({ 
+                            id: $(el).data("corpus-id"),
+                            name: $(el).data("corpus-name"),
+                            size: $(el).data("corpus-lines")
+                        });
+                        draw_stacks(corpora_stacks);
+                    }
+                })
+            },
+            columnDefs: [{
+                targets: [0, 1, 2],
+                responsivePriority: 1,
+                searchable: false,
+                sortable: false
+            },
+            {
+                targets: [0, 1],
+                searchable: true,
+                sortable: true,
+                className: "overflow"
+            }]
+        });
     });
 
     draw_stacks(corpora_stacks);
