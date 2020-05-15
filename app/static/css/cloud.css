@@ -1,6 +1,6 @@
 
 .tokenizer-animation {
-    width: 85px;
+    flex: 0 0 85px;
     height: 80px;
     position: relative;
 }
