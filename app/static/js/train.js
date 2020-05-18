@@ -65,13 +65,14 @@ $(document).ready(function() {
             drawCallback: function(settings) {
                 $(el).find(".corpus-selector-add").off('click').on('click', function(e) {
                     e.preventDefault();
-                    let corpus_type = $(el).data("corpus");
-                    if (corpora_stacks[corpus_type].sentences + $(el).data("corpus-lines") <= max_amount) {
-                        corpora_stacks[corpus_type].sentences += $(el).data("corpus-lines");
+                    let corpus_type = $(this).attr("data-corpus");
+                    console.log(corpus_type)
+                    if (corpora_stacks[corpus_type].sentences + $(this).data("corpus-lines") <= max_amount) {
+                        corpora_stacks[corpus_type].sentences += $(this).data("corpus-lines");
                         corpora_stacks[corpus_type].corpora.push({ 
-                            id: $(el).data("corpus-id"),
-                            name: $(el).data("corpus-name"),
-                            size: $(el).data("corpus-lines")
+                            id: $(this).data("corpus-id"),
+                            name: $(this).data("corpus-name"),
+                            size: $(this).data("corpus-lines")
                         });
                         draw_stacks(corpora_stacks);
                     }
