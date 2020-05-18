@@ -7,10 +7,12 @@ $(document).ready(function() {
         $('.inspect-row').addClass("d-none");
         $('.inspect-content').html("");
 
-        if ($('.translate-form').attr('data-status') == 'ready') {
+        if ($('.translate-form').attr('data-status') != 'launching') {
+            $('.translate-form').attr('data-status', 'launching');
+
             $.ajax({
                 url: `get`,
-                data: { "text": $('.translate-text').val() },
+                data: { "text": $('.translate-text').val(), "engine_id": $('.engine-select option:selected').val() },
                 method: "post"
             }).done(function(inspection) {
                 $('.preproc_input').html(inspection['preproc_input'])
@@ -24,20 +26,7 @@ $(document).ready(function() {
                 }
 
                 $(".inspect-row").removeClass("d-none");
-            });
-        } else {
-            $('.translate-form').attr('data-status', 'launching');
-
-            $.ajax({
-                url: `attach_engine/${$('.engine-select option:selected').val()}`
-            }).done(function(raw) {
-                console.log(raw);
-                if (raw == "0") {
-                    $('.translate-form').attr('data-status', 'ready');
-                    onsubmit()
-                } else {
-                    $('.translate-form').attr('data-status', 'error');
-                }
+                $('.translate-form').attr('data-status', 'ready');
             });
         }
 

@@ -35,25 +35,31 @@ $(document).ready(function() {
     // Translates the source text and displays
     // the translation in a textarea
     let translate = () => {
+        // We capture each line of text and we send it to the server
 
-        // If the engine is ready, we capture each line of text and
-        // we send it to the server
-        if ($('.live-translate-form').attr('data-status') == 'ready') {
-            // If there is no text, we do nothing
-            if ($('.live-translate-source').val() == "") {
-                $('.live-translate-target').html("");
-                return;
-            }
+        // If there is no text, we do nothing
+        if ($('.live-translate-source').val() == "") {
+            $('.live-translate-target').html("");
+            return;
+        }
 
-            let text = [];
-            for (let line of $('.live-translate-source').val().split('\n')) {
-                text.push(line)
-            }
+        let text = [];
+        for (let line of $('.live-translate-source').val().split('\n')) {
+            text.push(line)
+        }
 
+        if ($('.live-translate-form').attr('data-status') != 'launching') {
+            $('.live-translate-target').html("");
+            
+            $('.live-translate-form').attr('data-status', 'launching');
             $.ajax({
                 url: `get`,
                 method: "POST",
-                data: { text: text, chain: $("#chain").val() == "true" ? $('.engine-select-chain option:selected').val() : false }
+                data: {
+                    engine_id: $('.engine-select option:selected').val(),
+                    text: text, 
+                    chain: $("#chain").val() == "true" ? $('.engine-select-chain option:selected').val() : false 
+                }
             }).done(function(data) {
                 // We fill target text depending on the result from the server
                 $('.live-translate-target').html("");
@@ -71,20 +77,6 @@ $(document).ready(function() {
                     if (data.detached) {
                         $('.live-translate-form').attr('data-status', 'none');
                     }
-                }
-            });
-        } else if ($('.live-translate-form').attr('data-status') != 'launching') {
-            // If the engine is not ready (and it is not launching), we launch it
-            $('.live-translate-form').attr('data-status', 'launching');
-
-            $.ajax({
-                url: `attach_engine/${$('.engine-select option:selected').val()}`
-            }).done(function(raw) {
-                if (raw == "0") {
-                    $('.live-translate-form').attr('data-status', 'ready');
-                    translate()
-                } else {
-                    $('.live-translate-form').attr('data-status', 'error');
                 }
             });
         }
@@ -112,12 +104,12 @@ $(document).ready(function() {
         if (watcher) clearTimeout(watcher);
         watcher = setTimeout(() => {
             translate()
-        }, 700);
+        }, 800);
 
-        if (count > 5) {
+        /*if (count > 5) {
             translate();
             count = 0;
-        }
+        }*/
 
         count++;
 

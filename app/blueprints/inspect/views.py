@@ -39,13 +39,15 @@ def translate_attach(id):
 @inspect_blueprint.route('/get', methods=["POST"])
 def inspect_get():
     text = request.form.get('text')
+    engine_id = request.form.get('engine_id')
+    translators.launch(user_utils.get_uid(), engine_id)
     translation = translators.get_inspect(user_utils.get_uid(), text)
+    translators.deattach(user_utils.get_uid())
     return jsonify(translation) if translation else "-1"
 
 @inspect_blueprint.route('/get_compare', methods=["POST"])
 def inspect_get_compare():
     text = request.form.get('text')
-    main_engine = request.form.get('main_engine')
     engines = request.form.getlist('engines[]')
 
     translations = []
@@ -58,5 +60,6 @@ def inspect_get_compare():
                 "name": engine.name,
                 "text": translators.get(user_utils.get_uid(), [text])
             })
+        translators.deattach(user_utils.get_uid())
 
     return jsonify({ "source": engine.source.code, "target": engine.target.code, "translations": translations })

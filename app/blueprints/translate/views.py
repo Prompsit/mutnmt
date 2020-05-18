@@ -26,15 +26,20 @@ def translate_attach(id):
 
 @translate_blueprint.route('/get', methods=["POST"])
 def translate_get():
+    engine_id = request.form.get('engine_id')
     text = request.form.getlist('text[]')
+
+    translators.launch(user_utils.get_uid(), engine_id)
     translation = translators.get(user_utils.get_uid(), text)
-    detached = False
+    detached = True
 
     if request.form.get('chain') and request.form.get('chain') != "false":
         chain_id = int(request.form.get('chain'))
         if translators.launch(user_utils.get_uid(), chain_id):
             translation = translators.get(user_utils.get_uid(), translation)
-            detached = True
+            # detached = True
+            
+    translators.deattach(user_utils.get_uid())
 
     return jsonify({ "result": 200, "lines": translation, "detached": detached }) if translation is not None else jsonify({ "result": -1, "detached": detached })
 
