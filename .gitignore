@@ -3,7 +3,7 @@ app/uploads
 samples
 app/preloaded
 app/app.db
-**/*.min.*
+app/static/**/*.min.*
 app/static/css/bootstrap.css
 
 # Byte-compiled / optimized / DLL files
