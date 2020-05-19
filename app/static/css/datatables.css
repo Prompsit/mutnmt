@@ -15,6 +15,7 @@ table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"] > td:first-child::
   color: #333339;
   position: absolute;
   top: 0px;
+  margin-top: 0px;
 }
 
 table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"].parent > td:first-child::before, table.dataTable.dtr-inline.collapsed > tbody > tr[role="row"].parent > th:first-child::before {

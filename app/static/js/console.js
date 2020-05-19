@@ -134,7 +134,11 @@ $(document).ready(function() {
                 url: "../log",
                 method: "post",
                 data: { engine_id: engine_id }
-            }
+            },
+            columnDefs: [{
+                targets: [0, 1, 2, 3, 4],
+                responsivePriority: 1
+            }]
         });
 
         setInterval(() => {
