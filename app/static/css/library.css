@@ -52,9 +52,11 @@
     visibility: visible;
 }
 
-.neural-bg {
-    background-image: url(/img/neural-bg.svg);
-    background-repeat: no-repeat;
-    background-position: right top;
-    background-size: 450px 225px;
+@media screen and (min-width: 576px) {
+    .neural-bg {
+        background-image: url(/img/neural-bg.svg);
+        background-repeat: no-repeat;
+        background-position: right top;
+        background-size: 450px 225px;
+    }
 }
