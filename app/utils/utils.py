@@ -45,3 +45,9 @@ def file_length(file_path):
 
 def tmpfolder():
     return tempfile.mkdtemp(dir=app.config['TMP_FOLDER'])
+
+def tmpfile(filename=None):
+    if filename:
+        return os.path.join(app.config['TMP_FOLDER'], filename)
+    else:
+        return tempfile.mkstemp(dir=app.config['TMP_FOLDER'])

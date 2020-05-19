@@ -2,14 +2,15 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/chart.bundle.min.css') }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}" />
 {% endblock %}
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js" integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='lib/moment-with-locales.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/chart.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}
 

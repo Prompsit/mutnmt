@@ -1,5 +1,5 @@
 from app import app, db
-from app.utils import user_utils
+from app.utils import user_utils, utils
 from app.utils.tokenizer import Tokenizer
 from app.models import Engine, RunningEngines, User
 from app.utils.translation.joeywrapper import JoeyWrapper
@@ -260,7 +260,7 @@ class TranslationUtils:
 
                 body.append(tu)
 
-        tmx_path = os.path.join('/tmp', '{}.{}-{}.tmx'.format(user_id, engine.source.code, engine.target.code))
+        tmx_path = utils.tmpfile('{}.{}-{}.tmx'.format(user_id, engine.source.code, engine.target.code))
         tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True, pretty_print=True)
         return tmx_path
 

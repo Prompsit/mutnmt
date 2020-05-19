@@ -2,11 +2,13 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='lib/chart.bundle.min.css') }}" /> 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/evaluate.css') }}" />
 {% endblock %}
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
+<script src="{{ url_for('static', filename='lib/chart.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/custom-file.js') }}"></script>
 <script src="{{ url_for('static', filename='js/evaluate.js') }}"></script>
 {% endblock %}

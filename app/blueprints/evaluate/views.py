@@ -23,7 +23,7 @@ def evaluate_index():
 
 @evaluate_blueprint.route('/download/<name>')
 def evaluate_download(name):
-    file_path = os.path.join('/tmp', name)
+    file_path = utils.tmpfile(name)
     return send_file(file_path)
 
 @evaluate_blueprint.route('/perform', methods=["POST"])
@@ -106,7 +106,7 @@ def spl(mt_path, ht_path):
 
 def generate_xlsx(rows):
     file_name = utils.normname(user_utils.get_uid(), "evaluation") + ".xlsx"
-    file_path = os.path.join('/tmp', file_name)
+    file_path = utils.tmpfile(file_name)
 
     workbook = xlsxwriter.Workbook(file_path)
     worksheet = workbook.add_worksheet()
