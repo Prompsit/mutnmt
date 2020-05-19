@@ -31,6 +31,7 @@ $(document).ready(function() {
                         
                         $(template).find(".corpus_lang_src").html(corpus_data.corpus_source);
                         $(template).find(".corpus_lang_trg").html(corpus_data.corpus_target);
+                        $(template).find(".corpus_uploader").html(corpus_data.corpus_uploader);
 
                         if (corpus_data.corpus_owner) {
                             if (corpus_data.corpus_public) {

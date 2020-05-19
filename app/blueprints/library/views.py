@@ -114,6 +114,7 @@ def library_corpora_feed():
                                 uploaded_date, "",
                                 {
                                     "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
+                                    "corpus_uploader": file.uploader.username if file.uploader else "MutNMT",
                                     "corpus_id": corpus.id,
                                     "corpus_name": corpus.name,
                                     "corpus_description": corpus.description,
@@ -145,7 +146,7 @@ def library_engines_feed():
     for engine in (rows_filtered if search else rows):
         uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
         engine_data.append([engine.id, engine.name, engine.description, "{} — {}".format(engine.source.name, engine.target.name),
-                            uploaded_date, engine.uploader.username if engine.uploader else "", "",
+                            uploaded_date, engine.uploader.username if engine.uploader else "MutNMT", "",
                             {
                                 "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
                                 "engine_public": engine.public,
