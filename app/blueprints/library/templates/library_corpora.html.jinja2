@@ -97,18 +97,20 @@
 <div class="tab-content corpora-tab">
     <div class="tab-pane fade show active pt-4" id="private-corpora">
         {% if user_library|length > 0 %}
-        <table class="table table-bordered corpora-table w-100">
-            <thead class="d-none">
-                <th></th>
-                <th>File name</th>
-                <th>Language</th>
-                <th>Lines</th>
-                <th>Words</th>
-                <th>Chars</th>
-                <th>Date</th>
-                <th></th>
-            </thead>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered corpora-table w-100">
+                <thead class="d-none">
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Lines</th>
+                    <th>Words</th>
+                    <th>Chars</th>
+                    <th>Date</th>
+                    <th></th>
+                </thead>
+            </table>
+        </div>
         {% else %}
         <div class="jumbotron p-3 text-center">
             <p class="h6 m-0">
@@ -118,18 +120,20 @@
         {% endif %}
     </div>
     <div class="tab-pane fade pt-4" id="public-corpora">
-        <table class="table table-bordered corpora-table w-100" data-public="true">
-            <thead class="d-none">
-                <th></th>
-                <th>File name</th>
-                <th>Language</th>
-                <th>Lines</th>
-                <th>Words</th>
-                <th>Chars</th>
-                <th>Date</th>
-                <th></th>
-            </thead>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered corpora-table w-100" data-public="true">
+                <thead class="d-none">
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Lines</th>
+                    <th>Words</th>
+                    <th>Chars</th>
+                    <th>Date</th>
+                    <th></th>
+                </thead>
+            </table>
+        </div>
     </div>
 </div>
 
