@@ -1,3 +1,5 @@
+let force_quit = false;
+
 $(document).ready(function() {
     let file_source = null;
     let file_target = null;
@@ -63,6 +65,7 @@ $(document).ready(function() {
             cache: false,
             processData: false,
             success: function(url) {
+                force_quit = true;
                 window.location.href = url
             }
         });
@@ -79,5 +82,5 @@ $(window).on('beforeunload', () => {
         if (filled) console.log(el);
     });
 
-    if (filled) return true;
+    if (filled && !force_quit) return true;
 })
