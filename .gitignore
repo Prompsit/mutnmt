@@ -4,6 +4,9 @@ samples
 app/preloaded
 app/app.db
 app/static/**/*.min.*
+app/static/**/*.min.*
+!app/static/lib
+!app/static/lib/*.min.*
 app/static/css/bootstrap.css
 
 # Byte-compiled / optimized / DLL files
@@ -22,7 +25,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+#lib/
 lib64/
 parts/
 sdist/
