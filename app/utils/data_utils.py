@@ -10,31 +10,23 @@ import re
 import datetime
 import shutil
 
-def upload_file(file, language):
+def upload_file(file, language, selected_size=None):
     norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)
     path = utils.filepath('FILES_FOLDER', norm_name)
-    
-    # Could we already have it stored?
-    hash = utils.hash(file)
 
-    query = File.query.filter_by(hash = hash)
-    db_file = None
-
-    try:
-        db_file = query.first()
-        if db_file is None: raise NoResultFound
-
-        # We did have it, we link a new one to the existing one instead of re-uploading
-        os.link(db_file.path, path)
-
-        db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
-                        hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
-                        lines = db_file.lines, words = db_file.words, chars = db_file.chars)
-        
-    except NoResultFound:
-        # We did not have it, we save it
+    def new_file(file, path, selected_size=None):
+        # We save it
         file.seek(0)
         file.save(path)
+
+        if selected_size is not None:
+            # We get the amount of sentences we want
+            crop_path = "{}.crop".format(path)
+            crop_proccess = subprocess.Popen("cat {} | head -n {} > {}".format(path, selected_size, crop_path), shell=True)
+            crop_proccess.wait()
+
+            os.remove(path)
+            shutil.move(crop_path, path)
 
         # Get file stats
         wc_output = subprocess.check_output('wc -lwc {}'.format(path), shell=True)
@@ -43,12 +35,36 @@ def upload_file(file, language):
 
         # Save in DB
         db_file = File(path = path, name = file.filename, language_id = language,
-                        hash = hash, uploader_id = user_utils.get_uid(),
+                        hash = utils.hash(file), uploader_id = user_utils.get_uid(),
                         lines = lines, words = words, chars = chars,
                         uploaded = datetime.datetime.utcnow())
 
-    return db_file
+        return db_file
+    
+    if selected_size is not None:
+        return new_file(file, path, selected_size)
+    else:
+        # Could we already have it stored?
+        hash = utils.hash(file)
 
+        query = File.query.filter_by(hash = hash)
+        db_file = None
+
+        try:
+            db_file = query.first()
+            if db_file is None: raise NoResultFound
+
+            # We did have it, we link a new one to the existing one instead of re-uploading
+            os.link(db_file.path, path)
+
+            db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
+                            hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
+                            lines = db_file.lines, words = db_file.words, chars = db_file.chars)
+            
+        except NoResultFound:
+            db_file = new_file(file, path)
+
+        return db_file
 
 def shuffle_sentences(corpus):
     source_files = [f.file for f in corpus.corpus_files if f.role == "source"]

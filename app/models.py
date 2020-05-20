@@ -1,4 +1,5 @@
 from app import db
+from app.utils import utils
 
 from flask_login import UserMixin
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
@@ -79,6 +80,12 @@ class Corpus(db.Model):
     target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     target = db.relationship("Language", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
 
+    def lines(self, human=False, abbr=False):
+        if len(self.corpus_files) > 0:
+            return utils.format_number(self.corpus_files[0].file.lines, abbr=abbr) if human else self.corpus_files[0].file.lines
+        else:
+            return 0
+
 class Corpus_File(db.Model):
     __tablename__ = 'corpus_file'
     id = db.Column(db.Integer, primary_key=True)
@@ -105,6 +112,7 @@ class Corpus_Engine(db.Model):
     engine_id = db.Column(db.Integer, db.ForeignKey('engine.id'))
     phase = db.Column(db.String(64))
     is_info = db.Column(db.Boolean, default=False) # Whether the corpus is used for training or information purposes
+    selected_size = db.Column(db.Integer)
 
     engine = db.relationship(Engine, backref = db.backref("engine_corpora", cascade="all, delete-orphan"))
     corpus = db.relationship("Corpus")
@@ -113,11 +121,12 @@ class Corpus_Engine(db.Model):
         db.UniqueConstraint('corpus_id', 'engine_id', 'phase'),
     )
 
-    def __init__(self, corpus = None, engine = None, phase = None, is_info = False):
+    def __init__(self, corpus = None, engine = None, phase = None, is_info = False, selected_size = None):
         self.corpus = corpus
         self.engine = engine
         self.phase = phase
         self.is_info = is_info
+        self.selected_size = selected_size
 
 class User(UserMixin, db.Model):
     __tablename__   = 'user'

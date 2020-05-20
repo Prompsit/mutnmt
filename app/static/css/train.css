@@ -25,6 +25,8 @@
 .area-value-current {
     top: 0px;
     font-weight: bold;
+    background-color: white;
+    padding: 2px;
 }
 
 .area-zone[data-valid="no"] .area-value-current {

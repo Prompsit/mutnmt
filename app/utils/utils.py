@@ -51,3 +51,16 @@ def tmpfile(filename=None):
         return os.path.join(app.config['TMP_FOLDER'], filename)
     else:
         return tempfile.mkstemp(dir=app.config['TMP_FOLDER'])
+
+def format_number(number_string, abbr=False):
+    number = int(number_string)
+
+    if abbr:
+        if number >= 1000000:
+            return "{}M".format(number / 1000000)
+        elif number >= 1000:
+            return "{}k".format(number / 1000)
+        else:
+            return "{}".format(number)
+    else:
+        return '{:,}'.format(number)

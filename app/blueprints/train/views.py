@@ -20,6 +20,7 @@ import subprocess
 import glob
 import pynvml
 import re
+import json
 
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
@@ -68,19 +69,23 @@ def train_start():
 
     def join_corpora(list_name, phase):
         corpus = Corpus(owner_id=user_utils.get_uid(), visible=False)
-        for train_corpus_id in request.form.getlist(list_name):
-            og_corpus = Corpus.query.filter_by(id = train_corpus_id).first()
+        for train_corpus in request.form.getlist(list_name):
+            corpus_data = json.loads(train_corpus)
+            corpus_id = corpus_data['id']
+            corpus_size = corpus_data['size']
+
+            og_corpus = Corpus.query.filter_by(id = corpus_id).first()
 
             # We relate the original corpus with this engine in the database,
             # for informational purposes. This way the user will be able to know
             # which corpora were used to train the engine
-            engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True))
+            engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True, selected_size=corpus_size))
 
             corpus.source_id = og_corpus.source_id
             corpus.target_id = og_corpus.target_id
             for file_entry in og_corpus.corpus_files:
                 with open(file_entry.file.path, 'rb') as file_d:
-                    db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id)
+                    db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id, selected_size=corpus_size)
                 corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
 
         db.session.add(corpus)
@@ -214,7 +219,7 @@ def train_graph():
     last = int(request.form.get('last'))
 
     data = tensor_utils.get_tag(id, tag)[last:250]
-    if tags:
+    if data:
         for item in data:
             stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
         return jsonify({ "stopped": engine.status == "stopped", "stats": stats })

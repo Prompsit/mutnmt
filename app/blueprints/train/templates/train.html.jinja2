@@ -109,26 +109,31 @@
                     </div>
 
                     <div class="corpus-selector-list">
-                        <table class="table table-bordered corpus-selector-table table-training">
+                        <table class="table corpus-selector-table table-training">
                             <thead>
                                 <tr>
                                     <th>Corpus</th>
-                                    <th>Language</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for corpus in corpora %}
-                                    <tr>
-                                        <td>{{ corpus.name }}</td>
-                                        <td>{{ corpus.source.name }} - {{ corpus.target.name }}</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-link corpus-selector-add p-0" data-corpus="training"
-                                                data-corpus-id="{{ corpus.id }}"
-                                                data-corpus-name="{{ corpus.name }}"
-                                                data-corpus-lines="{{ corpus.corpus_files[0].file.lines }}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
+                                    <tr class="row-corpus" data-corpus="training" data-corpus-id="{{ corpus.id }}">
+                                        <td class="border-0 py-2">{{ corpus.name }} ({{ corpus.source.code }}—{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True) }} lines)</td>
+                                        <td class="text-center border-0 p-0 py-2 align-middle">
+                                            <div class="input-group">
+                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-primary corpus-selector-add"
+                                                        data-corpus="training"
+                                                        data-corpus-id="{{ corpus.id }}"
+                                                        data-corpus-name="{{ corpus.name }}"
+                                                        data-corpus-lines="{{ corpus.lines() }}">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -158,26 +163,31 @@
                     </div>
                     
                     <div class="corpus-selector-list">
-                        <table class="table table-bordered corpus-selector-table table-dev">
+                        <table class="table corpus-selector-table table-dev">
                             <thead>
                                 <tr>
                                     <th>Corpus</th>
-                                    <th>Language</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for corpus in corpora %}
-                                    <tr>
-                                        <td>{{ corpus.name }}</td>
-                                        <td>{{ corpus.source.name }} - {{ corpus.target.name }}</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-link corpus-selector-add p-0" data-corpus="dev"
-                                                data-corpus-id="{{ corpus.id }}"
-                                                data-corpus-name="{{ corpus.name }}"
-                                                data-corpus-lines="{{ corpus.corpus_files[0].file.lines }}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
+                                    <tr class="row-corpus" data-corpus="dev" data-corpus-id="{{ corpus.id }}">
+                                        <td class="border-0 py-2">{{ corpus.name }} ({{ corpus.source.code }}—{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True) }} lines)</td>
+                                        <td class="text-center border-0 p-0 py-2 align-middle">
+                                            <div class="input-group">
+                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-primary corpus-selector-add"
+                                                        data-corpus="dev"
+                                                        data-corpus-id="{{ corpus.id }}"
+                                                        data-corpus-name="{{ corpus.name }}"
+                                                        data-corpus-lines="{{ corpus.lines() }}">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -207,26 +217,31 @@
                     </div>
                     
                     <div class="corpus-selector-list">
-                        <table class="table table-bordered corpus-selector-table table-test">
+                        <table class="table corpus-selector-table table-test">
                             <thead>
                                 <tr>
                                     <th>Corpus</th>
-                                    <th>Language</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for corpus in corpora %}
-                                    <tr>
-                                        <td>{{ corpus.name }}</td>
-                                        <td>{{ corpus.source.name }} - {{ corpus.target.name }}</td>
-                                        <td class="text-center">
-                                            <button class="btn btn-link corpus-selector-add p-0" data-corpus="test"
-                                                data-corpus-id="{{ corpus.id }}"
-                                                data-corpus-name="{{ corpus.name }}"
-                                                data-corpus-lines="{{ corpus.corpus_files[0].file.lines }}">
-                                                <i class="fas fa-plus"></i>
-                                            </button>
+                                    <tr class="row-corpus" data-corpus="test" data-corpus-id="{{ corpus.id }}">
+                                        <td class="border-0 py-2">{{ corpus.name }} ({{ corpus.source.code }}—{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True) }} lines)</td>
+                                        <td class="text-center border-0 p-0 py-2 align-middle">
+                                            <div class="input-group">
+                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-primary corpus-selector-add"
+                                                        data-corpus="test"
+                                                        data-corpus-id="{{ corpus.id }}"
+                                                        data-corpus-name="{{ corpus.name }}"
+                                                        data-corpus-lines="{{ corpus.lines() }}">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -259,8 +274,30 @@
 
 <template id="area-corpus-template">
     <div class="area-corpus">
-        <p class="mb-0 area-corpus-name">Corpus 1</p>
-        <small><span class="area-corpus-amount">500</span> sentences · 100% of corpus</small>
+        <p class="mb-0">
+            <span class="area-corpus-name"></span> 
+            <small>
+                <a href="#" class="area-corpus-delete text-danger"><i class="far fa-trash-alt"></i></a>
+            </small>
+        </p>
+        <small><span class="area-corpus-amount"></span> sentences · <span class="area-corpus-percent"></span>% of corpus</small>
+    </div>
+</template>
+
+<template id="addcorpusPopover-template">
+    <div class="popover-heading">
+        Add sentences
+    </div>
+
+    <div class="popover-body">
+        <div class="input-group mb-3">
+            <input type="number" class="form-control addcorpus_lines" min="1" />
+            <div class="input-group-append">
+                <span class="input-group-text">lines</span>
+            </div>
+        </div>
+
+        <a href="#" class="btn btn-primary addcorpus_btn mr-2">Add</a>
     </div>
 </template>
 {% endif %}
