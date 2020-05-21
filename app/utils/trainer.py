@@ -1,5 +1,6 @@
 from app.models import Engine
 from app import db, app
+from app.utils.power import PowerUtils
 
 import datetime
 import logging
@@ -29,16 +30,9 @@ class Trainer(object):
     def monitor(id):
         engine = Engine.query.filter_by(id=id).first()
         while engine.status != "stopped":
-            power = 0
-            pynvml.nvmlInit()
-            for i in range(0, pynvml.nvmlDeviceGetCount()):
-                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-                power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
-            power = round(power / pynvml.nvmlDeviceGetCount())
-
+            power = PowerUtils.get_mean_power()
             engine.power = int(power)
             db.session.commit()
-                
 
     @staticmethod
     def finish(user_id, id):
