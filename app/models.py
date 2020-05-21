@@ -94,7 +94,7 @@ class Corpus_File(db.Model):
     role = db.Column(db.String(64))
 
     corpus = db.relationship(Corpus, backref = db.backref("corpus_files", cascade="all, delete-orphan"))
-    file = db.relationship("File", backref = db.backref("corpora", cascade="all, delete-orphan"))
+    file = db.relationship("File", backref = db.backref("corpora"))
 
     __table_args__ = (
         db.UniqueConstraint('corpus_id', 'file_id'),

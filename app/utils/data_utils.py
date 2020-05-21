@@ -18,6 +18,7 @@ def upload_file(file, language, selected_size=None):
         # We save it
         file.seek(0)
         file.save(path)
+        hash = utils.hash(file)
 
         if selected_size is not None:
             # We get the amount of sentences we want
@@ -28,6 +29,9 @@ def upload_file(file, language, selected_size=None):
             os.remove(path)
             shutil.move(crop_path, path)
 
+            with open(path, 'r') as crop_file:
+                hash = utils.hash(crop_file)
+
         # Get file stats
         wc_output = subprocess.check_output('wc -lwc {}'.format(path), shell=True)
         wc_output_search = re.search(r'^(\s*)(\d+)(\s+)(\d+)(\s+)(\d+)(.*)$', wc_output.decode("utf-8"))
@@ -35,7 +39,7 @@ def upload_file(file, language, selected_size=None):
 
         # Save in DB
         db_file = File(path = path, name = file.filename, language_id = language,
-                        hash = utils.hash(file), uploader_id = user_utils.get_uid(),
+                        hash = hash, uploader_id = user_utils.get_uid(),
                         lines = lines, words = words, chars = chars,
                         uploaded = datetime.datetime.utcnow())
 
@@ -105,8 +109,8 @@ def join_corpus_files(corpus, shuffle=False):
                     uploader_id = user_utils.get_uid(),
                     uploaded = datetime.datetime.utcnow())
 
-    def dump_files(files, single_file):
-        with open(single_file.path, 'w') as single_file:
+    def dump_files(files, single_file_db):
+        with open(single_file_db.path, 'w') as single_file:
             for file_entry in files:
                 with open(file_entry.file.path, 'r') as corpus_file:
                     for line in corpus_file:

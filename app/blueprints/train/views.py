@@ -218,8 +218,10 @@ def train_graph():
     id = request.form.get('id')
     last = int(request.form.get('last'))
 
+    engine = Engine.query.filter_by(id=id).first()
     data = tensor_utils.get_tag(id, tag)[last:250]
     if data:
+        stats = { tag: [] }
         for item in data:
             stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
         return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
