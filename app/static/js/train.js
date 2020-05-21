@@ -122,6 +122,10 @@ $(document).ready(function() {
                 searchable: true,
                 sortable: true,
                 className: "overflow"
+            },
+            {
+                targets: 0,
+                width: "50%"
             }]
         });
     });

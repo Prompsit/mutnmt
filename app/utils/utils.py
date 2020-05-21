@@ -52,14 +52,20 @@ def tmpfile(filename=None):
     else:
         return tempfile.mkstemp(dir=app.config['TMP_FOLDER'])
 
+def parse_number(number):
+    try:
+        return int(number)
+    except ValueError:
+        return number
+
 def format_number(number_string, abbr=False):
     number = int(number_string)
 
     if abbr:
         if number >= 1000000:
-            return "{}M".format(number / 1000000)
+            return "{}M".format(parse_number(number / 1000000))
         elif number >= 1000:
-            return "{}k".format(number / 1000)
+            return "{}k".format(parse_number(number / 1000))
         else:
             return "{}".format(number)
     else:
