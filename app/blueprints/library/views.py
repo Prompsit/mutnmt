@@ -1,6 +1,7 @@
 from app import app, db
 from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine
 from app.utils import user_utils, utils, datatables, tensor_utils
+from app.utils.power import PowerUtils
 from app.flash import Flash
 from flask_login import login_required
 from sqlalchemy import and_, not_
@@ -83,6 +84,8 @@ def library_engine(id):
         time_elapsed_format = "—"
 
     power = engine.power if engine.power else 0
+    power_references = PowerUtils.get_reference_text(power)
+    print(power_references)
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
             page_title = 'Engine details', engine = engine, corpora = corpora, score = score, tps = tps_value, 

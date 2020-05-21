@@ -52,11 +52,14 @@ def tmpfile(filename=None):
     else:
         return tempfile.mkstemp(dir=app.config['TMP_FOLDER'])
 
-def parse_number(number):
-    try:
+def parse_number(number, round_number=None):
+    if number == int(number):
         return int(number)
-    except ValueError:
-        return number
+    else:
+        if round_number:
+            return round(number, round_number)
+        else:
+            return number
 
 def format_number(number_string, abbr=False):
     number = int(number_string)

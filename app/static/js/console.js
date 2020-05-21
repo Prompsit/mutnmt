@@ -109,6 +109,10 @@ $(document).ready(function() {
                 if (data.power) {
                     $(".gpu-power").html(data.power);
                 }
+
+                if (data.power_reference) {
+                    $(".power-reference").html(`(${data.power_reference})`)
+                }
             }
         });
     }

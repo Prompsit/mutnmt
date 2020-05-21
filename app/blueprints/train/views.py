@@ -288,19 +288,22 @@ def train_log():
     train_log_path = os.path.join(engine.path, 'model/train.log')
 
     rows = []
-    with open(train_log_path, 'r') as train_log:
-        training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
-        re_flags = re.IGNORECASE | re.UNICODE
-        for line in train_log:
-            groups = re.search(training_regex, line.strip(), flags=re_flags)
-            if groups:
-                date_string = groups[1]
-                time_string = groups[2]
-                epoch, step = groups[3], groups[4]
-                batch_loss, tps, lr = groups[5], groups[6], groups[7]
+    try:
+        with open(train_log_path, 'r') as train_log:
+            training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
+            re_flags = re.IGNORECASE | re.UNICODE
+            for line in train_log:
+                groups = re.search(training_regex, line.strip(), flags=re_flags)
+                if groups:
+                    date_string = groups[1]
+                    time_string = groups[2]
+                    epoch, step = groups[3], groups[4]
+                    batch_loss, tps, lr = groups[5], groups[6], groups[7]
 
-                # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-                rows.append([time_string, epoch, step, batch_loss, tps, lr])
+                    # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+                    rows.append([time_string, epoch, step, batch_loss, tps, lr])
+    except:
+        pass
 
     if order is not None:
         rows.sort(key=lambda row: row[order], reverse=(dir == "desc"))
