@@ -81,10 +81,12 @@ def library_engine(id):
                                 round(time_elapsed.seconds / 3600), round((time_elapsed.seconds % 3600) / 60), round(time_elapsed.seconds % 60))
     else:
         time_elapsed_format = "—"
+
+    power = engine.power if engine.power else 0
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
             page_title = 'Engine details', engine = engine, corpora = corpora, score = score, tps = tps_value, 
-            time_elapsed = time_elapsed_format)
+            time_elapsed = time_elapsed_format, power = power)
 
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():

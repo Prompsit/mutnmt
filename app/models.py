@@ -44,6 +44,7 @@ class Engine(Resource):
     status = db.Column(db.String(64))
     launched = db.Column(db.DateTime)
     finished = db.Column(db.DateTime)
+    power = db.Column(db.Integer)
 
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])

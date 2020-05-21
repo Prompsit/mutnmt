@@ -6,6 +6,8 @@ import logging
 import sys
 import os
 import subprocess
+import pynvml
+import threading
 
 class Trainer(object):
     running_joey = {}
@@ -18,8 +20,25 @@ class Trainer(object):
                                             os.path.join(engine.path, "config.yaml"), 
                                             "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'])
 
+        threading.Thread(target=Trainer.monitor, args=[id]).start()
+
         engine.status = "training"
         db.session.commit()
+
+    @staticmethod
+    def monitor(id):
+        engine = Engine.query.filter_by(id=id).first()
+        while engine.status != "stopped":
+            power = 0
+            pynvml.nvmlInit()
+            for i in range(0, pynvml.nvmlDeviceGetCount()):
+                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
+            power = round(power / pynvml.nvmlDeviceGetCount())
+
+            engine.power = int(power)
+            db.session.commit()
+                
 
     @staticmethod
     def finish(user_id, id):
