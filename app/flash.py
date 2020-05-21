@@ -1,4 +1,4 @@
-from flask import flash
+from flask import flash, Markup
 from enum import Enum
 
 class Flash(Enum):
@@ -11,8 +11,11 @@ class Flash(Enum):
     # @textlike is an object which can be converted to a string
     # (like an exception or a proper string)
     @staticmethod
-    def issue(textlike: object, category = MESSAGE):
-        flash(str(textlike), category.value)
+    def issue(textlike: object, category = MESSAGE, markup = False):
+        if markup:
+            flash(Markup(str(textlike)), category.value)
+        else:
+            flash(str(textlike), category.value)
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and str(self) == str(other)

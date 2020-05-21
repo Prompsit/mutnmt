@@ -84,6 +84,6 @@ def data_upload_perform():
     except Exception as e:
         Flash.issue(e, Flash.ERROR)
     else:
-        Flash.issue("Corpus successfully uploaded and added to your corpora.", Flash.SUCCESS)
+        Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.", Flash.SUCCESS, markup=True)
 
     return request.referrer
