@@ -45,7 +45,7 @@ def library_engine(id):
     engine = Engine.query.filter_by(id=id).first()
     corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=True).all()
 
-    training_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s+Epoch\s+1\s+Step:\s+(\d+)\s+Batch Loss:\s+(\d+\.\d+)\s+Tokens per sec:\s+(\d+),\s+Lr:\s+(\d+\.\d+)$'
+    training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
     validation_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s(\w|\s|\(|\))+(\d+),\s+step\s*(\d+):\s+bleu:\s+(\d+\.\d+),\s+loss:\s+(\d+\.\d+),\s+ppl:\s+(\d+\.\d+),\s+duration:\s+(\d+.\d+)s$'
     re_flags = re.IGNORECASE | re.UNICODE
 
@@ -59,7 +59,7 @@ def library_engine(id):
             if groups:
                 if not first_time: first_time = "{} {}".format(groups[1], groups[2])
                 last_time = "{} {}".format(groups[1], groups[2])
-                tps.append(float(groups[5]))
+                tps.append(float(groups[6]))
             else:
                 # It was not a training line, could be validation
                 groups = re.search(validation_regex, line, flags=re_flags)
@@ -74,8 +74,8 @@ def library_engine(id):
         tps_value = "—"
     
     if first_time and last_time:
-        first_datetime = datetime.strptime(first_time, '%Y-%m-%d %H:%M:%S,%f')
-        last_datetime = datetime.strptime(last_time, '%Y-%m-%d %H:%M:%S,%f')
+        first_datetime = datetime.strptime(first_time, '%Y-%m-%d %H:%M:%S')
+        last_datetime = datetime.strptime(last_time, '%Y-%m-%d %H:%M:%S')
         time_elapsed = (last_datetime - first_datetime)
         time_elapsed_format = "{}d {}h {}m {}s".format(time_elapsed.days, 
                                 round(time_elapsed.seconds / 3600), round((time_elapsed.seconds % 3600) / 60), round(time_elapsed.seconds % 60))

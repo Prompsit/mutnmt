@@ -142,7 +142,9 @@ $(document).ready(function() {
         });
 
         setInterval(() => {
-            log_table.ajax.reload()
+            if (log_table.page() == 0) {
+                log_table.ajax.reload()
+            }
         }, 5000);
     });
 });

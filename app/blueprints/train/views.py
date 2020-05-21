@@ -2,6 +2,7 @@ from app import app, db
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
 from app.utils import user_utils, utils, data_utils, tensor_utils
 from app.utils.trainer import Trainer
+from app.utils.power import PowerUtils
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
 from flask_login import login_required
 from sqlalchemy import func
@@ -265,14 +266,10 @@ def train_status():
         except:
             pass
 
-        power = 0
-        pynvml.nvmlInit()
-        for i in range(0, pynvml.nvmlDeviceGetCount()):
-            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-            power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
-        power = round(power / pynvml.nvmlDeviceGetCount())
-            
-        return jsonify({ "stopped": engine.status == "stopped", "stats": stats, "power": power })
+        power = PowerUtils.get_mean_power()
+        power_reference = PowerUtils.get_reference_text(power)
+
+        return jsonify({ "stopped": engine.status == "stopped", "stats": stats, "power": power, "power_reference": power_reference })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
@@ -291,35 +288,31 @@ def train_log():
     train_log_path = os.path.join(engine.path, 'model/train.log')
 
     rows = []
-    try:
-        with open(train_log_path, 'r') as train_log:
-            i = 0
-            for line in train_log:
-                m = re.search(r'(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}).*Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)',
-                                line.strip())
+    with open(train_log_path, 'r') as train_log:
+        training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
+        re_flags = re.IGNORECASE | re.UNICODE
+        for line in train_log:
+            groups = re.search(training_regex, line.strip(), flags=re_flags)
+            if groups:
+                date_string = groups[1]
+                time_string = groups[2]
+                epoch, step = groups[3], groups[4]
+                batch_loss, tps, lr = groups[5], groups[6], groups[7]
 
-                if m:                
-                    if i >= start and i < (start + length):
-                            date_string = m.group(1)
-                            time_string = m.group(2)
-                            epoch, step = m.group(3), m.group(4)
-                            batch_loss, tps, lr = m.group(5), m.group(6), m.group(7)
-
-                            # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-                            rows.append([time_string, epoch, step, batch_loss, tps, lr])
-                    i = i + 1
-    except: 
-        pass
-
-    if start and length:
-        rows = rows[start:length]
+                # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
+                rows.append([time_string, epoch, step, batch_loss, tps, lr])
 
     if order is not None:
         rows.sort(key=lambda row: row[order], reverse=(dir == "desc"))
 
+    final_rows = rows
+
+    if start is not None and length is not None:
+        final_rows = rows[start:(start + length)]
+
     rows_filtered = []
     if search:
-        for row in rows:
+        for row in final_rows:
             found = False
 
             for col in row:
@@ -332,7 +325,7 @@ def train_log():
         "draw": int(draw) + 1,
         "recordsTotal": len(rows),
         "recordsFiltered": len(rows_filtered) if search else len(rows),
-        "data": rows_filtered if search else rows
+        "data": rows_filtered if search else final_rows
     })
 
 
