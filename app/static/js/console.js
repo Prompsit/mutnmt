@@ -99,7 +99,7 @@ $(document).ready(function() {
             },
             success: function(data) {
                 if (data.stats && data.stats['done'] && data.stopped == false) {
-                    window.location.href = `../stop/${engine_id}`
+                    window.location.href = `../finish/${engine_id}`
                 }
 
                 if (data.stats && data.stats['epoch']) {

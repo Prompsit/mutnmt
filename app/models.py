@@ -61,6 +61,9 @@ class Engine(Resource):
             self.id == other.id
         )
 
+    def has_stopped(self):
+        return self.status == "stopped" or self.status == "finished"
+
 class Corpus(db.Model):
     __tablename__ = 'corpus'
     id = db.Column(db.Integer, primary_key=True)

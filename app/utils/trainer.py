@@ -41,10 +41,10 @@ class Trainer(object):
             del Trainer.running_joey[user_id]
 
     @staticmethod
-    def stop(user_id, id):    
+    def stop(user_id, id, user_stop=False):
         Trainer.finish(user_id, id)
 
         engine = Engine.query.filter_by(id = id).first()
-        engine.status = "stopped"
+        engine.status = "stopped" if user_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
         db.session.commit()

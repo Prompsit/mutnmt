@@ -1,7 +1,7 @@
 // Each sentence makes the counter advance this amount of pixels.
 // Basically, (min indicator top offset / min sentences amount)
 const min_amount = 10000;
-const max_amount = 200000;
+const max_amount = 500000;
 const pxps = 50 / min_amount;
 const pxps_am = ($(".area-value-max").offset().top - $(".area-value-min").offset().top) / (max_amount - min_amount);
 const threshold = min_amount * 0.15; // If the current sentence amount is min * threshold, almost there

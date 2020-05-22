@@ -21,7 +21,7 @@
 <div class="row my-4">
     <div class="col-12">
         <div class="jumbotron p-3 text-center">
-            {% if engine.status != "stopped" %}
+            {% if not engine.has_stopped() %}
             <strong class="nn-name">{{ engine.name }}</strong> is training...
 
             <div class="jumping-trees mt-2 text-success">
@@ -32,13 +32,17 @@
 
             <small>... and it has used <span class="gpu-power">0</span> watts <span class="power-reference"></span></small>
             {% else %}
-            The training of <strong class="nn-name">{{ engine.name }}</strong> was stopped!
+                {% if engine.status == "stopped" %}
+                    The training of <strong class="nn-name">{{ engine.name }}</strong> was stopped!
+                {% else %}
+                    The training of <strong class="nn-name">{{ engine.name }}</strong> has finished!
+                {% endif %}
             {% endif %}
         </div>
 
         <div class="row align-items-center">
             <div class="col-6">
-                {% if engine.status == "stopped" %}
+                {% if engine.has_stopped() %}
                 It took {{ int(elapsed / 3600) }}h {{ int((elapsed % 3600) / 60) }}min {{ int(elapsed % 3600) % 60 }}s to train.
                 {% else %}
                 <span class="time-left" data-started="{{ launched }}" data-minutes="60"></span> left
@@ -47,7 +51,7 @@
                 {% endif %}
             </div>
 
-            {% if engine.status != "stopped" %}
+            {% if not engine.has_stopped() %}
             <div class="col-6 text-right">
                 <a href="{{ url_for('train.train_stop', id=engine.id) }}" class="btn btn-danger">Stop now</a>
             </div>

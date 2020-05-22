@@ -228,7 +228,7 @@ def train_graph():
         stats = { tag: [] }
         for item in data:
             stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
-        return jsonify({ "stopped": engine.status == "stopped", "stats": stats })
+        return jsonify({ "stopped": engine.has_stopped(), "stats": stats })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
@@ -272,7 +272,7 @@ def train_status():
         power = PowerUtils.get_mean_power()
         power_reference = PowerUtils.get_reference_text(power)
 
-        return jsonify({ "stopped": engine.status == "stopped", "stats": stats, "power": power, "power_reference": power_reference })
+        return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "power": power, "power_reference": power_reference })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
@@ -348,11 +348,20 @@ def train_attention(id):
         return send_file(os.path.join(app.config['BASE_CONFIG_FOLDER'], "attention.png"))
 
 
+def _train_stop(id, user_stop):
+    Trainer.stop(user_utils.get_uid(), id, user_stop=user_stop)
+    return redirect(url_for('train.train_console', id=id))
+
 @train_blueprint.route('/stop/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_stop(id):
     if user_utils.is_normal(): return redirect(url_for('index'))
-    
-    Trainer.stop(user_utils.get_uid(), id)
+        
+    return _train_stop(id, True)
 
-    return redirect(url_for('train.train_console', id=id))
+@train_blueprint.route('/finish/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_finish(id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+        
+    return _train_stop(id, False)
