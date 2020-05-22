@@ -73,3 +73,12 @@ def format_number(number_string, abbr=False):
             return "{}".format(number)
     else:
         return '{:,}'.format(number)
+
+def seconds_to_timestring(total_seconds):
+    total_seconds = int(total_seconds)
+    days = int(total_seconds / (24 * 3600))
+    hours = int(total_seconds % (24 * 3600) / 3600)
+    minutes = int(((total_seconds % (24 * 3600)) % 3600) / 60)
+    seconds = int(((total_seconds % (24 * 3600)) % 3600) % 60)
+
+    return "{}d {}h {}min {}s".format(days, hours, minutes, seconds)

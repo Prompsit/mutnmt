@@ -53,13 +53,10 @@ def library_engine(id):
     score = 0.0
     tps = []
     with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
-        first_time, last_time = None, None
 
         for line in log_file:
             groups = re.search(training_regex, line, flags=re_flags)
             if groups:
-                if not first_time: first_time = "{} {}".format(groups[1], groups[2])
-                last_time = "{} {}".format(groups[1], groups[2])
                 tps.append(float(groups[6]))
             else:
                 # It was not a training line, could be validation
@@ -74,18 +71,17 @@ def library_engine(id):
     else:
         tps_value = "—"
     
-    if first_time and last_time:
-        first_datetime = datetime.strptime(first_time, '%Y-%m-%d %H:%M:%S')
-        last_datetime = datetime.strptime(last_time, '%Y-%m-%d %H:%M:%S')
-        time_elapsed = (last_datetime - first_datetime)
-        time_elapsed_format = "{}d {}h {}m {}s".format(time_elapsed.days, 
-                                round(time_elapsed.seconds / 3600), round((time_elapsed.seconds % 3600) / 60), round(time_elapsed.seconds % 60))
+    launched = datetime.timestamp(engine.launched)
+    finished = datetime.timestamp(engine.finished) if engine.finished else None
+    time_elapsed = (finished - launched) if engine.finished else None # seconds
+
+    if time_elapsed:
+        time_elapsed_format = utils.seconds_to_timestring(time_elapsed)
     else:
         time_elapsed_format = "—"
 
     power = engine.power if engine.power else 0
     power_references = PowerUtils.get_reference_text(power)
-    print(power_references)
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
             page_title = 'Engine details', engine = engine, corpora = corpora, score = score, tps = tps_value, 
