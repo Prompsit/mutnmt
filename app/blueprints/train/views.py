@@ -141,6 +141,9 @@ def train_start():
     except:
         pass
 
+    config["data"]["src"] = engine.source.code
+    config["data"]["trg"] = engine.target.code
+
     def link_files(corpus, phase):
         for file_entry in corpus.corpus_files:
             print([file_entry.file.id, file_entry.file.path], file=sys.stderr)
