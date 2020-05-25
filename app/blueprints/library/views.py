@@ -109,7 +109,7 @@ def library_corpora_feed():
                                 utils.format_number(file.lines), 
                                 utils.format_number(file.words), 
                                 utils.format_number(file.chars), 
-                                uploaded_date, "",
+                                uploaded_date,
                                 {
                                     "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
                                     "corpus_uploader": file.uploader.username if file.uploader else "MutNMT",

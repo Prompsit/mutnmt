@@ -30,10 +30,14 @@
 }
 
 .corpus-header th {
+    border-top: 0;
     border-left: 0;
     border-bottom: 0;
-    border-right: 0;
     vertical-align: middle;
+}
+
+.corpus-header th:not(:last-child) {
+    border-right: 0;
 }
 
 .corpus_lang_trg::before {

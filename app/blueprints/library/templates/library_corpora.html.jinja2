@@ -99,7 +99,7 @@
         {% if user_library|length > 0 %}
         <div class="table-responsive">
             <table class="table table-bordered corpora-table w-100">
-                <thead class="d-none">
+                <thead>
                     <th></th>
                     <th>File name</th>
                     <th>Language</th>
@@ -107,7 +107,6 @@
                     <th>Words</th>
                     <th>Chars</th>
                     <th>Date</th>
-                    <th></th>
                 </thead>
             </table>
         </div>
@@ -130,7 +129,6 @@
                     <th>Words</th>
                     <th>Chars</th>
                     <th>Date</th>
-                    <th></th>
                 </thead>
             </table>
         </div>
@@ -138,7 +136,7 @@
 </div>
 
 <template id="corpus-header-template">
-    <tr class="corpus-header">
+    <tr class="corpus-header bg-secondary text-light">
         <th class="corpus_icon">
             <div class="folder-shared folder-indicator text-center d-none">
                 <i class="folder-icon fas fa-folder"></i>
@@ -152,57 +150,56 @@
                 <i class="folder-icon fas fa-folder"></i>
             </div>
         </th>
-        <th class="corpus_name"></th>
-        <th class="corpus_lang" colspan="3">
-            <span class="corpus_lang_src"></span> <span class="corpus_lang_trg"></span>
-        </th>
-        <th class="corpus_uploader" colspan="2">
-            
-        </th>
-        <th class="corpus_actions">
-            <div class="dropdown">
-                <button class="btn btn-link btn-sm px-2" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a href="#" class="corpus-preview dropdown-item">
-                        <i class="fas fa-stream"></i> Preview
-                    </a>
+        <th>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mr-3">
+                    <span class="badge px-0"><span class="corpus_lang_src"></span> <span class="corpus_lang_trg"></span></span>
+                    <div class="corpus_name" data-toggle="tooltip" data-placement="bottom" title="Uploaded by"></div>
+                    <div class="font-weight-normal corpus_description"></div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-link btn-sm text-light px-1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="#" class="corpus-preview dropdown-item">
+                            <i class="fas fa-stream"></i> Preview
+                        </a>
 
-                    <a href="#" class="corpus-stop-share d-none dropdown-item">
-                        <i class="fas fa-lock"></i> Stop sharing
-                    </a>
+                        <a href="#" class="corpus-stop-share d-none dropdown-item">
+                            <i class="fas fa-lock"></i> Stop sharing
+                        </a>
 
-                    <a href="#" class="corpus-share d-none dropdown-item">
-                        <i class="fas fa-lock-open"></i> Share
-                    </a>
+                        <a href="#" class="corpus-share d-none dropdown-item">
+                            <i class="fas fa-lock-open"></i> Share
+                        </a>
 
-                    <a href="#" class="export-btn dropdown-item">
-                        <i class="fas fa-download"></i> Download
-                    </a>
+                        <a href="#" class="export-btn dropdown-item">
+                            <i class="fas fa-download"></i> Download
+                        </a>
 
-                    <a href="#" class="corpus-delete d-none dropdown-item text-danger">
-                        <i class="fas fa-trash"></i> Delete
-                    </a>
+                        <a href="#" class="corpus-delete d-none dropdown-item text-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
 
-                    <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
-                        <i class="fas fa-times"></i> Remove
-                    </a>
+                        <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
+                            <i class="fas fa-times"></i> Remove
+                        </a>
 
-                    <a href="#" class="grab-btn dropdown-item d-none">
-                        <i class="fas fa-file-import"></i> Grab
-                    </a>
+                        <a href="#" class="grab-btn dropdown-item d-none">
+                            <i class="fas fa-file-import"></i> Grab
+                        </a>
+                    </div>
                 </div>
             </div>
         </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
     </tr>
-    <tr class="bg-light corpus-description-row">
-        <td class="border-right-0"></td>
-        <td class="overflow" colspan="7">
-            <div class="font-weight-normal corpus_description"></div>
-        </td>
-    </tr>
-    <tr>
+    <tr class="corpus-files-header">
         <th class="border-right-0"></th>
         <th>File name</th>
         <th>Language</th>
@@ -210,7 +207,6 @@
         <th>Words</th>
         <th>Chars</th>
         <th>Date</th>
-        <th></th>
     </tr>
 </template>
 

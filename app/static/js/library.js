@@ -1,4 +1,25 @@
 $(document).ready(function() {
+    /* We hide certain columns if Datatables Responsive hid them */
+    let hide_col = (col) => {
+        if (col) $(col).addClass("d-none");
+    }
+
+    let hide_responsive = (columns) => {
+        // Sometimes datatables returns "-" instead of a boolean, in that case
+        // we return, since we don't know if it means that the column
+        // is hidden or not
+        for (let i = 0; i < columns.length; i++) if (columns[i] == "-") return;
+
+        $(".corpus-header th").removeClass("d-none");
+        $(".corpus-files-header th").removeClass("d-none");
+        for (let i = 0; i < columns.length; i++) {
+            if (!columns[i]) {
+                $(".corpus-header").each(function() { hide_col($(this).find("th").eq(i)) })
+                $(".corpus-files-header").each(function() { hide_col($(this).find("th").eq(i)) })
+            }
+        }
+    }
+
     $('.corpora-table').each(function(i, el) {
         let public_mode = ($(el).attr("data-public") == "true");
         let corpora_table = $(el).DataTable({
@@ -17,11 +38,12 @@ $(document).ready(function() {
                 let last_group = -1;
                 rows.each(function(row, i) {
                     let data = row_data[i];
-                    let corpus_data = data[8];
+                    let corpus_data = data[7];
                     
                     if (corpus_data.corpus_id != last_group) {
                         let template = document.importNode(document.querySelector("#corpus-header-template").content, true);
                         $(template).find(".corpus_name").html(corpus_data.corpus_name);
+                        $(template).find(".corpus_name").attr("title", $(template).find(".corpus_name").attr("title") + " " + corpus_data.corpus_uploader);
 
                         if (corpus_data.corpus_description != "") {
                             $(template).find(".corpus_description").html(corpus_data.corpus_description);
@@ -31,7 +53,6 @@ $(document).ready(function() {
                         
                         $(template).find(".corpus_lang_src").html(corpus_data.corpus_source);
                         $(template).find(".corpus_lang_trg").html(corpus_data.corpus_target);
-                        $(template).find(".corpus_uploader").html(corpus_data.corpus_uploader);
 
                         if (corpus_data.corpus_owner) {
                             if (corpus_data.corpus_public) {
@@ -67,15 +88,16 @@ $(document).ready(function() {
                             }
                         }
 
-
                         $(row).before(template);
+                        $('[data-toggle="tooltip"]').tooltip();
+
                         last_group = corpus_data.corpus_id;
                     }
-                })
+                });
             },
             columnDefs: [
                 {
-                    targets: [0, 1, 2, 3, 4, 5, 6, 7],
+                    targets: [0, 1, 2, 3, 4, 5, 6],
                     responsivePriority: 1
                 },
                 { 
@@ -83,7 +105,7 @@ $(document).ready(function() {
                     responsivePriority: 1,
                     className: "border-right-0 align-middle text-center",
                     render: function(data, type, row) {
-                        let corpus_data = row[8];
+                        let corpus_data = row[7];
                         let template = document.importNode(document.querySelector("#preview-button-template").content, true);
                         $(template).find(".file-item-preview").attr("href", corpus_data.file_preview);
                         let ghost = document.createElement('div');
@@ -96,7 +118,7 @@ $(document).ready(function() {
                     responsivePriority: 1,
                     className: "overflow",
                     render: function(data, type, row) {
-                        let corpus_data = row[8];
+                        let corpus_data = row[7];
                         let template = document.importNode(document.querySelector("#corpus-entry-template").content, true);
                         $(template).find(".file-name").html(data);
 
@@ -104,18 +126,16 @@ $(document).ready(function() {
                         $(ghost).append(template);
                         return ghost.innerHTML;
                     }
-                },
-                { 
-                    targets: 7,
-                    responsivePriority: 1,
-                    className: "actions",
-                    searchable: false,
-                    sortable: false,
-                    render: function(data, type, row) {
-                        return ""
-                    }
                 }
             ]
+        });
+
+        corpora_table.on('responsive-resize', function(e, datatable, columns) {
+            hide_responsive(columns);
+        });
+
+        corpora_table.on('draw', function() {
+            hide_responsive(corpora_table.columns().responsiveHidden());
         });
     });
 
@@ -131,7 +151,7 @@ $(document).ready(function() {
                 data: { public: public_mode }
             },
             columnDefs: [
-                { 
+                {
                     targets: 0,
                     responsivePriority: 1,
                     searchable: false,
