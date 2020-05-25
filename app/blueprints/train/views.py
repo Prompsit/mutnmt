@@ -1,4 +1,5 @@
 from app import app, db
+from app.flash import Flash
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
 from app.utils import user_utils, utils, data_utils, tensor_utils
 from app.utils.trainer import Trainer
@@ -75,110 +76,130 @@ def train_start():
             corpus_id = corpus_data['id']
             corpus_size = corpus_data['size']
 
-            og_corpus = Corpus.query.filter_by(id = corpus_id).first()
+            try:
+                og_corpus = Corpus.query.filter_by(id = corpus_id).first()
 
-            # We relate the original corpus with this engine in the database,
-            # for informational purposes. This way the user will be able to know
-            # which corpora were used to train the engine
-            engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True, selected_size=corpus_size))
+                # We relate the original corpus with this engine in the database,
+                # for informational purposes. This way the user will be able to know
+                # which corpora were used to train the engine
+                engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True, selected_size=corpus_size))
 
-            corpus.source_id = og_corpus.source_id
-            corpus.target_id = og_corpus.target_id
-            for file_entry in og_corpus.corpus_files:
-                with open(file_entry.file.path, 'rb') as file_d:
-                    db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id, selected_size=corpus_size)
-                corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
+                corpus.source_id = og_corpus.source_id
+                corpus.target_id = og_corpus.target_id
+                for file_entry in og_corpus.corpus_files:
+                    with open(file_entry.file.path, 'rb') as file_d:
+                        db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id, selected_size=corpus_size)
+                    corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
+            except:
+                raise Exception
 
         db.session.add(corpus)
         db.session.commit()
 
         # We put the contents of the several files in a new single one, and we shuffle the sentences
-        data_utils.join_corpus_files(corpus, shuffle=True)
-        data_utils.tokenize(corpus)
+        try:
+            data_utils.join_corpus_files(corpus, shuffle=True)
+            data_utils.tokenize(corpus)
+        except:
+            db.session.delete(corpus)
+            db.session.commit()
+            raise Exception
 
         return corpus
 
-    train_corpus = join_corpora('training[]', phase="train")
-    dev_corpus = join_corpora('dev[]', phase="dev")
-    test_corpus = join_corpora('test[]', phase="test")
-
-    engine.name = request.form['nameText']
-    engine.description = request.form['descriptionText']
-    engine.source = train_corpus.source
-    engine.target = train_corpus.target
-
-    engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
-    engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
-    engine.engine_corpora.append(Corpus_Engine(corpus=test_corpus, engine=engine, phase="test"))
-
-    engine.status = "training_pending"
-    engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
-    engine.uploader_id = user_utils.get_uid()
-
-    user = User.query.filter_by(id = user_utils.get_uid()).first()
-    user.user_engines.append(LibraryEngine(engine=engine, user=user))
-
     try:
-        os.mkdir(engine_path)
+        train_corpus = join_corpora('training[]', phase="train")
+        dev_corpus = join_corpora('dev[]', phase="dev")
+        test_corpus = join_corpora('test[]', phase="test")
+
+        engine.name = request.form['nameText']
+        engine.description = request.form['descriptionText']
+        engine.source = train_corpus.source
+        engine.target = train_corpus.target
+
+        engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
+        engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
+        engine.engine_corpora.append(Corpus_Engine(corpus=test_corpus, engine=engine, phase="test"))
+
+        engine.status = "training_pending"
+        engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
+        engine.uploader_id = user_utils.get_uid()
+
+        user = User.query.filter_by(id = user_utils.get_uid()).first()
+        user.user_engines.append(LibraryEngine(engine=engine, user=user))
+
+        try:
+            os.mkdir(engine_path)
+        except:
+            Flash.issue("The engine could not be created", Flash.ERROR)
+            return url_for('train.train_index', id=id)
+
+        config_file_path = os.path.join(engine.path, 'config.yaml')
+
+        shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), config_file_path)
+
+        db.session.add(engine)
+        db.session.commit()
+
+        # Engine configuration
+        config = None
+
+        try:
+            with open(config_file_path, 'r') as config_file:
+                config = yaml.load(config_file, Loader=yaml.FullLoader)
+        except:
+            raise Exception
+
+        config["data"]["src"] = engine.source.code
+        config["data"]["trg"] = engine.target.code
+
+        def link_files(corpus, phase):
+            for file_entry in corpus.corpus_files:
+                print([file_entry.file.id, file_entry.file.path], file=sys.stderr)
+                tok_path = '{}.mut.spe'.format(file_entry.file.path)
+                tok_name = phase
+
+                os.link(tok_path, os.path.join(engine.path, '{}.{}'.format(tok_name, 
+                        config["data"]["src" if file_entry.role == "source" else "trg"])))
+
+                config["data"][phase] = os.path.join(engine.path, tok_name)
+                config["training"]["model_dir"] = os.path.join(engine.path, "model")
+
+        try:
+            link_files(train_corpus, "train")
+            link_files(dev_corpus, "dev")
+            link_files(test_corpus, "test")
+        except:
+            raise Exception 
+
+        # Get vocabulary
+        vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(train_corpus.id))
+        final_vocabulary_path = os.path.join(engine.path, "train.vocab")
+
+        extract_vocabulary = subprocess.Popen("cat {} | head -n {} > {}".format(vocabulary_path, request.form['vocabularySize'], final_vocabulary_path),
+                                shell=True)
+
+        extract_vocabulary.wait()
+
+        config["data"]["src_vocab"] = final_vocabulary_path
+        config["data"]["trg_vocab"] = final_vocabulary_path
+
+        config["name"] = engine.name
+        config["training"]["epochs"] = int(request.form['epochsText'])
+        config["training"]["patience"] = int(request.form['patienceTxt'])
+        config["training"]["batch_size"] = int(request.form['batchSizeTxt'])
+
+        with open(config_file_path, 'w') as config_file:
+            yaml.dump(config, config_file)
+
+        return train_launch(engine.id)
     except:
-        return ""
+        db.session.delete(engine)
+        db.session.commit()
 
-    config_file_path = os.path.join(engine.path, 'config.yaml')
+        Flash.issue("The engine could not be configured", Flash.ERROR)
+        return url_for('train.train_index', id=id)
 
-    shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), config_file_path)
-
-    db.session.add(engine)
-    db.session.commit()
-
-    # Engine configuration
-    config = None
-
-    try:
-        with open(config_file_path, 'r') as config_file:
-            config = yaml.load(config_file, Loader=yaml.FullLoader)
-    except:
-        pass
-
-    config["data"]["src"] = engine.source.code
-    config["data"]["trg"] = engine.target.code
-
-    def link_files(corpus, phase):
-        for file_entry in corpus.corpus_files:
-            print([file_entry.file.id, file_entry.file.path], file=sys.stderr)
-            tok_path = '{}.mut.spe'.format(file_entry.file.path)
-            tok_name = phase
-
-            os.link(tok_path, os.path.join(engine.path, '{}.{}'.format(tok_name, 
-                    config["data"]["src" if file_entry.role == "source" else "trg"])))
-
-            config["data"][phase] = os.path.join(engine.path, tok_name)
-            config["training"]["model_dir"] = os.path.join(engine.path, "model")
-
-    link_files(train_corpus, "train")
-    link_files(dev_corpus, "dev")
-    link_files(test_corpus, "test")
-
-    # Get vocabulary
-    vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(train_corpus.id))
-    final_vocabulary_path = os.path.join(engine.path, "train.vocab")
-
-    extract_vocabulary = subprocess.Popen("cat {} | head -n {} > {}".format(vocabulary_path, request.form['vocabularySize'], final_vocabulary_path),
-                            shell=True)
-
-    extract_vocabulary.wait()
-
-    config["data"]["src_vocab"] = final_vocabulary_path
-    config["data"]["trg_vocab"] = final_vocabulary_path
-
-    config["name"] = engine.name
-    config["training"]["epochs"] = int(request.form['epochsText'])
-    config["training"]["patience"] = int(request.form['patienceTxt'])
-    config["training"]["batch_size"] = int(request.form['batchSizeTxt'])
-
-    with open(config_file_path, 'w') as config_file:
-        yaml.dump(config, config_file)
-
-    return train_launch(engine.id)
 
 def train_launch(id):
     if user_utils.is_normal(): return url_for('index')
