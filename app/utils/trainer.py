@@ -17,13 +17,14 @@ class Trainer(object):
     def launch(user_id, id):
         engine = Engine.query.filter_by(id=id).first()
     
-        Trainer.running_joey[user_id] = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
+        Trainer.running_joey[user_id] = subprocess.Popen(["timeout", "1h", "python3", "-m", "joeynmt", "train", 
                                             os.path.join(engine.path, "config.yaml"), 
                                             "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'])
 
         threading.Thread(target=Trainer.monitor, args=[id]).start()
 
         engine.status = "training"
+        engine.pid = Trainer.running_joey[user_id].pid
         db.session.commit()
 
     @staticmethod
@@ -35,16 +36,20 @@ class Trainer(object):
             db.session.commit()
 
     @staticmethod
-    def finish(user_id, id):
+    def finish(user_id, engine):
         if user_id in Trainer.running_joey.keys():
             Trainer.running_joey[user_id].kill()
             del Trainer.running_joey[user_id]
+        elif engine.pid:
+            executioner = subprocess.Popen("kill -9 {}".format(engine.pid), shell=True)
+            engine.pid = None
+            db.session.commit()
 
     @staticmethod
     def stop(user_id, id, user_stop=False):
-        Trainer.finish(user_id, id)
-
         engine = Engine.query.filter_by(id = id).first()
+        Trainer.finish(user_id, engine)
+
         engine.status = "stopped" if user_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
         db.session.commit()

@@ -131,8 +131,6 @@ def train_start():
     db.session.commit()
 
     # Engine configuration
-    Trainer.finish(user_utils.get_uid, id)
-
     config = None
 
     try:
