@@ -30,7 +30,7 @@ def data_preview(file_id):
             else:
                 break
 
-    return render_template('preview.data.html.jinja2', page_name='data', file=file, lines=lines)
+    return render_template('preview.data.html.jinja2', page_name='library_corpora_file_preview', file=file, lines=lines)
 
 @data_blueprint.route('/upload', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

@@ -163,7 +163,7 @@ def library_engines_feed():
 def corpora_preview(id):
     try:
         corpus = Corpus.query.filter_by(id = id).first()
-        return render_template('library_preview.html.jinja2', page_name = 'library_preview',
+        return render_template('library_preview.html.jinja2', page_name = 'library_corpora_preview',
                 corpus=corpus)
     except:
         Flash.issue("Preview is currently unavailable", Flash.ERROR)
