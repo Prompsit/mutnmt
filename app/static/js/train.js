@@ -85,7 +85,6 @@ $(document).ready(function() {
                     }
                 })
 
-
                 $(el).find(".corpus-selector-add").off('click').on('click', function(e) {
                     let corpus_type = $(this).attr("data-corpus");
                     let corpus_id = $(this).attr("data-corpus-id");
@@ -155,10 +154,32 @@ $(document).ready(function() {
             contentType: false,
             cache: false,
             processData: false,
-            success: function(url) {
-                window.location.href = url;
+            success: function(data) {
+                if (data.result == 200) {
+                    let poll_training;
+                    poll_training = setInterval(() => {
+                        $.ajax({
+                            url: "launch_status",
+                            method: "POST",
+                            data: { task_id: data.task_id },
+                            success: function(task_status) {
+                                if (task_status.result == 200) {
+                                    clearInterval(poll_training);
+                                    $.ajax({
+                                        url: "launch",
+                                        method: "POST",
+                                        data: { engine_id: task_status.engine_id },
+                                        success: function(url) {
+                                            window.location.href = url;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }, 5000);
+                }
             }
-        })
+        });
 
         return false;
     })

@@ -46,6 +46,7 @@ class Engine(Resource):
     finished = db.Column(db.DateTime)
     power = db.Column(db.Integer)
     pid = db.Column(db.Integer)
+    bg_task_id = db.Column(db.String())
 
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])

@@ -10,8 +10,9 @@ import re
 import datetime
 import shutil
 
-def upload_file(file, language, selected_size=None):
-    norm_name = utils.normname(user_id=user_utils.get_uid(), filename=file.filename)
+def upload_file(file, language, selected_size=None, user_id = None):
+    user_id = user_id if user_id else user_utils.get_uid()
+    norm_name = utils.normname(user_id=user_id, filename=file.filename)
     path = utils.filepath('FILES_FOLDER', norm_name)
 
     def new_file(file, path, selected_size=None):
@@ -39,7 +40,7 @@ def upload_file(file, language, selected_size=None):
 
         # Save in DB
         db_file = File(path = path, name = file.filename, language_id = language,
-                        hash = hash, uploader_id = user_utils.get_uid(),
+                        hash = hash, uploader_id = user_id,
                         lines = lines, words = words, chars = chars,
                         uploaded = datetime.datetime.utcnow())
 
@@ -62,7 +63,7 @@ def upload_file(file, language, selected_size=None):
             os.link(db_file.path, path)
 
             db_file = File(path = path, name = file.filename, uploaded = db_file.uploaded,
-                            hash = hash, uploader_id = user_utils.get_uid(), language_id = db_file.language_id,
+                            hash = hash, uploader_id = user_id, language_id = db_file.language_id,
                             lines = db_file.lines, words = db_file.words, chars = db_file.chars)
             
         except NoResultFound:
@@ -95,18 +96,19 @@ def shuffle_sentences(corpus):
         raise Exception("Corpora with multiple files cannot be shuffled")
 
 
-def join_corpus_files(corpus, shuffle=False):
+def join_corpus_files(corpus, shuffle=False, user_id=None):
     # If a corpus has several source and target files, we need to put their contents in
     # a single file. This method shuffles and prints the contents to a new file
+    user_id = user_id if user_id else user_utils.get_uid()
 
     source_single_file = File(path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.single.src'.format(corpus.id)), 
                         name = 'mut.{}.single.src'.format(corpus.id), 
-                        uploader_id = user_utils.get_uid(),
+                        uploader_id = user_id,
                         uploaded = datetime.datetime.utcnow())
             
     target_single_file = File(path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.single.trg'.format(corpus.id)), 
                     name = 'mut.{}.single.trg'.format(corpus.id), 
-                    uploader_id = user_utils.get_uid(),
+                    uploader_id = user_id,
                     uploaded = datetime.datetime.utcnow())
 
     def dump_files(files, single_file_db):
@@ -148,7 +150,7 @@ def tokenize(corpus):
         cat_proc = subprocess.Popen("cat {} | shuf | head -n 10000 > {}".format(files, random_sample_path), shell=True)
         cat_proc.wait()
 
-        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=6000 --hard_vocab_limit=false".format(random_sample_path, corpus.id))
+        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=32000 --hard_vocab_limit=false".format(random_sample_path, corpus.id))
         shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.model".format(corpus.id)), model_path)
         shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.vocab".format(corpus.id)), vocab_path)
         os.remove(random_sample_path)

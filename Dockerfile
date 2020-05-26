@@ -4,6 +4,10 @@ RUN mkdir /opt/mutnmt
 
 COPY . /opt/mutnmt/
 
+RUN mkdir /opt/mutnmt/data
+RUN mkdir /opt/mutnmt/data/redis-data
+RUN mkdir /opt/mutnmt/data/logs
+
 RUN echo "Europe/Madrid" > /etc/timezone
 
 RUN apt-get update -q --fix-missing && \
@@ -11,6 +15,8 @@ RUN apt-get update -q --fix-missing && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install \
 			python3 \
                         python3-dev \
+                        gcc \
+                        redis \
                         virtualenv \
                         curl \
                         tzdata && \

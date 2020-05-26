@@ -1,6 +1,8 @@
 from app.models import Engine
 from app import db, app
 from app.utils.power import PowerUtils
+from app.utils import tasks
+from celery.task.control import revoke
 
 import datetime
 import logging
@@ -15,32 +17,17 @@ class Trainer(object):
 
     @staticmethod
     def launch(user_id, id):
-        engine = Engine.query.filter_by(id=id).first()
-    
-        Trainer.running_joey[user_id] = subprocess.Popen(["timeout", "1h", "python3", "-m", "joeynmt", "train", 
-                                            os.path.join(engine.path, "config.yaml"), 
-                                            "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'])
-
-        threading.Thread(target=Trainer.monitor, args=[id]).start()
-
-        engine.status = "training"
-        engine.pid = Trainer.running_joey[user_id].pid
-        db.session.commit()
-
-    @staticmethod
-    def monitor(id):
-        engine = Engine.query.filter_by(id=id).first()
-        while engine.status != "stopped":
-            power = PowerUtils.get_mean_power()
-            engine.power = int(power)
-            db.session.commit()
+        task = tasks.train_engine.apply_async(args=[id])
+        monitor_task = tasks.monitor_training.apply_async(args=[id])
+        return task.id, monitor_task.id
 
     @staticmethod
     def finish(user_id, engine):
-        if user_id in Trainer.running_joey.keys():
-            Trainer.running_joey[user_id].kill()
-            del Trainer.running_joey[user_id]
-        elif engine.pid:
+        if engine.bg_task_id:
+            revoke(engine.bg_task_id, terminate=True)
+            engine.bg_task_id = None
+        
+        if engine.pid:
             executioner = subprocess.Popen("kill -9 {}".format(engine.pid), shell=True)
             engine.pid = None
             db.session.commit()

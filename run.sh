@@ -16,5 +16,4 @@ $FLAGS \
 --name mutnmt \
 -p 5000:5000 \
 -v $(pwd)/app:/opt/mutnmt/app \
-$IMAGE \
-tail -f /dev/null
+$IMAGE

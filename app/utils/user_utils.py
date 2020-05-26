@@ -58,7 +58,7 @@ def library_delete(type, id, user_id = None):
         db.session.commit()
     else:
         library = LibraryEngine.query.filter_by(engine_id = id, user_id = user_id).first()
-        shutil.rmtree(os.path.realpath(os.path.join(app.config['PRELOADED_ENGINES_FOLDER'], library.engine.path)))
+        shutil.rmtree(library.engine.path)
         
         db.session.delete(library.engine)
         db.session.delete(library)

@@ -1,2 +1,4 @@
 samples/*
 app/preloaded/*
+venv/*
+app/uploads/*

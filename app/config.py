@@ -32,3 +32,8 @@ class Config(object):
     GOOGLE_OAUTH_CLIENT_ID      = '481103200747-c9g4nsv7ud7ojj9dgv5s1nvhsdkvqji3.apps.googleusercontent.com'
     GOOGLE_OAUTH_CLIENT_SECRET  = '__TyuCk8eD0kR594K18MitZw'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
+
+    # Celery
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    CELERYD_CONCURRENCY = 4
