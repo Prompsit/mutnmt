@@ -1,12 +1,17 @@
 from app import app, db
 from app.utils import user_utils, data_utils
 from app.utils.power import PowerUtils
-from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine
+from app.utils.translation.utils import TranslationUtils
+from app.utils.translation.filetranslation import FileTranslation
+from app.utils.translation.joeywrapper import JoeyWrapper
+from app.utils.tokenizer import Tokenizer
+from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines
 from app.flash import Flash
 from celery import Celery
 from werkzeug.datastructures import FileStorage
-import datetime
+from nltk.tokenize import sent_tokenize
 
+import datetime
 import json
 import os
 import shutil
@@ -17,6 +22,10 @@ import time
 
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# Engine training tasks
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @celery.task(bind=True)
 def launch_training(self, user_id, engine_path, params):
@@ -197,3 +206,69 @@ def monitor_training(self, engine_id):
             monitor()
 
     monitor()
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# Translation tasks
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+def launch_engine(user_id, engine_id):
+    user = User.query.filter_by(id=user_id).first()
+    engine = Engine.query.filter_by(id=engine_id).first()
+    
+    translator = JoeyWrapper(engine.path)
+    translator.load()
+
+    # If this user is already using another engine, we switch
+    user_engine = RunningEngines.query.filter_by(user_id=user_id).first()
+    if user_engine: db.session.delete(user_engine)
+
+    user.user_running_engines.append(RunningEngines(engine=engine, user=user))
+    db.session.commit()
+
+    tokenizer = Tokenizer(engine)
+    tokenizer.load()
+
+    return translator, tokenizer
+
+@celery.task(bind=True)
+def translate_text(self, user_id, engine_id, lines):    
+    # We launch the engine
+    translator, tokenizer = launch_engine(user_id, engine_id)
+
+    # We translate
+    translations = []
+    for line in lines:
+        if line.strip() != "":
+            for sentence in sent_tokenize(line):
+                line_tok = tokenizer.tokenize(sentence)
+                translation = translator.translate(line_tok)
+                translations.append(tokenizer.detokenize(translation))
+        else:
+            translations.append("")
+
+    return translations
+
+@celery.task(bind=True)
+def translate_file(self, user_id, engine_id, user_file_path, as_tmx, tmx_mode):
+    translator, tokenizer = launch_engine(user_id, engine_id)
+    file_translation = FileTranslation(translator, tokenizer)
+    return file_translation.translate_file(user_id, user_file_path, as_tmx, tmx_mode)
+
+@celery.task(bind=True)
+def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
+    translator, tokenizer = launch_engine(user_id, engine_id)
+    file_translation = FileTranslation(translator, tokenizer)
+
+    if chain_engine_id:
+        translations = []
+        for line in text:
+            if line.strip() != "":
+                for sentence in sent_tokenize(line):
+                    line_tok = tokenizer.tokenize(sentence)
+                    translation = translator.translate(line_tok)
+                    translations.append(tokenizer.detokenize(translation))
+            else:
+                translations.append("")
+
+        text = translations
+
+    return file_translation.text_as_tmx(user_id, text)

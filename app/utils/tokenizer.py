@@ -3,16 +3,11 @@ import sentencepiece as spm
 import os
 import subprocess
 
-
 class Tokenizer:
     def __init__(self, engine):
         self.sp = None
         self.loaded = False
-
-        # Get absolute path for engine
-        realpath = subprocess.Popen("realpath {}".format(engine.path), 
-                    shell=True, cwd=app.config['JOEYNMT_FOLDER'], stdout=subprocess.PIPE)
-        self.path = realpath.stdout.readline().rstrip().decode("utf-8")
+        self.path = engine.path
 
     def load(self):
         if not self.sp:

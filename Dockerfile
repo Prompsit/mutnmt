@@ -19,6 +19,7 @@ RUN apt-get update -q --fix-missing && \
                         redis \
                         virtualenv \
                         curl \
+                        libreoffice \
                         tzdata && \
     apt-get autoremove -y && \
     apt-get autoclean

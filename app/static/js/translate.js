@@ -40,11 +40,81 @@ $(document).ready(function() {
         $(".chain-btn").removeClass("d-none");
     });
 
+    $(".btn-as-tmx").on("click", function(e) {
+        e.preventDefault();
+
+        let text = [];
+        for (let line of $('.live-translate-source').val().split('\n')) {
+            text.push(line)
+        }
+
+        $.ajax({
+            url: 'as_tmx',
+            method: 'POST',
+            data: { 
+                engine_id: $('.engine-select option:selected').val(),
+                text: text,
+                chain_engine_id: ($("#chain").val() == "true") ? $('.engine-select-chain option:selected').val() : "false"
+            }
+        }).done(function(task_data) {
+            longpoll(2000, {
+                url: 'get_tmx',
+                method: 'POST',
+                data: { task_id: task_data.task_id }
+            }, (data) => {
+                if (data.result == 200) {
+                    window.location.href = data.url;
+                    return false;
+                }
+            });
+        })
+
+        return false;
+    })
+
     // Translates the source text and displays
     // the translation in a textarea
     let translate = () => {
-        // We capture each line of text and we send it to the server
+        let show_translation = (data) => {
+            if (data.result == -2) {
+                $('.live-translate-form').attr('data-status', 'error')
+            } else if (data.result == 200) {
+                if (data.lines) {
+                    for (let line of data.lines) {
+                        let line_element = document.createTextNode(line + '\n');
+                        $('.live-translate-target').append(line_element);
+                    }
+                }
 
+                $('.live-translate-form').attr('data-status', 'none');
+
+                return false;
+            }
+        }
+
+        let translate_text = (engine_id, text, callback) => {
+            $.ajax({
+                url: 'text',
+                method: "POST",
+                data: {
+                    engine_id: engine_id,
+                    text: text
+                }
+            }).done(function(task_data) {
+                // We fill target text depending on the result from the server
+                $('.live-translate-target').html("");
+
+                longpoll(2000, {
+                    url: 'get',
+                    method: 'POST',
+                    data: { task_id: task_data.task_id }
+                }, (data) => {
+                    return callback(data);
+                });
+            });
+        }
+
+        // We capture each line of text and we send it to the server
         // If there is no text, we do nothing
         if ($('.live-translate-source').val() == "") {
             $('.live-translate-target').html("");
@@ -58,32 +128,18 @@ $(document).ready(function() {
 
         if ($('.live-translate-form').attr('data-status') != 'launching') {
             $('.live-translate-target').html("");
-            
             $('.live-translate-form').attr('data-status', 'launching');
-            $.ajax({
-                url: `get`,
-                method: "POST",
-                data: {
-                    engine_id: $('.engine-select option:selected').val(),
-                    text: text, 
-                    chain: $("#chain").val() == "true" ? $('.engine-select-chain option:selected').val() : false 
-                }
-            }).done(function(data) {
-                // We fill target text depending on the result from the server
-                $('.live-translate-target').html("");
 
-                if (data.result == -1) {
-                    $('.live-translate-form').attr('data-status', 'error')
-                } else {
-                    if (data.lines) {
-                        for (let line of data.lines) {
-                            let line_element = document.createTextNode(line + '\n');
-                            $('.live-translate-target').append(line_element);
-                        }
-                    }
+            translate_text($('.engine-select option:selected').val(), text, (data) => {
+                if (data.result == 200) {
+                    if ($("#chain").val() == "true") {
+                        translate_text($('.engine-select-chain option:selected').val(), data.lines, (data) => {
+                            return show_translation(data);
+                        });
 
-                    if (data.detached) {
-                        $('.live-translate-form').attr('data-status', 'none');
+                        return false;
+                    } else {
+                        return show_translation(data)
                     }
                 }
             });
@@ -173,14 +229,24 @@ $(document).ready(function() {
             contentType: false,
             cache: false,
             processData: false,
-            success: function(key_url) {
+            success: function(task_data) {
                 file_as_tmx = false;
                 $('.btn-as-tmx').removeClass("d-none");
                 $('.live-translate-source').prop('disabled', false);
-                $('.live-translate-form').attr('data-status', 'ready');
                 $(".file-label-name").html("");
-                $(".file-label-text").css({ display: 'inline' })
-                window.location.href = key_url;
+                $(".file-label-text").css({ display: 'inline' });
+
+                longpoll(2000, {
+                    url: 'get_file',
+                    method: 'POST',
+                    data: { task_id: task_data.task_id }
+                }, (data) => {
+                    if (data.result == 200) {
+                        $('.live-translate-form').attr('data-status', 'ready');
+                        window.location.href = data.url;
+                        return false;
+                    }
+                });
             }
         });
     }
