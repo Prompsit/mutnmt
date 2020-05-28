@@ -178,4 +178,4 @@ def tokenize(corpus):
                 with open(entry_file.file.path) as file:
                     for line in file:
                         line_encoded = sp.EncodeAsPieces(line)
-                        print("".join(line_encoded), file=file_tok)
+                        print(" ".join(line_encoded), file=file_tok)
