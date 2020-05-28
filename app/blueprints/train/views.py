@@ -252,7 +252,7 @@ def train_attention(id):
 
 
 def _train_stop(id, user_stop):
-    Trainer.stop(user_utils.get_uid(), id, user_stop=user_stop)
+    Trainer.stop(id, user_stop=user_stop)
     return redirect(url_for('train.train_console', id=id))
 
 @train_blueprint.route('/stop/<id>')

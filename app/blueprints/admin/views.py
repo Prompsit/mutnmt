@@ -159,7 +159,7 @@ def stop_engine():
     id = request.args.get('id')
 
     try:
-        Trainer.stop(user_utils.get_uid(), id)
+        Trainer.stop(id)
     except:
         pass
 

@@ -22,7 +22,7 @@ class Trainer(object):
         return task.id, monitor_task.id
 
     @staticmethod
-    def finish(user_id, engine):
+    def finish(engine):
         if engine.bg_task_id:
             revoke(engine.bg_task_id, terminate=True)
             engine.bg_task_id = None
@@ -33,9 +33,9 @@ class Trainer(object):
             db.session.commit()
 
     @staticmethod
-    def stop(user_id, id, user_stop=False):
+    def stop(id, user_stop=False):
         engine = Engine.query.filter_by(id = id).first()
-        Trainer.finish(user_id, engine)
+        Trainer.finish(engine)
 
         engine.status = "stopped" if user_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)

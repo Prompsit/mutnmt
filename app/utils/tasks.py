@@ -4,6 +4,7 @@ from app.utils.power import PowerUtils
 from app.utils.translation.utils import TranslationUtils
 from app.utils.translation.filetranslation import FileTranslation
 from app.utils.translation.joeywrapper import JoeyWrapper
+from app.utils.trainer import Trainer
 from app.utils.tokenizer import Tokenizer
 from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines
 from app.flash import Flash
@@ -192,10 +193,7 @@ def train_engine(self, engine_id):
     time.sleep(3600)
 
     if running_joey.poll() is None:
-        running_joey.terminate()
-        engine = Engine.query.filter_by(id=engine_id).first()
-        engine.status = "finished"
-        db.session.commit()
+        Trainer.stop(engine_id)
 
 @celery.task(bind=True)
 def monitor_training(self, engine_id):
