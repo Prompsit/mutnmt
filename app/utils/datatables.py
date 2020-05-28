@@ -26,12 +26,16 @@ class Datatables(object):
     
         rows_filtered = []
         if self.search:
-            rows_filtered = table.query.options(load_only(*columns)) \
-                                .filter(or_(*[c.ilike('%{}%'.format(self.search)) for c in columns])) \
-                                .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
-                                .limit(length).offset(start) \
-                                .all()
+            rows_filtered = table.query.options(load_only(*columns))
 
+            if condition is not None:
+                rows_filtered = rows_filtered.filter(condition)
+
+            rows_filtered =  rows_filtered.filter(or_(*[c.ilike('%{}%'.format(self.search)) for c in columns])) \
+                                .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
+                                .limit(length).offset(start)
+                                
+            rows_filtered = rows_filtered.all()
 
         return rows, rows_filtered, self.search
 
