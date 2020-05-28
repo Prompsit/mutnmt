@@ -17,6 +17,8 @@ let draw_stacks = (stacks) => {
         if (stacks.training) draw_stack(stacks, 'training', document.querySelector(".training-zone"))
         if (stacks.dev) draw_stack(stacks, 'dev', document.querySelector(".dev-zone"))
         if (stacks.test) draw_stack(stacks, 'test', document.querySelector(".test-zone"))
+
+        $(".btn-start-training").prop("disabled", (stacks.training.sentences == 0 || stacks.dev.sentences == 0 || stacks.test.sentences == 0));
     }
 }
 
