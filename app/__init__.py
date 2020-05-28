@@ -51,7 +51,7 @@ for running_engine in models.RunningEngines.query.all():
     db.session.delete(running_engine)    
     db.session.commit()
 
-folders = ['UPLOAD_FOLDER', 'STORAGE_FOLDER', 'FILES_FOLDER', 'ENGINES_FOLDER', 'USERS_FOLDER']
+folders = ['USERSPACE_FOLDER', 'STORAGE_FOLDER', 'FILES_FOLDER', 'ENGINES_FOLDER', 'USERS_FOLDER']
 
 for folder in folders:
     try:

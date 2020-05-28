@@ -3,15 +3,15 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
     BASEDIR = basedir
-    TMP_FOLDER = '/tmp'
     MUTNMT_FOLDER = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..'))
+    TMP_FOLDER = '/tmp'
     PRELOADED_ENGINES_FOLDER = os.path.join(basedir, "preloaded")
     JOEYNMT_FOLDER = os.path.join(basedir, "joeynmt")
-    UPLOAD_FOLDER = os.path.join(basedir, "uploads")
-    STORAGE_FOLDER = os.path.join(UPLOAD_FOLDER, "storage")
+    USERSPACE_FOLDER = os.path.join(MUTNMT_FOLDER, "data/userspace")
+    STORAGE_FOLDER = os.path.join(USERSPACE_FOLDER, "storage")
     FILES_FOLDER = os.path.join(STORAGE_FOLDER, "files")
     ENGINES_FOLDER = os.path.join(STORAGE_FOLDER, "engines")
-    USERS_FOLDER = os.path.join(UPLOAD_FOLDER, "users")
+    USERS_FOLDER = os.path.join(USERSPACE_FOLDER, "users")
     BASE_CONFIG_FOLDER = os.path.join(basedir, "base")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \

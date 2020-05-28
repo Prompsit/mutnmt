@@ -24,7 +24,7 @@ def admin_system():
     vmem = psutil.virtual_memory()
     ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) } # GB
     
-    hdd = psutil.disk_usage(app.config['UPLOAD_FOLDER'])
+    hdd = psutil.disk_usage(app.config['USERSPACE_FOLDER'])
     disk_usage = { "percent": round((hdd.used / hdd.total) * 100, 2), "used": round(hdd.used / factor, 2), 
                     "total": round(hdd.total / factor, 2)} # GB
     

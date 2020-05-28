@@ -7,6 +7,8 @@ COPY . /opt/mutnmt/
 RUN mkdir /opt/mutnmt/data
 RUN mkdir /opt/mutnmt/data/redis-data
 RUN mkdir /opt/mutnmt/data/logs
+RUN mkdir /opt/mutnmt/data/tmp
+RUN mkdir /opt/mutnmt/data/userspace
 
 RUN echo "Europe/Madrid" > /etc/timezone
 
