@@ -33,6 +33,7 @@ def launch_training(self, user_id, engine_path, params):
     # and get it ready for training
 
     engine = Engine(path = engine_path)
+    used_corpora = {}
 
     def join_corpora(list_name, phase):
         corpus = Corpus(owner_id=user_id, visible=False)
@@ -40,6 +41,8 @@ def launch_training(self, user_id, engine_path, params):
             corpus_data = json.loads(train_corpus)
             corpus_id = corpus_data['id']
             corpus_size = corpus_data['size']
+
+            if corpus_id not in used_corpora: used_corpora[corpus_id] = 0
 
             try:
                 og_corpus = Corpus.query.filter_by(id = corpus_id).first()
@@ -53,8 +56,11 @@ def launch_training(self, user_id, engine_path, params):
                 corpus.target_id = og_corpus.target_id
                 for file_entry in og_corpus.corpus_files:
                     with open(file_entry.file.path, 'rb') as file_d:
-                        db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), file_entry.file.language_id, selected_size=corpus_size, user_id=user_id)
+                        db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
+                                    file_entry.file.language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
+                                    user_id=user_id)
                     corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
+                    used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
 

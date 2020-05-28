@@ -85,7 +85,31 @@ $(document).ready(function() {
                             $(row).addClass("d-none");
                         }
                     }
-                })
+
+                    let sentences_already_used = 0;
+                    for (let stack_name in corpora_stacks) {
+                        if (stack_name != $(row).attr("data-corpus")) {
+                            for (let corpus of corpora_stacks[stack_name].corpora) {
+                                if (corpus.id == $(row).attr("data-corpus-id")) {                                    
+                                    sentences_already_used += corpus.selected_size;
+                                }
+                            }
+                        }
+                    }
+
+                    let max = parseInt($(row).find(".corpus-selector-add").attr("data-corpus-lines"));
+                    let new_max = max - sentences_already_used;
+
+                    if (new_max > 0) {
+                        $(row).find(".corpus-selector-lines").attr("max", new_max);
+                        $(row).find(".corpus-lines-max").html(sentences_amount(new_max));
+                        if (parseInt($(row).find(".corpus-selector-lines").val()) > new_max) {
+                            $(row).find(".corpus-selector-lines").val(new_max);
+                        }
+                    } else {
+                        $(row).addClass("d-none");
+                    }
+                });
 
                 $(el).find(".corpus-selector-add").off('click').on('click', function(e) {
                     let corpus_type = $(this).attr("data-corpus");

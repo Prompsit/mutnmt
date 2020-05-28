@@ -10,7 +10,7 @@ import re
 import datetime
 import shutil
 
-def upload_file(file, language, selected_size=None, user_id = None):
+def upload_file(file, language, selected_size=None, offset=None, user_id=None):
     user_id = user_id if user_id else user_utils.get_uid()
     norm_name = utils.normname(user_id=user_id, filename=file.filename)
     path = utils.filepath('FILES_FOLDER', norm_name)
@@ -24,8 +24,13 @@ def upload_file(file, language, selected_size=None, user_id = None):
         if selected_size is not None:
             # We get the amount of sentences we want
             crop_path = "{}.crop".format(path)
-            crop_proccess = subprocess.Popen("cat {} | head -n {} > {}".format(path, selected_size, crop_path), shell=True)
-            crop_proccess.wait()
+
+            if offset:
+                crop_proccess = subprocess.Popen("cat {} | head -n {} | head -n {} > {}".format(path, offset, selected_size, crop_path), shell=True)
+                crop_proccess.wait()
+            else:
+                crop_proccess = subprocess.Popen("cat {} | head -n {} > {}".format(path, selected_size, crop_path), shell=True)
+                crop_proccess.wait()
 
             os.remove(path)
             shutil.move(crop_path, path)
