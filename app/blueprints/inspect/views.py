@@ -2,6 +2,7 @@ from app import app
 from app.models import LibraryEngine, Engine
 from app.utils import user_utils
 from app.utils.translation.utils import TranslationUtils
+from app.utils import tasks
 from flask import Blueprint, render_template, request, jsonify
 
 inspect_blueprint = Blueprint('inspect', __name__, template_folder='templates')
@@ -29,37 +30,35 @@ def translate_leave():
     translators.deattach(user_utils.get_uid())
     return "0"
 
-@inspect_blueprint.route('/attach_engine/<id>')
-def translate_attach(id):
-    if translators.launch(user_utils.get_uid(), id):
-        return "0"
-    else:
-        return "-1"
-
-@inspect_blueprint.route('/get', methods=["POST"])
-def inspect_get():
-    text = request.form.get('text')
+@inspect_blueprint.route('/details', methods=["POST"])
+def inspect_details():
+    line = request.form.get('line')
     engine_id = request.form.get('engine_id')
-    translators.launch(user_utils.get_uid(), engine_id)
-    translation = translators.get_inspect(user_utils.get_uid(), text)
-    translators.deattach(user_utils.get_uid())
-    return jsonify(translation) if translation else "-1"
+    translation_task_id = translators.get_inspect(user_utils.get_uid(), engine_id, line)
+
+    return translation_task_id
+
+@inspect_blueprint.route('/get_details', methods=["POST"])
+def get_inspect_details():
+    task_id = request.form.get('task_id')
+    result = tasks.translate_text.AsyncResult(task_id)
+    if result and result.status == "SUCCESS":
+        return jsonify({ "result": 200, "details": result.get() })
+    else:
+        return jsonify({ "result": -1 })
+
+@inspect_blueprint.route('/compare/text', methods=["POST"])
+def inspect_compare_text():
+    text = request.form.get('text')
+    engines = request.form.getlist('engines[]')
+    task_id = tasks.inspect_compare.apply_async(args=[user_utils.get_uid(), engines, text]).id
+    return task_id
 
 @inspect_blueprint.route('/get_compare', methods=["POST"])
 def inspect_get_compare():
-    text = request.form.get('text')
-    engines = request.form.getlist('engines[]')
-
-    translations = []
-    for engine_id in engines:
-        engine = Engine.query.filter_by(id = engine_id).first()
-        translators.launch(user_utils.get_uid(), engine_id)
-        translations.append(
-            {
-                "id": engine_id,
-                "name": engine.name,
-                "text": translators.get(user_utils.get_uid(), [text])
-            })
-        translators.deattach(user_utils.get_uid())
-
-    return jsonify({ "source": engine.source.code, "target": engine.target.code, "translations": translations })
+    task_id = request.form.get('task_id')
+    result = tasks.translate_text.AsyncResult(task_id)
+    if result and result.status == "SUCCESS":
+        return jsonify({ "result": 200, "compare": result.get() })
+    else:
+        return jsonify({ "result": -1 })

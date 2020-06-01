@@ -276,3 +276,42 @@ def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
         text = translations
 
     return file_translation.text_as_tmx(user_id, text)
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# INSPECT TASKS
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+@celery.task(bind=True)
+def inspect_details(self, user_id, engine_id, line):
+    translator, tokenizer = launch_engine(user_id, engine_id)
+    engine = Engine.query.filter_by(id=engine_id).first()
+
+    n_best = []
+    if line.strip() != "":
+        line_tok = tokenizer.tokenize(line)
+        n_best = translator.translate(line_tok, 5)
+    else:
+        return None
+
+    return {
+        "source": engine.source.code,
+        "target": engine.target.code,
+        "preproc_input": line_tok,
+        "preproc_output": n_best[0],
+        "nbest": [tokenizer.detokenize(n) for n in n_best],
+        "alignments": [],
+        "postproc_output": tokenizer.detokenize(n_best[0])
+    }
+@celery.task(bind=True)
+def inspect_compare(self, user_id, engines, text):
+    translations = []
+    for engine_id in engines:
+        engine = Engine.query.filter_by(id = engine_id).first()
+        translations.append(
+            {
+                "id": engine_id,
+                "name": engine.name,
+                "text": translate_text(user_id, engine_id, [text])
+            })
+
+    return { "source": engine.source.code, "target": engine.target.code, "translations": translations }

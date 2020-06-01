@@ -35,30 +35,9 @@ class TranslationUtils:
         task = tasks.translate_text.apply_async(args=[user_id, engine_id, lines])
         return task.id
 
-    def get_inspect(self, user_id, line):
-        user_engine = self.get_user_running_engine(user_id)
-        if user_engine:
-            tokenizer = Tokenizer(user_engine.engine)
-            tokenizer.load()
-
-            n_best = []
-            if line.strip() != "":
-                line_tok = tokenizer.tokenize(line)
-                n_best = self.translators[user_engine.engine_id].translate(line_tok, 5)
-            else:
-                return None
-
-            return {
-                "source": user_engine.engine.source.code,
-                "target": user_engine.engine.target.code,
-                "preproc_input": line_tok,
-                "preproc_output": n_best[0],
-                "nbest": [tokenizer.detokenize(n) for n in n_best],
-                "alignments": [],
-                "postproc_output": tokenizer.detokenize(n_best[0])
-            }
-        else:
-            return None
+    def get_inspect(self, user_id, engine_id, line):
+        task = tasks.inspect_details.apply_async(args=[user_id, engine_id, line])
+        return task.id
             
     def deattach(self, user_id):
         user_engine = self.get_user_running_engine(user_id)
