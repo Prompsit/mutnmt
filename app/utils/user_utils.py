@@ -1,6 +1,7 @@
 from flask_login import current_user
 from app import app, db
-from app.models import Corpus, LibraryEngine
+from app.models import Corpus, LibraryEngine, LibraryCorpora
+from sqlalchemy import and_
 import os, shutil
 
 def get_uid():
@@ -65,3 +66,19 @@ def library_delete(type, id, user_id = None):
         db.session.commit()
 
     return True
+
+def get_user_corpora(user_id=None, public=False):
+    user_id = user_id if user_id else get_uid()
+    if public:
+        return LibraryCorpora.query.filter(LibraryCorpora.corpus_id.notin_(
+            db.session.query(LibraryCorpora.corpus_id).filter_by(user_id=user_id)
+            )).filter(LibraryCorpora.corpus.has(and_(
+                Corpus.visible == True,
+                Corpus.public == True,
+                Corpus.owner_id != user_id
+            )))
+    else:
+        return LibraryCorpora.query.filter(LibraryCorpora.user_id == user_id) \
+                .filter(LibraryCorpora.corpus.has(and_(
+                    Corpus.visible == True
+                )))

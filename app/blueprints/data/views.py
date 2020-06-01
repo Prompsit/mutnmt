@@ -66,6 +66,9 @@ def data_upload_perform():
                     target_db_file = process_file(request.files.get('target_file'), request.form['target_lang'], corpus, 'target')
 
                 db.session.add(corpus)
+
+                user = User.query.filter_by(id=user_utils.get_uid()).first()
+                user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
             except Exception as e:
                 raise e
                 print(e, file=sys.stderr)

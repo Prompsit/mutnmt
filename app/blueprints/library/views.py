@@ -22,8 +22,9 @@ library_blueprint = Blueprint('library', __name__, template_folder='templates')
 
 @library_blueprint.route('/corpora')
 def library_corpora():
-    user_library = Corpus.query.filter_by(owner_id = user_utils.get_uid()).all()
-    public_files = Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid()))
+    user_library = user_utils.get_user_corpora().count()
+    public_files = user_utils.get_user_corpora(public=True).count()
+
     languages = Language.query.all()
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',
@@ -91,8 +92,14 @@ def library_engine(id):
 def library_corpora_feed():
     public = request.form.get('public') == "true"
 
-    user_library =  Corpus.query.filter(and_(Corpus.public == True, Corpus.owner_id != user_utils.get_uid(), Corpus.visible == True)) if public \
-                        else Corpus.query.filter_by(owner_id = user_utils.get_uid(), visible = True).all()
+    if public:
+        library_objects = user_utils.get_user_corpora(public=True).all()
+    else:
+        library_objects = user_utils.get_user_corpora().all()
+
+    print([public, library_objects, user_utils.get_uid()], file=sys.stderr)
+    
+    user_library =  [lc.corpus for lc in library_objects]
 
     dt = datatables.Datatables(draw=int(request.form.get('draw')))
     rows, rows_filtered, search = [], [], None
@@ -219,8 +226,8 @@ def library_ungrab(type, id):
     user = User.query.filter_by(id = user_utils.get_uid()).first()
 
     if type == "library_corpora":
-        library = LibraryCorpora.query.filter_by(file_id = id, user_id = user_utils.get_uid()).first()
-        user.user_files.remove(library)
+        library = LibraryCorpora.query.filter_by(corpus_id = id, user_id = user_utils.get_uid()).first()
+        user.user_corpora.remove(library)
     else:
         library = LibraryEngine.query.filter_by(engine_id = id, user_id = user_utils.get_uid()).first()
         user.user_engines.remove(library)
