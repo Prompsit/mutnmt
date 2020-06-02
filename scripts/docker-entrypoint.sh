@@ -9,7 +9,7 @@ redis-server conf/redis.conf
 
 nohup celery worker --workdir $ROOT \
                     -A app.utils.tasks.celery --loglevel=info \
-                    --logfile=$ROOT/data/celery-worker.log &
+                    --logfile=$ROOT/data/logs/celery-worker.log &
 
 if [ -z "$DEBUG" ] || [ "$DEBUG" == "0" ]
 then
