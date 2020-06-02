@@ -5,6 +5,7 @@ from app.utils.power import PowerUtils
 from app.flash import Flash
 from flask_login import login_required
 from sqlalchemy import and_, not_
+from sqlalchemy.orm import load_only
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, send_file
 from datetime import datetime
 from dateutil import tz
@@ -99,11 +100,88 @@ def library_corpora_feed():
         library_objects = user_utils.get_user_corpora(public=True).all()
     else:
         library_objects = user_utils.get_user_corpora().all()
-
-    print([public, library_objects, user_utils.get_uid()], file=sys.stderr)
     
-    user_library =  [lc.corpus for lc in library_objects]
+    user_library = [lc.corpus for lc in library_objects]
 
+    # We are not using the datatables helper since this is an specific case
+    # and we need more control to group corpora
+
+    draw = int(request.form.get('draw'))
+    search = request.form.get('search[value]')
+    start = request.form.get('start')
+    length = request.form.get('length')
+    order = int(request.form.get('order[0][column]'))
+    dir = request.form.get('order[0][dir]')
+
+    corpus_rows = []
+    for corpus in user_library:
+        corpus_rows.append([corpus.id, corpus.name, corpus.source.name + corpus.target.name, 
+                            corpus.lines(), corpus.words(), corpus.chars(),
+                            corpus.uploaded()])
+
+    recordsTotal = 0
+    recordsFiltered = 0
+    
+    if order:
+        corpus_rows.sort(key=lambda c: c[order], reverse=(dir == 'asc'))
+
+    corpus_data = []
+    for row in corpus_rows:
+        corpus = Corpus.query.filter_by(id=row[0]).first()
+
+        file_data = []
+        for file_entry in corpus.corpus_files:
+            file = file_entry.file
+            uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y")
+            file_data.append([
+                file.id,
+                file.name,
+                file.language.name,
+                utils.format_number(file.lines), 
+                utils.format_number(file.words), 
+                utils.format_number(file.chars), 
+                uploaded_date,
+                {
+                    "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
+                    "corpus_uploader": file.uploader.username if file.uploader else "MutNMT",
+                    "corpus_id": corpus.id,
+                    "corpus_name": corpus.name,
+                    "corpus_description": corpus.description,
+                    "corpus_source": corpus.source.name,
+                    "corpus_target": corpus.target.name if corpus.target else "",
+                    "corpus_public": corpus.public,
+                    "corpus_size": corpus.corpus_files[0].file.lines,
+                    "corpus_preview": url_for('library.corpora_preview', id = corpus.id),
+                    "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
+                    "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
+                    "corpus_grab": url_for('library.library_grab', id = corpus.id, type = 'library_corpora'),
+                    "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora'),
+                    "corpus_export": url_for('library.library_export', id= corpus.id, type = "library_corpora"),
+                    "file_preview": url_for('data.data_preview', file_id=file.id)
+                }
+            ])
+
+        if search:
+            found = False
+            for col in row + file_data:
+                found = found or search in str(col)
+            
+            if found:
+                corpus_data = corpus_data + file_data
+                recordsFiltered += 1
+        else:
+            corpus_data = corpus_data + file_data
+
+        recordsTotal += 1
+
+    return jsonify({
+            "draw": draw + 1,
+            "recordsTotal": recordsTotal,
+            "recordsFiltered": recordsFiltered if search else recordsTotal,
+            "data": corpus_data
+        })
+
+    """
     dt = datatables.Datatables(draw=int(request.form.get('draw')))
     rows, rows_filtered, search = [], [], None
 
@@ -129,6 +207,7 @@ def library_corpora_feed():
                                     "corpus_source": corpus.source.name,
                                     "corpus_target": corpus.target.name if corpus.target else "",
                                     "corpus_public": corpus.public,
+                                    "corpus_size": corpus.corpus_files[0].file.lines,
                                     "corpus_preview": url_for('library.corpora_preview', id = corpus.id),
                                     "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
                                     "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
@@ -139,7 +218,7 @@ def library_corpora_feed():
                                 }])
 
     return dt.response(rows, rows_filtered, corpus_data)
-
+    """
 @library_blueprint.route('/engines_feed', methods=["POST"])
 def library_engines_feed():
     public = request.form.get('public') == "true"

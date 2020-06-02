@@ -4,6 +4,7 @@ from app.utils import utils
 from flask_login import UserMixin
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 import datetime
 
@@ -91,6 +92,25 @@ class Corpus(db.Model):
             return utils.format_number(self.corpus_files[0].file.lines, abbr=abbr) if human else self.corpus_files[0].file.lines
         else:
             return 0
+    
+    def words(self, human=False, abbr=False):
+        word_count = 0
+        for file_entry in self.corpus_files:
+            word_count += file_entry.file.words
+        return utils.format_number(word_count, abbr=abbr) if human else word_count
+
+    def chars(self, human=False, abbr=False):
+        char_count = 0
+        for file_entry in self.corpus_files:
+            char_count += file_entry.file.chars
+        return utils.format_number(char_count, abbr=abbr) if human else char_count
+
+    def uploaded(self):
+        if len(self.corpus_files) > 0:
+            return self.corpus_files[0].file.uploaded
+        else:
+            return None
+
 
 class Corpus_File(db.Model):
     __tablename__ = 'corpus_file'
