@@ -22,6 +22,7 @@ RUN apt-get update -q --fix-missing && \
                         virtualenv \
                         curl \
                         libreoffice \
+                        libxml2-utils \
                         tzdata && \
     apt-get autoremove -y && \
     apt-get autoclean

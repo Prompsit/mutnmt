@@ -163,18 +163,20 @@ class FileTranslation:
                 body.append(tu)
 
         tmx_path = utils.tmpfile('{}.{}-{}.tmx'.format(user_id, engine.source.code, engine.target.code))
-        tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True, pretty_print=True)
+        tmx.write(tmx_path, encoding="UTF-8", xml_declaration=True)
+
+        format_proc = subprocess.Popen("xmllint --format {} > {}.format".format(tmx_path, tmx_path), shell=True)
+        format_proc.wait()
+
+        shutil.move("{}.format".format(tmx_path), tmx_path)
+
         return tmx_path
 
     def text_as_tmx(self, user_id, text):
-        from celery.utils.log import get_task_logger
-        logger = get_task_logger(__name__)
-        
         sentences = []
         for line in text:
             raw_sentences = sent_tokenize(line)
             for sentence in raw_sentences:
-                logger.info(sentence)
                 sentences.append({ "source": sentence, "target": [self.line(sentence)] })
         return self.tmx_builder(user_id, sentences)
 
