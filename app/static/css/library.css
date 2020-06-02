@@ -48,14 +48,6 @@
     content: "";
 }
 
-.corpora-table tr .file-item-preview {
-    visibility: hidden;
-}
-
-.corpora-table tr:hover .file-item-preview {
-    visibility: visible;
-}
-
 @media screen and (min-width: 576px) {
     .neural-bg {
         background-image: url(/img/neural-bg.svg);
