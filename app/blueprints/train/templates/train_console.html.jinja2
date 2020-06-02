@@ -10,13 +10,26 @@
 {% include "datatables.min.js.jinja2" %}
 
 <script src="{{ url_for('static', filename='lib/moment-with-locales.min.js') }}"></script>
+
 <script src="{{ url_for('static', filename='lib/chart.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/hammer.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/chartjs-plugin-zoom.min.js') }}"></script>
+
 <script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
 <script src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}
 
 {% block content %}
 <input type=hidden id="engine_id" value="{{ engine.id }}" />
+
+{% if engine.has_stopped() and request.referrer != request.url %}
+<p>
+    <a href="{{ request.referrer }}" class="btn btn-link btn-sm px-0">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</p>
+{% endif %}
+
 <h2 class="h5">Train a neural engine</h2>
 
 <div class="row my-4">
