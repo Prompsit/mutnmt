@@ -30,10 +30,13 @@ def sub(folder_id, subfolder, filename=None):
 def filepath(folder_id, filename):
     return os.path.join(app.config[folder_id], filename)
 
-def file_reader(file_path, start, offset):
+def file_reader(file_path, start = None, offset = None):
     with open(file_path, 'r') as file:
         for i, line in enumerate(file):
-            if i >= start and i < (start + offset):
+            if start and offset:
+                if i >= start and i < (start + offset):
+                    yield line
+            else:
                 yield line
 
 def file_length(file_path):

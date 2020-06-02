@@ -72,12 +72,15 @@ def library_engine(id):
     else:
         tps_value = "—"
     
-    launched = datetime.timestamp(engine.launched)
-    finished = datetime.timestamp(engine.finished) if engine.finished else None
-    time_elapsed = (finished - launched) if engine.finished else None # seconds
+    if engine.launched and engine.finished:
+        launched = datetime.timestamp(engine.launched)
+        finished = datetime.timestamp(engine.finished) if engine.finished else None
+        time_elapsed = (finished - launched) if engine.finished else None # seconds
 
-    if time_elapsed:
-        time_elapsed_format = utils.seconds_to_timestring(time_elapsed)
+        if time_elapsed:
+            time_elapsed_format = utils.seconds_to_timestring(time_elapsed)
+        else:
+            time_elapsed_format = "—"
     else:
         time_elapsed_format = "—"
 
