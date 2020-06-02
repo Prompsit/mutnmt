@@ -6,6 +6,8 @@ class Datatables(object):
     def __init__(self, draw = 1, search = None):
         self.draw = draw
         self.search = search
+        self.recordsFiltered = 0
+        self.recordsTotal = 0
 
     def parse(self, table, columns, request, condition = None):
         self.draw = request.form.get('draw')
@@ -20,9 +22,9 @@ class Datatables(object):
         if condition is not None:
             rows = rows.filter(condition)
 
-        rows = rows.order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
-                .limit(length).offset(start) \
-                .all()
+        rows = rows.order_by(asc(columns[order]) if dir == "asc" else desc(columns[order]))
+        self.recordsTotal += rows.count()
+        rows = rows.limit(length).offset(start).all()
     
         rows_filtered = []
         if self.search:
@@ -31,18 +33,17 @@ class Datatables(object):
             if condition is not None:
                 rows_filtered = rows_filtered.filter(condition)
 
-            rows_filtered =  rows_filtered.filter(or_(*[c.ilike('%{}%'.format(self.search)) for c in columns])) \
-                                .order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
-                                .limit(length).offset(start)
-                                
-            rows_filtered = rows_filtered.all()
+            rows_filtered = rows_filtered.filter(or_(*[c.ilike('%{}%'.format(self.search)) for c in columns]))
+            self.recordsFiltered += rows_filtered.count()
+            rows_filtered = rows_filtered.order_by(asc(columns[order]) if dir == "asc" else desc(columns[order])) \
+                                .limit(length).offset(start).all()
 
         return rows, rows_filtered, self.search
 
     def response(self, rows, rows_filtered, data):
         return jsonify({
             "draw": int(self.draw) + 1,
-            "recordsTotal": len(rows),
-            "recordsFiltered": len(rows_filtered) if self.search else len(rows),
+            "recordsTotal": self.recordsTotal,
+            "recordsFiltered": self.recordsFiltered if self.search else self.recordsTotal,
             "data": data
         })
