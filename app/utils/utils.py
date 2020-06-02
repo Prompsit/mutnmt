@@ -33,7 +33,7 @@ def filepath(folder_id, filename):
 def file_reader(file_path, start = None, offset = None):
     with open(file_path, 'r') as file:
         for i, line in enumerate(file):
-            if start and offset:
+            if start is not None and offset is not None:
                 if i >= start and i < (start + offset):
                     yield line
             else:

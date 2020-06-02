@@ -88,7 +88,7 @@ def library_engine(id):
     power_references = PowerUtils.get_reference_text(power)
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
-            page_title = 'Engine details', engine = engine, corpora = corpora, score = score, tps = tps_value, 
+            page_title = 'Detail', engine = engine, corpora = corpora, score = score, tps = tps_value, 
             time_elapsed = time_elapsed_format, power = power)
 
 @library_blueprint.route('/corpora_feed', methods=["POST"])
