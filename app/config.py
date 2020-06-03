@@ -13,6 +13,7 @@ class Config(object):
     ENGINES_FOLDER = os.path.join(STORAGE_FOLDER, "engines")
     USERS_FOLDER = os.path.join(USERSPACE_FOLDER, "users")
     BASE_CONFIG_FOLDER = os.path.join(basedir, "base")
+    EVALUATORS_FOLDER = os.path.join(BASEDIR, "blueprints/evaluate/evaluators")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'app.db')

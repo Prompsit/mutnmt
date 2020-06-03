@@ -5,7 +5,7 @@ import subprocess
 
 class Bleu(Evaluator):
     def get_name(self):
-        return "Bleu"
+        return "BLEU"
 
     def get_value(self, mt_path, ht_path):
         sacreBLEU = subprocess.Popen("cat {} | sacrebleu -b {}".format(mt_path, ht_path), 

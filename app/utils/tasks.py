@@ -1,5 +1,5 @@
 from app import app, db
-from app.utils import user_utils, data_utils
+from app.utils import user_utils, data_utils, utils
 from app.utils.power import PowerUtils
 from app.utils.translation.utils import TranslationUtils
 from app.utils.translation.filetranslation import FileTranslation
@@ -11,7 +11,10 @@ from app.flash import Flash
 from celery import Celery
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
+from werkzeug.utils import secure_filename
 
+import pyter
+import xlsxwriter
 import datetime
 import json
 import os
@@ -20,6 +23,10 @@ import yaml
 import sys
 import subprocess
 import time
+import pkgutil
+import importlib
+import inspect
+import re
 
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -315,3 +322,88 @@ def inspect_compare(self, user_id, engines, text):
             })
 
     return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# EVALUATE TASKS
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+@celery.task(bind=True)
+def evaluate_files(self, user_id, mt_path, ht_path):
+    # Load evaluators from ./evaluators folder
+    evaluators: Evaluator = []
+    for minfo in pkgutil.iter_modules([app.config['EVALUATORS_FOLDER']]):
+        module = importlib.import_module('.{}'.format(minfo.name), package='app.blueprints.evaluate.evaluators')
+        classes = inspect.getmembers(module)
+        for name, _class in classes:
+            if name != "Evaluator" and name.lower() == minfo.name.lower() and inspect.isclass(_class):
+                evaluator = getattr(module, name)
+                evaluators.append(evaluator())
+
+    metrics = []
+    for evaluator in evaluators:
+        try:
+            metrics.append({
+                "name": evaluator.get_name(),
+                "value": evaluator.get_value(mt_path, ht_path)
+            })
+        except:
+            # If a metric throws an error because of things,
+            # we just skip it for now
+            pass
+
+    spl_result = spl(user_id, mt_path, ht_path)
+    xlsx_file_path = generate_xlsx(user_id, spl_result)
+
+    os.remove(mt_path)
+    try:
+        os.remove(ht_path)
+    except FileNotFoundError:
+        # It was the same file, we just pass
+        pass
+
+    return { "result": 200, "metrics": metrics, "spl": spl_result, "xlsx_url": xlsx_file_path }
+
+def spl(user_id, mt_path, ht_path):
+    # Scores per line (bleu and ter)
+    sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
+                        cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
+    sacreBLEU.wait()
+
+    bpl_result = subprocess.Popen("paste {} {} {}.bpl".format(mt_path, ht_path, mt_path), shell=True, stdout=subprocess.PIPE)
+
+    line_number = 1
+    per_line = []
+    for line in bpl_result.stdout:
+        line = line.decode("utf-8")
+        per_line.append([line_number] + [i.strip() for i in re.split(r'\t', line)])
+        line_number += 1
+
+    os.remove("{}.bpl".format(mt_path))
+
+    rows = []
+    for row in per_line:
+        ht_line = row[2].strip()
+        mt_line = row[1].strip()
+        if ht_line and mt_line:
+            ter = round(pyter.ter(ht_line.split(), mt_line.split()), 2)
+            rows.append(row + [100 if ter > 1 else (ter * 100)])
+
+    return rows
+
+def generate_xlsx(user_id, rows):
+    file_name = utils.normname(user_id, "evaluation") + ".xlsx"
+    file_path = utils.tmpfile(file_name)
+
+    workbook = xlsxwriter.Workbook(file_path)
+    worksheet = workbook.add_worksheet()
+
+    rows = [["Line", "Machine translation", "Human translation", "Bleu", "TER"]] + rows
+
+    row_cursor = 0
+    for row in rows:
+        for col_cursor, col in enumerate(row):
+            worksheet.write(row_cursor, col_cursor, col)
+        row_cursor  += 1
+
+    workbook.close()
+
+    return file_path

@@ -85,3 +85,10 @@ def seconds_to_timestring(total_seconds):
     seconds = int(((total_seconds % (24 * 3600)) % 3600) % 60)
 
     return "{}d {}h {}min {}s".format(days, hours, minutes, seconds)
+
+def get_task_result(task, task_id):
+    result = task.AsyncResult(task_id)
+    if result and result.status == "SUCCESS":
+        return result.get()
+    else:
+        return None
