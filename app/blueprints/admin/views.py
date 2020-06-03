@@ -127,7 +127,9 @@ def instances_datatables_feed():
     rows_translating, rows_translating_filtered, search_translating = dt.parse(RunningEngines, columns_translating, request)
 
     for engine_entry in (rows_translating_filtered if search_translating else rows_translating):
-        user_data.append([engine_entry.engine.id, engine_entry.engine.name, engine_entry.engine.uploader.email if engine_entry.engine.uploader else "", "Translating"])
+        user_data.append([engine_entry.engine.id, engine_entry.engine.name, 
+                            engine_entry.engine.uploader.email if engine_entry.engine.uploader else "", 
+                            "Translating", ""])
 
     return dt.response(rows, rows_filtered, user_data)
 
