@@ -59,7 +59,10 @@
             <div class="custom-textarea file-dnd">
                 <input type=file class="file-dnd-input" id="file_to_translate" accept=".docx,.odt,.pptx,.odp,.xlsx,.ods,.pdf,.txt,.html,.tmx" />
 
-                <textarea name="text" class="live-translate-source" autocomplete="off"></textarea>
+                <div class="custom-textarea-container">
+                    <textarea name="text" class="live-translate-source" autocomplete="off"></textarea>
+                </div>
+
                 <div class="custom-textarea-placeholder source-placeholder">
                     Type, paste text or drop a document
                 </div>
@@ -110,8 +113,10 @@
 
         <div class="col-12 col-sm-6">
             <div class="custom-textarea readonly">
-                <textarea readonly name="text" class="live-translate-target" autocomplete="off"></textarea>
-
+                <div class="custom-textarea-container">
+                    <textarea readonly name="text" class="live-translate-target" autocomplete="off"></textarea>
+                </div>
+                
                 <div class="custom-textarea-tools">
                     <button type=submit class="btn btn-link btn-as-tmx">
                         <i class="fas fa-file-download"></i> Text as TMX

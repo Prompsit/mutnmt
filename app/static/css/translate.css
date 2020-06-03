@@ -27,7 +27,12 @@
     border: solid 2px var(--primary);
 }
 
-.custom-textarea textarea {
+.custom-textarea .custom-textarea-container {
+    padding: 1rem;
+    padding-bottom: 2rem;
+}
+
+.custom-textarea .custom-textarea-container textarea {
     width: 100%;
     min-height: 300px;
     height: auto;
@@ -36,13 +41,12 @@
     border: 0;
     resize: none;
     background-color: transparent;
-    padding: 1rem;
-    padding-bottom: 2rem;
     position: relative;
     z-index: 1;
     overflow: hidden;
     transition: height 0.1s ease;
 }
+
 
 @media screen and (max-width: 576px) {
     .custom-textarea textarea {

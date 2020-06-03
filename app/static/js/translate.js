@@ -200,13 +200,13 @@ $(document).ready(function() {
     })
 
     $('.custom-textarea textarea').on('focus', function() {
-        $(this).parent().addClass("focus");
-        $(this).parent().find(".custom-textarea-placeholder").addClass("d-none");
+        $(this).closest(".custom-textarea").addClass("focus");
+        $(this).closest(".custom-textarea").find(".custom-textarea-placeholder").addClass("d-none");
     });
 
     $('.custom-textarea textarea').on('blur', function() {
-        $(this).parent().removeClass("focus");
-        $(this).parent().find(".custom-textarea-placeholder").removeClass("d-none");
+        $(this).closest(".custom-textarea").removeClass("focus");
+        $(this).closest(".custom-textarea").find(".custom-textarea-placeholder").removeClass("d-none");
     });
 
     // File translation
