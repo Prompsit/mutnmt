@@ -3,7 +3,7 @@ from app.utils import utils
 import pynvml
 
 class PowerUtils(object):
-    # Units are Watts
+    # Units are Wh
     references = {
         "lightbulb": { "power": 15, "name": "light bulbs" },
         "c3po": { "power": 48.6, "name": "C3PO Droids" } # source: https://www.wired.com/2012/05/how-big-is-c-3p0s-battery/,
@@ -23,9 +23,11 @@ class PowerUtils(object):
         return power
 
     @classmethod
-    def get_reference_text(cls, value, reference=None):
+    def get_reference_text(cls, value, elapsed, reference=None):
         def generate_text(reference, value):
-            ref_value = utils.parse_number(value / PowerUtils.references[reference]['power'], round_number=2)
+            ref_value = value / PowerUtils.references[reference]['power']
+            ref_value = ref_value * (elapsed / 3600)
+            ref_value = utils.parse_number(ref_value, round_number=2)
             return "{} {}".format(ref_value, PowerUtils.references[reference]['name'])
 
         if reference:

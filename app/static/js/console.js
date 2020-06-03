@@ -19,14 +19,14 @@ $(document).ready(function() {
         }, interval);
     });
 
-    let make_chart = (selector) => {
-        return new Chart(document.querySelector(selector), {
+    let make_chart = (selector, axis_labels) => {
+        let chart = new Chart(document.querySelector(selector), {
             type: 'line',
             labels: [],
             data: {
                 datasets: [{
-                    fill: 'origin',
-                    backgroundColor: 'rgba(87, 119, 144, 0.7)',
+                    fill: false,
+                    borderColor: 'rgba(87, 119, 144, 0.7)',
                     data: [],
                 }]
             },
@@ -38,16 +38,68 @@ $(document).ready(function() {
                     point:{
                         radius: 0
                     }
-                }       
+                },
+                scales: {
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: axis_labels.x
+                        }
+                    }],
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: axis_labels.y
+                        }
+                    }]
+                },
+                plugins: {
+                    zoom: {
+                        // Container for pan options
+                        pan: {
+                            enabled: false
+                        },
+                
+                        // Container for zoom options
+                        zoom: {
+                            enabled: true,
+                            drag: true,
+                            mode: 'xy',
+                            speed: 0.1,
+                            threshold: 2,
+                            sensitivity: 3
+                        }
+                    }
+                }
             }
-        })
+        });
+
+        $(document).on('keydown', function(e) {
+            if (e.keyCode == 18) { // Alt
+                chart.options.plugins.zoom.pan.enabled = true;
+                chart.options.plugins.zoom.zoom.drag = false;
+            }
+        });
+
+        $(document).on('keyup', function(e) {
+            if (e.keyCode == 18) { // Alt
+                chart.options.plugins.zoom.pan.enabled = false;
+                chart.options.plugins.zoom.zoom.drag = true;
+            }
+        });
+
+        $(selector).on('dblclick', function() {
+            chart.resetZoom();
+        });
+
+        return chart;
     }
 
     let data_map = {
-        "train/train_batch_loss": { chart: make_chart(".graph-batch-loss"), last: 0 },
-        "train/train_learning_rate": { chart: make_chart(".graph-learning-rate"), last: 0 },
-        "valid/valid_loss": { chart: make_chart(".graph-valid-loss"), last: 0 },
-        "valid/valid_score": { chart: undefined, last: 0},
+        "train/train_batch_loss": { chart: make_chart(".graph-batch-loss", { x: "Steps", y: "Batch loss" }), last: 0 },
+        "train/train_learning_rate": { chart: make_chart(".graph-learning-rate", { x: "Steps", y: "Learning rate "}), last: 0 },
+        "valid/valid_loss": { chart: make_chart(".graph-valid-loss", { x: "Steps", y: "Batch loss" }), last: 0 }/*,
+        "valid/valid_score": { chart: undefined, last: 0},*/
     }
 
     let updater = undefined;

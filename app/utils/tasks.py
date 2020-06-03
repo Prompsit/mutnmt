@@ -13,6 +13,7 @@ from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
 
+
 import pyter
 import xlsxwriter
 import datetime
@@ -27,6 +28,7 @@ import pkgutil
 import importlib
 import inspect
 import re
+import redis
 
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
@@ -204,12 +206,26 @@ def train_engine(self, engine_id):
 
 @celery.task(bind=True)
 def monitor_training(self, engine_id):
+    from celery.utils.log import get_task_logger
+    logger = get_task_logger(__name__)
+    
+    redis_conn = redis.Redis()
+    
     def monitor():
         engine = Engine.query.filter_by(id=engine_id).first()
         if engine:
             while not engine.has_stopped():
-                power = PowerUtils.get_mean_power()
-                engine.power = int(power)
+                current_power = int(PowerUtils.get_mean_power())
+                power = redis_conn.hget("power_value", engine_id)
+                updates = redis_conn.hget("power_update", engine_id)
+
+                power = int(power) if power else current_power
+                updates = int(updates) + 1 if updates else 1
+
+                redis_conn.hset("power_value", engine_id, power + current_power)
+                redis_conn.hset("power_update", engine_id, updates)
+                engine.power = int(power + current_power) / updates
+
                 db.session.commit()
                 time.sleep(10)
         else:

@@ -174,10 +174,13 @@ def train_status():
         except:
             pass
 
-        power = PowerUtils.get_mean_power()
-        power_reference = PowerUtils.get_reference_text(power)
+        launched = datetime.datetime.timestamp(engine.launched)
+        now = datetime.datetime.timestamp(datetime.datetime.now())
+        power = engine.power if engine.power else 0
+        power_reference = PowerUtils.get_reference_text(power, now - launched)
+        power_wh = power * ((now - launched) / 3600)
 
-        return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "power": power, "power_reference": power_reference })
+        return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "power": int(power_wh), "power_reference": power_reference })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
