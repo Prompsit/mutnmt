@@ -2,7 +2,6 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/chart.bundle.min.css') }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}" />
 {% endblock %}
 
@@ -10,10 +9,7 @@
 {% include "datatables.min.js.jinja2" %}
 
 <script src="{{ url_for('static', filename='lib/moment-with-locales.min.js') }}"></script>
-
-<script src="{{ url_for('static', filename='lib/chart.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='lib/hammer.min.js') }}"></script>
-<script src="{{ url_for('static', filename='lib/chartjs-plugin-zoom.min.js') }}"></script>
+<script src="{{ url_for('static', filename='lib/apexcharts.min.js') }}"></script>
 
 <script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
 <script src="{{ url_for('static', filename='js/console.js') }}"></script>
@@ -22,129 +18,162 @@
 {% block content %}
 <input type=hidden id="engine_id" value="{{ engine.id }}" />
 
-{% if engine.has_stopped() and request.referrer != request.url %}
-<p>
-    <a href="{{ request.referrer }}" class="btn btn-link btn-sm px-0">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
-</p>
-{% endif %}
-
-<h2 class="h5">Train a neural engine</h2>
-
-<div class="row my-4">
-    <div class="col-12">
-        <div class="jumbotron p-3 text-center">
-            {% if not engine.has_stopped() %}
-            <strong class="nn-name">{{ engine.name }}</strong> is training...
-
-            <div class="jumping-trees mt-2 text-success">
-                <i class="tree fas fa-tree" style="animation-delay: 0s;"></i>
-                <i class="tree fas fa-tree" style="animation-delay: 0.1s;"></i>
-                <i class="tree fas fa-tree" style="animation-delay: 0.3s;"></i>
-            </div>
-
-            <small>... and it has already used <span class="gpu-power">0</span>Wh <span class="power-reference"></span></small>
-            {% else %}
+<div class="row">
+    <div class="col-12 col-sm-8">
+        {% if engine.has_stopped() %}
+            <span class="badge badge-success">
                 {% if engine.status == "stopped" %}
-                    The training of <strong class="nn-name">{{ engine.name }}</strong> was stopped!
+                    Stopped
                 {% else %}
-                    The training of <strong class="nn-name">{{ engine.name }}</strong> has finished!
+                    Finished
                 {% endif %}
-            {% endif %}
-        </div>
-
-        <div class="row align-items-center">
-            <div class="col-6">
-                {% if engine.has_stopped() %}
-                It took {{ int(elapsed / 3600) }}h {{ int((elapsed % 3600) / 60) }}min {{ int(elapsed % 3600) % 60 }}s to train.
-                {% else %}
-                <span class="time-left" data-started="{{ launched }}" data-minutes="60"></span> left
-                <br />
-                Epoch <span class="epoch-no">1</span> out of {{ config['training']['epochs'] }}
-                {% endif %}
-            </div>
-
-            {% if not engine.has_stopped() %}
-            <div class="col-6 text-right">
-                <a href="{{ url_for('train.train_stop', id=engine.id) }}" class="btn btn-danger">Stop now</a>
-            </div>
-            {% endif %}
-        </div>
+            </span>
+        {% else %}
+            <span class="badge badge-warning">Training</span>
+        {% endif %}
+        <p>
+            <strong class="nn-name">{{ engine.name }}</strong>
+        </p>
 
         <div class="row">
-            <div class="col-12">
-                <h2 class="h5 mt-4">Loss</h2>
-                <div class="row">
-                    <div class="col-6 chart-col">
-                        <h3 class="h6 d-flex align-items-center justify-content-between">
-                            During training
-                            <button class="btn btn-outline-secondary border-0 fullscreen-button"><i class="fas fa-expand"></i></button>
-                            <button class="btn btn-outline-secondary border-0 fullscreen-close"><i class="fas fa-times"></i></button>
-                        </h3>
-
-                        <div class="chart-container">
-                            <canvas class="graph-batch-loss"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="col-6 chart-col">
-                        <h3 class="h6 d-flex align-items-center justify-content-between">
-                            During validation
-                            <button class="btn btn-outline-secondary border-0 fullscreen-button"><i class="fas fa-expand"></i></button>
-                            <button class="btn btn-outline-secondary border-0 fullscreen-close"><i class="fas fa-times"></i></button>
-                        </h3>
-                        <div class="chart-container">
-                            <canvas class="graph-valid-loss"></canvas>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-12 col-sm-4 col-md-3">
+                <div class="h6">Training</div>
+                {% for corpus in corpora['train'] %}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
+                        {{ corpus.name }}
+                    </a>
+                {% endfor %}
             </div>
-
-            <div class="col-6 chart-col">
-                <h2 class="h5 d-flex align-items-center justify-content-between">
-                    Attention
-                    <button class="btn btn-outline-secondary border-0 fullscreen-button"><i class="fas fa-expand"></i></button>
-                    <button class="btn btn-outline-secondary border-0 fullscreen-close"><i class="fas fa-times"></i></button>
-                </h2>
-                <img class="img-fluid" alt="" src="{{ url_for('train.train_attention', id=engine.id) }}" />
+            <div class="col-12 col-sm-4 col-md-3">
+                <div class="h6">Dev</div>
+                {% for corpus in corpora['dev'] %}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
+                        {{ corpus.name }}
+                    </a>
+                {% endfor %}
             </div>
-
-            <div class="col-6 chart-col">
-                <h2 class="h5 d-flex align-items-center justify-content-between">
-                    Learning rate
-                    <button class="btn btn-outline-secondary border-0 fullscreen-button"><i class="fas fa-expand"></i></button>
-                    <button class="btn btn-outline-secondary border-0 fullscreen-close"><i class="fas fa-times"></i></button>
-                </h2>
-                <div class="chart-container">
-                    <canvas class="graph-learning-rate"></canvas>
-                </div>
+            <div class="col-12 col-sm-4 col-md-3">
+                <div class="h6">Test</div>
+                {% for corpus in corpora['test'] %}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
+                        {{ corpus.name }}
+                    </a>
+                {% endfor %}
             </div>
         </div>
+    </div>
 
-        <div class="row mt-3">
-            <div class="col-12">
-                <h2 class="h5 mb-3">Training log</h2>
+    <div class="col-12 col-sm-4">
+        <div class="text-right">
+            {% if not engine.has_stopped() %}
+                <a href="{{ url_for('train.train_finish', id=engine.id) }}" class="btn btn-danger">
+                    <i class="far fa-stop-circle"></i> Stop
+                </a>
+            {% endif %}
+
+            {% if engine.has_stopped() %}
+                <div class="h2 mt-3 mb-0">
+                    {{ elapsed_format }}
+                </div>
+            {% else %}
+                <div class="h2 mt-3 mb-0">
+                    <span class="time-left" data-started="{{ launched }}" data-minutes="60"></span> 
+                </div>
+            {% endif %}
+
+            <div class="d-flex align-items-start justify-content-end">
+                <div class="mr-2">
+                    Epoch <span class="epoch-no">1</span> out of {{ config['training']['epochs'] }}
+                </div>
+
+                <div>
+                    <i class="fas fa-hourglass-start"></i>
+                </div>
             </div>
-            <div class="col-12">
-                <table class="table table-striped table-bordered log-table">
-                    <thead>
-                        <th>Time</th>
-                        <th>Epoch</th>
-                        <th>Step</th>
-                        <th>Batch Loss</th>
-                        <th>Tokens / s</th>
-                        <th>Learning rate</th>
-                    </thead>
-                </table>
+
+            <div class="d-flex align-items-start justify-content-end mt-3">
+                <div class="mr-2">
+                    <span class="gpu-power">0</span>Wh <br /> <span class="power-reference"></span>
+                </div>
+
+                <div class="text-warning">
+                    <i class="fas fa-bolt"></i>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<template id="log-entry-template">
-    <div class="log-group">
-        <div class="log-entry"></div>
+<div class="row mt-5">
+    <div class="col-12 mb-4">
+        <div class="d-flex align-items-center">
+            <div class="h3 mr-3">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </div>
+
+            <div class="ml-2 flex-grow-1">
+                <hr />
+            </div>
+        </div>
     </div>
-</template>
+
+    <div class="col-12 col-sm-6">
+        <div class="h6">
+            Loss in training
+        </div>
+
+        <div class="training-chart" data-tag="train/train_batch_loss"></div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="h6">
+            Loss in validation
+        </div>
+
+        <div class="training-chart" data-tag="valid/valid_loss"></div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="h6">
+            BLEU score
+        </div>
+
+        <div class="training-chart" data-tag="valid/valid_score"></div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="h6">
+            Learning rate
+        </div>
+
+        <div class="training-chart" data-tag="train/train_learning_rate"></div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="d-flex align-items-center">
+            <div class="h3 mr-3">
+                <i class="fas fa-clipboard-list"></i> Training log
+            </div>
+
+            <div class="ml-2 flex-grow-1">
+                <hr />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 mt-3">
+        <table class="table table-striped table-bordered log-table">
+            <thead>
+                <th>Time</th>
+                <th>Epoch</th>
+                <th>Step</th>
+                <th>Batch Loss</th>
+                <th>Tokens / s</th>
+                <th>Learning rate</th>
+            </thead>
+        </table>
+    </div>
+</div>
 {% endblock %}

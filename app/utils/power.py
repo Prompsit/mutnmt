@@ -35,4 +35,4 @@ class PowerUtils(object):
                 return generate_text(reference, value)
         else:
             texts = [generate_text(reference, value) for reference in PowerUtils.references]
-            return ", ".join(texts[:-1]) + " or " + texts[-1]
+            return texts

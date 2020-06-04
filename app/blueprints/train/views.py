@@ -113,29 +113,42 @@ def train_console(id):
     finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
     elapsed = (finished - launched) if engine.finished else None
 
+    corpora_raw = Corpus_Engine.query.filter_by(engine_id = engine.id, is_info = True).all()
+
+    corpora = {}
+    for corpus_entry in corpora_raw:
+        if corpus_entry.phase in corpora:
+            corpora[corpus_entry.phase].append(corpus_entry.corpus)
+        else:
+            corpora[corpus_entry.phase] = [corpus_entry.corpus]
+
+
     return render_template("train_console.html.jinja2", page_name="train",
             engine=engine, config=config,
             launched = launched, finished = finished,
-            elapsed = elapsed)
+            elapsed = elapsed, corpora=corpora, elapsed_format=utils.seconds_to_timestring(elapsed) if elapsed else None)
 
 @train_blueprint.route('/graph_data', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_graph():
     if user_utils.is_normal(): return jsonify([])
 
-    tag = request.form.get('tag')
+    tags = request.form.getlist('tags[]')
     id = request.form.get('id')
-    last = int(request.form.get('last'))
+    last_raw = request.form.get('last')
+    last = json.loads(last_raw)
 
     engine = Engine.query.filter_by(id=id).first()
-    data = tensor_utils.get_tag(id, tag)[last:250]
-    if data:
-        stats = { tag: [] }
-        for item in data:
-            stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
-        return jsonify({ "stopped": engine.has_stopped(), "stats": stats })
-    else:
-        return jsonify({ "stats": [], "stopped": False })
+
+    stats = {}
+    for tag in tags:
+        data = tensor_utils.get_tag(id, tag)
+        if data:
+            stats[tag] = []
+            for item in data:
+                stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
+
+    return jsonify({ "stopped": engine.has_stopped(), "stats": stats })
 
 @train_blueprint.route('/train_status', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

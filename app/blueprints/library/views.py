@@ -73,6 +73,7 @@ def library_engine(id):
     else:
         tps_value = "—"
     
+    time_elapsed = None
     if engine.launched and engine.finished:
         launched = datetime.timestamp(engine.launched)
         finished = datetime.timestamp(engine.finished) if engine.finished else None
@@ -85,8 +86,8 @@ def library_engine(id):
     else:
         time_elapsed_format = "—"
 
-    power = engine.power if engine.power else 0
-    power_references = PowerUtils.get_reference_text(power)
+    power = int(engine.power) if engine.power else 0
+    power_references = PowerUtils.get_reference_text(power, time_elapsed if time_elapsed else 3600)
     
     return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
             page_title = 'Detail', engine = engine, corpora = corpora, score = score, tps = tps_value, 
