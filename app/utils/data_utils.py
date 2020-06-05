@@ -1,7 +1,9 @@
 from app import app, db
 from app.utils import utils, user_utils
-from app.models import File, Corpus_File
+from app.models import File, Corpus_File, Corpus, User, LibraryCorpora
 from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.datastructures import FileStorage
+from lxml import etree
 
 import os
 import subprocess
@@ -10,7 +12,88 @@ import re
 import datetime
 import shutil
 
-def upload_file(file, language, selected_size=None, offset=None, user_id=None):
+def process_upload_request(user_id, bitext_file, src_file, trg_file, src_lang, trg_lang, corpus_name, corpus_desc):
+    type = "bitext" if bitext_file else "bilingual" if trg_file else "monolingual"
+
+    def process_file(file, language, corpus, role):
+        db_file = upload_file(file, language, user_id=user_id)
+
+        if role == "source":
+            corpus.source_id = language
+        else:
+            corpus.target_id = language
+        
+        db.session.add(db_file)
+        corpus.corpus_files.append(Corpus_File(db_file, role=role))
+
+        return db_file
+
+    def process_bitext(file):
+        file_name, file_extension = os.path.splitext(file.filename)
+        norm_name = utils.normname(user_id=user_id, filename=file_name)
+        tmp_file_fd, tmp_path = utils.tmpfile()
+        file.save(tmp_path)
+
+        if file_extension == ".tmx":
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
+            open(tmp_path, 'r') as tmx_file:
+                tmx = etree.parse(tmx_file, etree.XMLParser())
+                body = tmx.getroot().find("body")
+                for tu in body:
+                    for i, tuv in enumerate(tu):
+                        if i > 1: break
+                        line = tuv.find("seg").text.strip()
+                        dest_file = src_file if i == 0 else trg_file
+                        
+                        dest_file.write((line + '\n').encode('utf-8'))
+        else:
+            # We assume it is a TSV
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
+            open(tmp_path, 'r') as tmp_file:
+                for line in tmp_file:
+                    cols = line.strip().split('\t')
+                    src_file.write((cols[0] + '\n').encode('utf-8'))
+                    trg_file.write((cols[1] + '\n').encode('utf-8'))
+
+        src_file = open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'rb')
+        trg_file = open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'rb')
+
+        return FileStorage(src_file, filename=file.filename + "-src"), \
+                FileStorage(trg_file, filename=file.filename + "-trg")
+
+    # We create the corpus, retrieve the files and attach them to that corpus
+    target_db_file = None
+    try:
+        corpus = Corpus(name = corpus_name, type = type, 
+                    owner_id = user_id, description = corpus_desc)
+
+        if type == "bitext":
+            src_file, trg_file = process_bitext(bitext_file)
+    
+        source_db_file = process_file(src_file, src_lang, corpus, 'source')
+
+        if type == "bitext" or type == "bilingual":
+            target_db_file = process_file(trg_file, trg_lang, corpus, 'target')
+
+        db.session.add(corpus)
+
+        user = User.query.filter_by(id=user_id).first()
+        user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
+    except Exception as e:
+        raise Exception("Something went wrong on our end... Please, try again later")
+
+    if target_db_file:
+        source_lines = utils.file_length(source_db_file.path)
+        target_lines = utils.file_length(target_db_file.path)
+        
+        if source_lines != target_lines:
+            raise Exception("Source and target file should have the same length")
+
+    db.session.commit()
+
+def upload_file(file, language, format="text", selected_size=None, offset=None, user_id=None):
     user_id = user_id if user_id else user_utils.get_uid()
     norm_name = utils.normname(user_id=user_id, filename=file.filename)
     path = utils.filepath('FILES_FOLDER', norm_name)

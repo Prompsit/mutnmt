@@ -116,7 +116,8 @@ def library_corpora_feed():
 
     corpus_rows = []
     for corpus in user_library:
-        corpus_rows.append([corpus.id, corpus.name, corpus.source.name + corpus.target.name, 
+        corpus_rows.append([corpus.id, corpus.name, 
+                            corpus.source.name + corpus.target.name if corpus.target else corpus.source.name, 
                             corpus.lines(), corpus.words(), corpus.chars(),
                             corpus.uploaded()])
 
@@ -130,8 +131,11 @@ def library_corpora_feed():
     for row in corpus_rows:
         corpus = Corpus.query.filter_by(id=row[0]).first()
 
+        file_entries = corpus.corpus_files
+        file_entries.sort(key=lambda f: f.role)
+
         file_data = []
-        for file_entry in corpus.corpus_files:
+        for file_entry in file_entries:
             file = file_entry.file
             uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y")
             file_data.append([

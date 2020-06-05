@@ -34,28 +34,64 @@
                     </div>
 
                     <div class="form-group row">
-                        <div class="col-12 col-sm-6">
-                            <label for="source_file">Source file</label>
-                            <select class="custom-select mb-2 source_lang" name="source_lang">
-                                {% for language in languages %}
-                                    <option value="{{ language.code }}">{{ language.name }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-12 col-sm-8">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="source_lang">Source language</label>
+                                    <select class="custom-select mb-2 source_lang" name="source_lang">
+                                        {% for language in languages %}
+                                            <option value="{{ language.code }}">{{ language.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
 
-                            {% with file_dnd_id = "source_file" %}
-                                {% include "file-dnd.html.jinja2" %}
-                            {% endwith %}
+                                <div class="col-6 target-lang-col">
+                                    <label for="target_lang">Target language</label>
+                                    <select class="custom-select mb-2 target_lang" name="target_lang">
+                                        {% for language in languages %}
+                                            <option value="{{ language.code }}">{{ language.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-12 col-sm-8">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-2"><span class="badge badge-secondary">TEXT</span></div>
+                                        <div class="w-100 flex-grow-1"><hr /></div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label for="source_file">Source file</label>
+
+                                    {% with file_dnd_id = "source_file" %}
+                                        {% include "file-dnd.html.jinja2" %}
+                                    {% endwith %}
+                                </div>
+
+                                <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
+                                    <label for="target_file">Target file</label>
+
+                                    {% with file_dnd_id = "target_file" %}
+                                        {% include "file-dnd.html.jinja2" %}
+                                    {% endwith %}
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
-                            <label for="target_file">Target file</label>
-                            <select class="custom-select mb-2 target_lang" name="target_lang">
-                                {% for language in languages %}
-                                    <option value="{{ language.code }}">{{ language.name }}</option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-12 col-sm-4 bitext-col">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-2"><span class="badge badge-secondary">TSV/TMX</span></div>
+                                <div class="w-100 flex-grow-1"><hr /></div>
+                            </div>
 
-                            {% with file_dnd_id = "target_file" %}
+                            <label for="tmx_tsv_file">File</label>
+                            {% with file_dnd_id = "bitext_file" %}
                                 {% include "file-dnd.html.jinja2" %}
                             {% endwith %}
                         </div>
