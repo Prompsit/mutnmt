@@ -24,14 +24,13 @@ engines = [
     ["Transformer en-es", os.path.join(app.config['BASEDIR'], "preloaded/transformer-new"), "en", "es", '2020-03-04 13:19:44,096', '2020-03-05 04:05:19,946'],
     ["Transformer es-en", os.path.join(app.config['BASEDIR'], "preloaded/transformer-es-en-2"), "es", "en", '2020-03-04 13:19:44,096', '2020-03-05 04:05:19,946']
 ]
-e.launched = 
->>> e.finished = datetime.datetime.strptime(, '%Y-%m-%d %H:%M:%S,%f')
 
 def upgrade():
     for engine in engines:
         eng = Engine(name=engine[0], path=engine[1], source_id=engine[2], target_id=engine[3], public=True,
                         launched=datetime.datetime.strptime(engine[4], '%Y-%m-%d %H:%M:%S,%f'),
-                        finished=datetime.datetime.strptime(engine[5], '%Y-%m-%d %H:%M:%S,%f'))
+                        finished=datetime.datetime.strptime(engine[5], '%Y-%m-%d %H:%M:%S,%f'),
+                        status='finished')
         db.session.add(eng)
 
     db.session.commit()

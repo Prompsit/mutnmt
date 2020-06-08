@@ -191,7 +191,9 @@ $(document).ready(function() {
 
                         $(template).find(".detail-btn").attr("href", engine_data.engine_detail);
                         $(template).find(".detail-btn").removeClass("d-none");
-
+                        $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
+                        $(template).find(".summary-btn").removeClass("d-none");
+                        
                         if (public_mode) {
                             $(template).find(".grab-btn").attr("href", engine_data.engine_grab);
                             $(template).find(".grab-btn").removeClass("d-none");
@@ -204,9 +206,6 @@ $(document).ready(function() {
                                     $(template).find(".share-btn-btn").attr("href", engine_data.engine_share);
                                     $(template).find(".share-btn-btn").removeClass("d-none");
                                 }
-
-                                $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
-                                $(template).find(".summary-btn").removeClass("d-none");
 
                                 $(template).find(".delete-btn").attr("href", engine_data.engine_delete);
                                 $(template).find(".delete-btn").removeClass("d-none");

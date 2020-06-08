@@ -129,7 +129,7 @@ $(document).ready(function() {
         });
 
         // We don't keep longpolling if training is done
-        if (data.stopped) return false
+        if (data && data.stopped) return false
     }, true);
 
     /* Train status */
