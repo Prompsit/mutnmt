@@ -4,10 +4,14 @@
             <div class="d-flex">
                 <i class="fas fa-arrow-circle-up mr-2 h3"></i> 
                 <div>
-                    <p class="h3">Drag files to upload</p>
-                    <p class="h6">
-                        Or click to select files
-                    </p>
+                    {% if not file_dnd_small %}
+                        <p class="h3">Drag files to upload</p>
+                        <p class="h6">
+                            Or click to select files
+                        </p>
+                    {% else %}
+                        <p class="h4 mb-0">Drag or select files</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

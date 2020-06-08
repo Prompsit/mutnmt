@@ -57,8 +57,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
-                        <div class="col-12 col-sm-8">
+                    <div class="form-group row upload-files">
+                        <div class="col-12 col-sm-8 text-col">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="d-flex align-items-center">
@@ -69,7 +69,7 @@
                                 <div class="col-12 col-sm-6">
                                     <label for="source_file">Source file</label>
 
-                                    {% with file_dnd_id = "source_file" %}
+                                    {% with file_dnd_id = "source_file", file_dnd_small = True %}
                                         {% include "file-dnd.html.jinja2" %}
                                     {% endwith %}
                                 </div>
@@ -77,21 +77,21 @@
                                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
                                     <label for="target_file">Target file</label>
 
-                                    {% with file_dnd_id = "target_file" %}
+                                    {% with file_dnd_id = "target_file", file_dnd_small = True %}
                                         {% include "file-dnd.html.jinja2" %}
                                     {% endwith %}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-12 col-sm-4 bitext-col">
+                        <div class="col-12 col-sm-8 bitext-col mt-2">
                             <div class="d-flex align-items-center">
                                 <div class="mr-2"><span class="badge badge-secondary">TSV/TMX</span></div>
                                 <div class="w-100 flex-grow-1"><hr /></div>
                             </div>
 
                             <label for="tmx_tsv_file">File</label>
-                            {% with file_dnd_id = "bitext_file" %}
+                            {% with file_dnd_id = "bitext_file", file_dnd_small = True %}
                                 {% include "file-dnd.html.jinja2" %}
                             {% endwith %}
                         </div>

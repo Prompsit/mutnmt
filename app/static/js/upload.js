@@ -27,6 +27,16 @@ $(document).ready(function() {
         drag_callback($(".bitext_file"), file)
     });
 
+    $('.text-col, .bitext-col').on('mouseenter', function() {
+        let other = $('.text-col, .bitext-col').not(this);
+        $(other).addClass('target-col-disabled')
+    });
+
+    $('.text-col, .bitext-col').on('mouseleave', function() {
+        let other = $('.text-col, .bitext-col').not(this);
+        $(other).removeClass('target-col-disabled')
+    });
+
     $(".bitext_file").on('click', function() {
         file_source = null;
         file_target = null;
