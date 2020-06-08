@@ -17,13 +17,19 @@ RUN apt-get update -q --fix-missing && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install \
 			python3 \
                         python3-dev \
+                        autossh \
                         gcc \
                         redis \
                         virtualenv \
                         curl \
                         libreoffice \
                         libxml2-utils \
-                        tzdata && \
+                        tzdata \
+                        cmake \
+                        git \
+                        build-essential \
+                        pkg-config \
+                        libgoogle-perftools-dev && \
     apt-get autoremove -y && \
     apt-get autoclean
 

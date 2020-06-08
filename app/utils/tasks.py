@@ -45,6 +45,12 @@ def launch_training(self, user_id, engine_path, params):
     engine = Engine(path = engine_path)
     used_corpora = {}
 
+    try:
+        os.mkdir(engine_path)
+    except:
+        Flash.issue("The engine could not be created", Flash.ERROR)
+        return url_for('train.train_index', id=id)
+
     def join_corpora(list_name, phase):
         corpus = Corpus(owner_id=user_id, visible=False)
         for train_corpus in params[list_name]:
@@ -80,7 +86,6 @@ def launch_training(self, user_id, engine_path, params):
         # We put the contents of the several files in a new single one, and we shuffle the sentences
         try:
             data_utils.join_corpus_files(corpus, shuffle=True, user_id=user_id)
-            data_utils.tokenize(corpus)
         except:
             db.session.delete(corpus)
             db.session.commit()
@@ -92,6 +97,14 @@ def launch_training(self, user_id, engine_path, params):
         train_corpus = join_corpora('training[]', phase="train")
         dev_corpus = join_corpora('dev[]', phase="dev")
         test_corpus = join_corpora('test[]', phase="test")
+
+        # We train a SentencePiece model using the training corpus and we tokenize
+        # everything with that. We save the model in the engine folder to tokenize
+        # translation input later
+        data_utils.train_tokenizer(engine, train_corpus, params['vocabularySize'])
+        data_utils.tokenize(train_corpus, engine)
+        data_utils.tokenize(dev_corpus, engine)
+        data_utils.tokenize(test_corpus, engine)
 
         engine.name = params['nameText']
         engine.description = params['descriptionText']
@@ -108,12 +121,6 @@ def launch_training(self, user_id, engine_path, params):
 
         user = User.query.filter_by(id = user_id).first()
         user.user_engines.append(LibraryEngine(engine=engine, user=user))
-
-        try:
-            os.mkdir(engine_path)
-        except:
-            Flash.issue("The engine could not be created", Flash.ERROR)
-            return url_for('train.train_index', id=id)
 
         config_file_path = os.path.join(engine.path, 'config.yaml')
 
@@ -154,16 +161,9 @@ def launch_training(self, user_id, engine_path, params):
             raise Exception 
 
         # Get vocabulary
-        vocabulary_path = os.path.join(app.config['FILES_FOLDER'], 'mut.{}.vocab'.format(train_corpus.id))
-        final_vocabulary_path = os.path.join(engine.path, "train.vocab")
-
-        extract_vocabulary = subprocess.Popen("cat {} | head -n {} > {}".format(vocabulary_path, params['vocabularySize'], final_vocabulary_path),
-                                shell=True)
-
-        extract_vocabulary.wait()
-
-        config["data"]["src_vocab"] = final_vocabulary_path
-        config["data"]["trg_vocab"] = final_vocabulary_path
+        vocabulary_path = os.path.join(engine.path, "train.vocab")
+        config["data"]["src_vocab"] = vocabulary_path
+        config["data"]["trg_vocab"] = vocabulary_path
 
         config["name"] = engine.name
         config["training"]["epochs"] = int(params['epochsText'])

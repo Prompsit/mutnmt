@@ -223,24 +223,29 @@ def join_corpus_files(corpus, shuffle=False, user_id=None):
 
     return corpus
 
-def tokenize(corpus):
-    model_path = utils.filepath('FILES_FOLDER', 'mut.{}.model'.format(corpus.id))
-    vocab_path = utils.filepath('FILES_FOLDER', 'mut.{}.vocab'.format(corpus.id))
+def train_tokenizer(engine, corpus, vocabularySize=32000):
+    model_path = os.path.join(engine.path, 'train.model')
+    vocab_path = os.path.join(engine.path, 'train.vocab')
 
     try:
         os.stat(model_path)
+        os.stat(vocab_path)
     except:
         files_list = []
         for file_entry in corpus.corpus_files:
             files_list.append(file_entry.file.path)
         files = " ".join(files_list)
-        random_sample_path = "{}.mut.10k".format(corpus.id)
-        cat_proc = subprocess.Popen("cat {} | shuf | head -n 10000 > {}".format(files, random_sample_path), shell=True)
+        random_sample_path = utils.tmpfile(filename="{}.mut.10m".format(corpus.id))
+        cat_proc = subprocess.Popen("cat {} | shuf | head -n 10000000 > {}".format(files, random_sample_path), shell=True)
         cat_proc.wait()
 
-        spm.SentencePieceTrainer.Train("--input={} --model_prefix=mut.{} --vocab_size=32000 --hard_vocab_limit=false".format(random_sample_path, corpus.id))
-        shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.model".format(corpus.id)), model_path)
-        shutil.move(utils.filepath('MUTNMT_FOLDER', "mut.{}.vocab".format(corpus.id)), vocab_path)
+        train_proc = subprocess.Popen("spm_train --input={} --model_prefix=mut.{} --vocab_size={} --hard_vocab_limit=false" \
+                        .format(random_sample_path, corpus.id, vocabularySize),
+                        cwd=utils.filepath('TMP_FOLDER'), shell=True)
+        train_proc.wait()
+
+        shutil.move(utils.filepath('TMP_FOLDER', "mut.{}.model".format(corpus.id)), model_path)
+        shutil.move(utils.filepath('TMP_FOLDER', "mut.{}.vocab".format(corpus.id)), vocab_path)
         os.remove(random_sample_path)
         
         purge_vocab = subprocess.Popen("cat {} | awk -F '\\t' '{{ print $1 }}' > {}.purged".format(vocab_path, vocab_path), shell=True)
@@ -248,6 +253,11 @@ def tokenize(corpus):
 
         os.remove(vocab_path)
         shutil.move("{}.purged".format(vocab_path), vocab_path)
+
+    return model_path, vocab_path
+
+def tokenize(corpus, engine):
+    model_path, vocab_path = os.path.join(engine.path, 'train.model'), os.path.join(engine.path, 'train.vocab')
 
     for entry_file in corpus.corpus_files:
         file_tok_path = '{}.mut.spe'.format(entry_file.file.path)
