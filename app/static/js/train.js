@@ -1,10 +1,8 @@
 // Each sentence makes the counter advance this amount of pixels.
 // Basically, (min indicator top offset / min sentences amount)
-const min_amount = 10000;
-const max_amount = 500000;
-const pxps = 50 / min_amount;
-const pxps_am = ($(".area-value-max").offset().top - $(".area-value-min").offset().top) / (max_amount - min_amount);
-const threshold = min_amount * 0.15; // If the current sentence amount is min * threshold, almost there
+
+const min_amounts = { training: 10000, dev: 1000, test: 1000 };
+const max_amounts = { training: 500000, dev: 5000, test: 5000 };
 
 let corpora_stacks = {
     training: { sentences: 0, corpora: [] },
@@ -27,6 +25,14 @@ let sentences_amount = (amount) => {
 }
 
 let draw_stack = (stacks, tag, container) => {
+    let min_amount = min_amounts[tag];
+    let max_amount = max_amounts[tag];
+    const pxps = 50 / min_amount;
+    const pxps_am = ($(container).find(".area-value-max").offset().top - $(container).find(".area-value-min").offset().top) / (max_amount - min_amount);
+    const threshold = min_amount * 0.15; // If the current sentence amount is min * threshold, almost there
+
+    console.log(tag, min_amount, max_amount, pxps, pxps_am, threshold)
+
     let stack = stacks[tag];
     $(container).find(".area-value-current").html(sentences_amount(stack.sentences));
 
@@ -118,7 +124,7 @@ $(document).ready(function() {
                     let lines = $(this).attr("data-corpus-lines")
                     let selected_lines = parseInt($(this).closest(".input-group").find(".corpus-selector-lines").val());
 
-                    if (corpora_stacks[corpus_type].sentences + selected_lines <= max_amount) {
+                    if (corpora_stacks[corpus_type].sentences + selected_lines <= max_amounts[corpus_type]) {
                         corpora_stacks[corpus_type].sentences += selected_lines;
                         corpora_stacks[corpus_type].corpora.push({ 
                             id: corpus_id,
