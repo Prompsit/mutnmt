@@ -164,11 +164,12 @@ def launch_training(self, user_id, engine_path, params):
         vocabulary_path = os.path.join(engine.path, "train.vocab")
         config["data"]["src_vocab"] = vocabulary_path
         config["data"]["trg_vocab"] = vocabulary_path
-
+        
         config["name"] = engine.name
         config["training"]["epochs"] = int(params['epochsText'])
         config["training"]["patience"] = int(params['patienceTxt'])
         config["training"]["batch_size"] = int(params['batchSizeTxt'])
+        config["training"]["validation_freq"] = int(params['validationFreq'])
 
         with open(config_file_path, 'w') as config_file:
             yaml.dump(config, config_file)

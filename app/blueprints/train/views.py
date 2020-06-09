@@ -241,12 +241,22 @@ def train_stats():
     else:
         time_elapsed_format = "—"
 
+    val_freq = None
+    config_file_path = os.path.join(engine.path, 'config.yaml')
+    with open(config_file_path, 'r') as config_file:
+        config = yaml.load(config_file, Loader=yaml.FullLoader)
+        val_freq = config["training"]["validation_freq"]
+
+    vocab_size = utils.file_length(os.path.join(engine.path, 'train.vocab'))
+
     return jsonify({
         "result": 200, 
         "data": {
             "time_elapsed": time_elapsed_format,
             "tps": tps_value,
-            "score": score
+            "score": score,
+            "validation_freq": val_freq,
+            "vocab_size": vocab_size
         }
     })
 

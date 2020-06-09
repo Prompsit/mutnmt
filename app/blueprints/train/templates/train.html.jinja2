@@ -54,7 +54,7 @@
 
                 <div class="form-group col-12 col-sm-6">
                     <div class="d-flex justify-content-between align-items-center">
-                        <label class="col-form-label h6">Patience</label>
+                        <label class="col-form-label h6">Stopping condition</label>
                         <a href="#" class="text-dark">
                             <i class="far fa-question-circle"></i>
                         </a>
@@ -67,22 +67,32 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-6">
+                <div class="form-group col-12 col-sm-4">
                     <label for="layer_3_n" class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
-                        <input type="number" name="vocabularySize" class="form-control" value="2000" min="1" max="32000" />
+                        <input type="number" name="vocabularySize" class="form-control" value="16000" min="16000" max="32000" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">words</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-6">
+                <div class="form-group col-12 col-sm-4">
                     <label class="col-form-label h6">Batch size</label>
                     <div class="input-group">
                         <input type="number" name="batchSizeTxt" class="form-control" value="6000" min="1" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">tokens</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-4">
+                    <label class="col-form-label h6">Validation frequency</label>
+                    <div class="input-group">
+                        <input type="number" name="validationFreq" class="form-control" value="1000" min="10" />
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">steps</div>
                         </div>
                     </div>
                 </div>

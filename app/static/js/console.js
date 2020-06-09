@@ -170,6 +170,8 @@ $(document).ready(function() {
                 $(".time-container").html(data.data.time_elapsed);
                 $(".score-container").html(data.data.score + " BLEU");
                 $(".tps-container").html(data.data.tps);
+                $(".vocabulary-size-container").html(data.data.vocab_size);
+                $(".validation-freq-container").html(data.data.validation_freq);
             })
 
             return false;
