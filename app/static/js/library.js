@@ -189,8 +189,6 @@ $(document).ready(function() {
 
                         $(template).find(".export-btn").attr("href", engine_data.engine_export);
 
-                        $(template).find(".detail-btn").attr("href", engine_data.engine_detail);
-                        $(template).find(".detail-btn").removeClass("d-none");
                         $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
                         $(template).find(".summary-btn").removeClass("d-none");
                         

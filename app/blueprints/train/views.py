@@ -12,6 +12,7 @@ import namegenerator
 import datetime
 from werkzeug.datastructures import FileStorage
 from celery.result import AsyncResult
+from functools import reduce
 
 import hashlib
 import os
@@ -196,6 +197,58 @@ def train_status():
         return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "power": int(power_wh), "power_reference": power_reference })
     else:
         return jsonify({ "stats": [], "stopped": False })
+
+@train_blueprint.route('/train_stats', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_stats():
+    engine_id = request.form.get('id')
+    engine = Engine.query.filter_by(id=engine_id).first()
+
+    training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
+    validation_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s(\w|\s|\(|\))+(\d+),\s+step\s*(\d+):\s+bleu:\s+(\d+\.\d+),\s+loss:\s+(\d+\.\d+),\s+ppl:\s+(\d+\.\d+),\s+duration:\s+(\d+.\d+)s$'
+    re_flags = re.IGNORECASE | re.UNICODE
+
+    score = 0.0
+    tps = []
+    with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
+        for line in log_file:
+            groups = re.search(training_regex, line, flags=re_flags)
+            if groups:
+                tps.append(float(groups[6]))
+            else:
+                # It was not a training line, could be validation
+                groups = re.search(validation_regex, line, flags=re_flags)
+                if groups:
+                    bleu_score = float(groups[6])
+                    score = bleu_score if bleu_score > score else score
+
+    if len(tps) > 0:
+        tps_value = reduce(lambda a, b: a + b, tps)
+        tps_value = round(tps_value / len(tps))
+    else:
+        tps_value = "—"
+    
+    time_elapsed = None
+    if engine.launched and engine.finished:
+        launched = datetime.datetime.timestamp(engine.launched)
+        finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
+        time_elapsed = (finished - launched) if engine.finished else None # seconds
+
+        if time_elapsed:
+            time_elapsed_format = utils.seconds_to_timestring(time_elapsed)
+        else:
+            time_elapsed_format = "—"
+    else:
+        time_elapsed_format = "—"
+
+    return jsonify({
+        "result": 200, 
+        "data": {
+            "time_elapsed": time_elapsed_format,
+            "tps": tps_value,
+            "score": score
+        }
+    })
 
 @train_blueprint.route('/log', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

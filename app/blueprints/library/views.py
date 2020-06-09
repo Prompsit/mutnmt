@@ -43,56 +43,6 @@ def library_engines():
     return render_template('library_engines.html.jinja2', page_name = 'library_engines', page_title = 'Engines',
             user_library = user_library, public_engines = public_engines)
 
-@library_blueprint.route('/engine/<int:id>')
-def library_engine(id):
-    engine = Engine.query.filter_by(id=id).first()
-    corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=True).all()
-
-    training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
-    validation_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s(\w|\s|\(|\))+(\d+),\s+step\s*(\d+):\s+bleu:\s+(\d+\.\d+),\s+loss:\s+(\d+\.\d+),\s+ppl:\s+(\d+\.\d+),\s+duration:\s+(\d+.\d+)s$'
-    re_flags = re.IGNORECASE | re.UNICODE
-
-    score = 0.0
-    tps = []
-    with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
-
-        for line in log_file:
-            groups = re.search(training_regex, line, flags=re_flags)
-            if groups:
-                tps.append(float(groups[6]))
-            else:
-                # It was not a training line, could be validation
-                groups = re.search(validation_regex, line, flags=re_flags)
-                if groups:
-                    bleu_score = float(groups[6])
-                    score = bleu_score if bleu_score > score else score
-
-    if len(tps) > 0:
-        tps_value = reduce(lambda a, b: a + b, tps)
-        tps_value = round(tps_value / len(tps))
-    else:
-        tps_value = "—"
-    
-    time_elapsed = None
-    if engine.launched and engine.finished:
-        launched = datetime.timestamp(engine.launched)
-        finished = datetime.timestamp(engine.finished) if engine.finished else None
-        time_elapsed = (finished - launched) if engine.finished else None # seconds
-
-        if time_elapsed:
-            time_elapsed_format = utils.seconds_to_timestring(time_elapsed)
-        else:
-            time_elapsed_format = "—"
-    else:
-        time_elapsed_format = "—"
-
-    power = int(engine.power) if engine.power else 0
-    power_references = PowerUtils.get_reference_text(power, time_elapsed if time_elapsed else 3600)
-    
-    return render_template('library_engine_details.html.jinja2', page_name = 'library_engines_detail',
-            page_title = 'Detail', engine = engine, corpora = corpora, score = score, tps = tps_value, 
-            time_elapsed = time_elapsed_format, power = power)
-
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():
     public = request.form.get('public') == "true"
@@ -243,7 +193,6 @@ def library_engines_feed():
                                 "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
                                 "engine_public": engine.public,
                                 "engine_share": url_for('library.library_share_toggle', type = "library_engines", id = engine.id),
-                                "engine_detail": url_for('library.library_engine', id = engine.id),
                                 "engine_summary": url_for('train.train_console', id = engine.id),
                                 "engine_delete": url_for('library.library_delete', id = engine.id, type = "library_engines"),
                                 "engine_grab": url_for('library.library_grab', id = engine.id, type = "library_engines"),

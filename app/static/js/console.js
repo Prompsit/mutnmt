@@ -161,7 +161,19 @@ $(document).ready(function() {
 
         // We don't keep longpolling if training is done
         engine_stopped = data.stopped
-        if (data.stopped) return false
+        if (data.stopped) {
+            $.ajax({
+                url: '../train_stats',
+                method: 'post',
+                data: { id: engine_id }
+            }).done(function(data) {
+                $(".time-container").html(data.data.time_elapsed);
+                $(".score-container").html(data.data.score + " BLEU");
+                $(".tps-container").html(data.data.tps);
+            })
+
+            return false;
+        }
     }, true);
 
     /* Train log */
