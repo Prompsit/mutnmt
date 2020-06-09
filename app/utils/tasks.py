@@ -343,7 +343,7 @@ def inspect_compare(self, user_id, engines, text):
 # EVALUATE TASKS
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 @celery.task(bind=True)
-def evaluate_files(self, user_id, mt_path, ht_path):
+def evaluate_files(self, user_id, mt_path, ht_path, source_path=None):
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
     for minfo in pkgutil.iter_modules([app.config['EVALUATORS_FOLDER']]):
@@ -366,7 +366,7 @@ def evaluate_files(self, user_id, mt_path, ht_path):
             # we just skip it for now
             pass
 
-    spl_result = spl(user_id, mt_path, ht_path)
+    spl_result = spl(user_id, mt_path, ht_path, source_path)
     xlsx_file_path = generate_xlsx(user_id, spl_result)
 
     os.remove(mt_path)
@@ -378,7 +378,7 @@ def evaluate_files(self, user_id, mt_path, ht_path):
 
     return { "result": 200, "metrics": metrics, "spl": spl_result, "xlsx_url": xlsx_file_path }
 
-def spl(user_id, mt_path, ht_path):
+def spl(user_id, mt_path, ht_path, source_path):
     # Scores per line (bleu and ter)
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
                         cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
@@ -388,17 +388,34 @@ def spl(user_id, mt_path, ht_path):
 
     line_number = 1
     per_line = []
+    source_file = open(source_path, 'r') if source_path else None
     for line in bpl_result.stdout:
         line = line.decode("utf-8")
-        per_line.append([line_number] + [i.strip() for i in re.split(r'\t', line)])
+        score_result = [i.strip() for i in re.split(r'\t', line)]
+
+        # This appends line number, machine and human translations
+        line_data = [line_number]
+
+        # If we have a source file, we add the source text
+        if source_file:
+            line_data = line_data + [source_file.readline().strip()]
+
+        # Machine and human translations
+        line_data = line_data + [score_result[0], score_result[1]]
+
+        # And then, bleu
+        line_data = line_data + [score_result[2]]
+
+        per_line.append(line_data)
         line_number += 1
 
+    if source_file: source_file.close()
     os.remove("{}.bpl".format(mt_path))
 
     rows = []
     for row in per_line:
-        ht_line = row[2].strip()
-        mt_line = row[1].strip()
+        ht_line = row[3 if source_file else 2].strip()
+        mt_line = row[2 if source_file else 1].strip()
         if ht_line and mt_line:
             ter = round(pyter.ter(ht_line.split(), mt_line.split()), 2)
             rows.append(row + [100 if ter > 1 else (ter * 100)])
