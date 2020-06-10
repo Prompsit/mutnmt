@@ -29,25 +29,34 @@ def evaluate_download(name):
 @evaluate_blueprint.route('/evaluate_files', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def evaluate_files():
-    mt_file = request.files.get('mt_file')
+    mt_files = request.files.getlist('mt_files[]')
     ht_file = request.files.get('ht_file')
     source_file = request.files.get('source_file')
     
-    mt_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), mt_file.filename))
     ht_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), ht_file.filename))
-
-    mt_file.save(mt_path)
     ht_file.save(ht_path)
+
+    line_length = utils.file_length(ht_path)
+
+    mt_paths = []
+    for mt_file in mt_files:
+        mt_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), mt_file.filename))
+        mt_file.save(mt_path)
+
+        if utils.file_length(ht_path) != line_length:
+            return ({ "result": "-1" })
+
+        mt_paths.append(mt_path)
 
     if source_file:
         source_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), source_file.filename))
         source_file.save(source_path)
     
-    if utils.file_length(mt_path) != utils.file_length(ht_path) and utils.file_length(mt_file) != utils.file_length(source_path):
-        return ({ "result": "-1" })
+        if utils.file_length(ht_path) != utils.file_length(source_path):
+            return ({ "result": "-1" })
 
-    task = tasks.evaluate_files.apply_async(args=[user_utils.get_uid(), mt_path, ht_path], kwargs={'source_path': source_path if source_file else None})
-    return task.id
+    task = tasks.evaluate_files.apply_async(args=[user_utils.get_uid(), mt_paths, ht_path], kwargs={'source_path': source_path if source_file else None})
+    return ({ "result": 200, "task_id": task.id })
 
 @evaluate_blueprint.route('/get_evaluation', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

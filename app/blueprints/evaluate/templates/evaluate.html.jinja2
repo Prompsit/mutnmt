@@ -19,21 +19,13 @@
 
 <form action="{{ url_for('evaluate.evaluate_files') }}" method="post" enctype="multipart/form-data" class="evaluate-form">
     <div class="row mt-3">
-        <div class="col-sm col-12">
-            <h2 class="h6">Machine translation</h2>
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="mt_file" name="mt_file" required>
-                <label class="custom-file-label" for="mt_file">Choose file</label>
-            </div>
+        <div class="col-sm-12 col-12 source-text-control">
+            <a href="#" class="btn btn-link pl-0">
+                <i class="fas fa-plus"></i> Source text
+            </a>
         </div>
-        <div class="col-sm col-12 mt-4 mt-sm-0">
-            <h2 class="h6">Human translation</h2>
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ht_file" name="ht_file" required>
-                <label class="custom-file-label" for="ht_file">Choose file</label>
-            </div>
-        </div>
-        <div class="col-sm-4 col-12 mt-4 mt-sm-0 source-text-content d-none">
+
+        <div class="col-sm col-12 mt-4 mt-sm-0 source-text-content d-none">
             <div class="d-flex justify-content-between">
                 <h2 class="h6">Source text</h2>
                 <a href="#" class="source-text-close" title="Remove source text">
@@ -46,14 +38,32 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-12 text-right source-text-control mt-4">
-            <a href="#" class="btn btn-link pr-0">
-                <i class="fas fa-plus"></i> Source text
-            </a>
+        <div class="col-sm col-12">
+            <h2 class="h6">Machine translation</h2>
+
+            <div class="mt-file-container">
+                <div class="d-flex align-items-start">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input mt_file" id="mt_file" name="mt_file" required>
+                        <label class="custom-file-label" for="mt_file">Choose file</label>
+                    </div>
+                    
+                    <a href="#" class="add-mt-btn ml-3" title="Add MT file">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm col-12 mt-4 mt-sm-0">
+            <h2 class="h6">Human translation</h2>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="ht_file" name="ht_file" required>
+                <label class="custom-file-label" for="ht_file">Choose file</label>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-1">
+    <div class="row mt-4">
         <div class="col-12 sides-decoration text-center">
             <div class="bg-white px-2 d-inline-block">
                 <input type=submit class="btn btn-primary" value="Evaluate" />
@@ -94,28 +104,53 @@
         <div></div>
     </div>
     <div class="mb-4">
-        <table class="table table-striped table-bordered score-table bleu-line-source d-none">
+        <table class="table table-striped table-bordered score-table bleu-line">
             <thead>
-                <th>Line</th>
-                <th>Source text</th>
-                <th>Machine translation</th>
-                <th>Human translation</th>
-                <th>Bleu</th>
-                <th>TER</th>
-            </thead>
-        </table>
-
-        <table class="table table-striped table-bordered score-table bleu-line d-none">
-            <thead>
-                <th>Line</th>
-                <th>Machine translation</th>
-                <th>Human translation</th>
-                <th>Bleu</th>
+                <th>Line <span class="score-table-line-no"></span></th>
+                <th>Sentence</th>
+                <th>BLEU</th>
                 <th>TER</th>
             </thead>
         </table>
     </div>
 </div>
+
+<template id="sentences-view-template">
+    <tr>
+        <td class="overflow"><strong>Source</strong></td>
+        <td class="sentences-view-source overflow"></td>
+        <td></td>
+        <td ></td>
+    </tr>
+</template>
+
+<template id="sentences-view-mt-template">
+    <tr>
+        <td class="overflow"><strong>Machine translation</strong></td>
+        <td class="sentences-view-mt overflow"></td>
+        <td class="sentences-view-bleu"></td>
+        <td class="sentences-view-ter"></td>
+    </tr>
+</template>
+
+<template id="mt-file-template">
+    <div class="mt-4 d-flex align-items-center mt-file-row">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input mt_file" id="" name="" required>
+            <label class="custom-file-label" for="">Choose file</label>
+        </div>
+
+        <a href="#" class="remove-mt-btn ml-3">
+            <i class="fas fa-times"></i>
+        </a>
+    </div>
+</template>
+
+<template id="metric-title-template">
+    <div class="col-12 mb-3">
+        <div class="h6 metric-title"></div>
+    </div>
+</template>
 
 <template id="metric-template">
     <div class="col-12 col-sm-4 text-center mb-4">
