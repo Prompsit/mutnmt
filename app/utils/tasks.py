@@ -501,7 +501,7 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
     # We create the corpus, retrieve the files and attach them to that corpus
     target_db_file = None
     try:
-        corpus = Corpus(name = corpus_name, type = type, 
+        corpus = Corpus(name = corpus_name, type = "bilingual" if type == "bitext" else type, 
                     owner_id = user_id, description = corpus_desc)
 
         if type == "bitext":
