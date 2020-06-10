@@ -12,7 +12,7 @@
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
-
+<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
 <script src="{{ url_for('static', filename='js/file-dnd.js') }}"></script>
 <script src="{{ url_for('static', filename='js/upload.js') }}"></script>
 <script src="{{ url_for('static', filename='js/library.js') }}"></script>

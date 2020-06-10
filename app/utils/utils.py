@@ -93,5 +93,7 @@ def get_task_result(task, task_id):
     result = task.AsyncResult(task_id)
     if result and result.status == "SUCCESS":
         return result.get()
+    elif result and result.status == "FAILURE":
+        return -1
     else:
         return None

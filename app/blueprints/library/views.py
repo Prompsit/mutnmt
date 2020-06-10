@@ -59,15 +59,15 @@ def library_corpora_feed():
 
     draw = int(request.form.get('draw'))
     search = request.form.get('search[value]')
-    start = request.form.get('start')
-    length = request.form.get('length')
+    start = int(request.form.get('start'))
+    length = int(request.form.get('length'))
     order = int(request.form.get('order[0][column]'))
     dir = request.form.get('order[0][dir]')
 
     corpus_rows = []
     for corpus in user_library:
         corpus_rows.append([corpus.id, corpus.name, 
-                            corpus.source.name + corpus.target.name if corpus.target else corpus.source.name, 
+                            corpus.source.name + (corpus.target.name if corpus.target else ""), 
                             corpus.lines(), corpus.words(), corpus.chars(),
                             corpus.uploaded()])
 
@@ -87,6 +87,7 @@ def library_corpora_feed():
         file_data = []
         for file_entry in file_entries:
             file = file_entry.file
+
             uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y")
             file_data.append([
                 file.id,
@@ -116,6 +117,7 @@ def library_corpora_feed():
                 }
             ])
 
+
         if search:
             found = False
             for col in row + file_data:
@@ -129,6 +131,10 @@ def library_corpora_feed():
 
         recordsTotal += 1
 
+    if start is not None and length is not None:
+        corpus_data = corpus_data[start:(start + length)]
+
+
     return jsonify({
             "draw": draw + 1,
             "recordsTotal": recordsTotal,
@@ -136,44 +142,6 @@ def library_corpora_feed():
             "data": corpus_data
         })
 
-    """
-    dt = datatables.Datatables(draw=int(request.form.get('draw')))
-    rows, rows_filtered, search = [], [], None
-
-    corpus_data = []
-    for corpus in user_library:
-        columns = [File.id, File.name, File.language_id, File.lines, File.words, File.chars, File.uploaded]
-
-        rows, rows_filtered, search = dt.parse(File, columns, request, File.corpora.any(Corpus_File.corpus_id == corpus.id))
-
-        for file in (rows_filtered if search else rows):
-            uploaded_date = datetime.fromtimestamp(datetime.timestamp(file.uploaded)).strftime("%d/%m/%Y")
-            corpus_data.append([file.id, file.name, file.language.name, 
-                                utils.format_number(file.lines), 
-                                utils.format_number(file.words), 
-                                utils.format_number(file.chars), 
-                                uploaded_date,
-                                {
-                                    "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
-                                    "corpus_uploader": file.uploader.username if file.uploader else "MutNMT",
-                                    "corpus_id": corpus.id,
-                                    "corpus_name": corpus.name,
-                                    "corpus_description": corpus.description,
-                                    "corpus_source": corpus.source.name,
-                                    "corpus_target": corpus.target.name if corpus.target else "",
-                                    "corpus_public": corpus.public,
-                                    "corpus_size": corpus.corpus_files[0].file.lines,
-                                    "corpus_preview": url_for('library.corpora_preview', id = corpus.id),
-                                    "corpus_share": url_for('library.library_share_toggle', type = 'library_corpora', id = corpus.id),
-                                    "corpus_delete": url_for('library.library_delete', id = corpus.id, type = 'library_corpora'),
-                                    "corpus_grab": url_for('library.library_grab', id = corpus.id, type = 'library_corpora'),
-                                    "corpus_ungrab": url_for('library.library_ungrab', id = corpus.id, type = 'library_corpora'),
-                                    "corpus_export": url_for('library.library_export', id= corpus.id, type = "library_corpora"),
-                                    "file_preview": url_for('data.data_preview', file_id=file.id)
-                                }])
-
-    return dt.response(rows, rows_filtered, corpus_data)
-    """
 @library_blueprint.route('/engines_feed', methods=["POST"])
 def library_engines_feed():
     public = request.form.get('public') == "true"

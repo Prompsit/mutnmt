@@ -94,9 +94,23 @@ $(document).ready(function() {
             contentType: false,
             cache: false,
             processData: false,
-            success: function(url) {
+            success: function(data) {
                 force_quit = true;
-                window.location.href = url
+                if (data.result == 200) {
+                    longpoll(3000, {
+                        url: '/data/upload_status',
+                        method: 'post',
+                        data: { task_id: data.task_id }
+                    }, function(data) {
+                        if (data.result == 200) {
+                            window.location.href = window.location.href;
+                        } else if (data.result == -2) {
+                            window.location.href = window.location.href;
+                        }
+                    });
+                } else {
+                    window.location.href = window.location.href;
+                }
             }
         });
 

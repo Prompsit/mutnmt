@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import File, Corpus, Corpus_File, LibraryCorpora, User, Language
-from app.utils import utils, user_utils, data_utils
+from app.utils import utils, user_utils, data_utils, tasks
 from app.flash import Flash
 from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect
 from flask_login import login_required
@@ -39,15 +39,31 @@ def data_upload_perform():
 
     try:
         if request.method == 'POST':
-            data_utils.process_upload_request(user_utils.get_uid(), request.files.get('bitext_file'), request.files.get('source_file'),
+            task_id = data_utils.process_upload_request(user_utils.get_uid(), request.files.get('bitext_file'), request.files.get('source_file'),
                     request.files.get('target_file'), request.form.get('source_lang'), request.form.get('target_lang'),
                     request.form.get('name'), request.form.get('description'))
+
+            return jsonify({ "result": 200, "task_id": task_id })
         else:
             raise Exception("Sorry, but we couldn't handle your request")
     except Exception as e:
-        raise e
         Flash.issue(e, Flash.ERROR)
     else:
         Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.", Flash.SUCCESS, markup=True)
 
-    return request.referrer
+    return jsonify({ "result": -1 })
+
+@data_blueprint.route('/upload_status', methods=['POST'])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def data_upload_status():
+    task_id = request.form.get('task_id')
+    task_result = utils.get_task_result(tasks.process_upload_request, task_id)
+    if task_result:
+        if task_result == -1:
+            Flash.issue("Something went wrong", Flash.ERROR)
+            return jsonify({ "result": -2 })
+        
+        Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.", Flash.SUCCESS, markup=True)
+        return jsonify({ "result": 200 })
+    else:
+        return jsonify({ "result": -1 })

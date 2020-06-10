@@ -6,12 +6,13 @@ from app.utils.translation.filetranslation import FileTranslation
 from app.utils.translation.joeywrapper import JoeyWrapper
 from app.utils.trainer import Trainer
 from app.utils.tokenizer import Tokenizer
-from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines
+from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines, LibraryCorpora
 from app.flash import Flash
 from celery import Celery
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
+from lxml import etree
 
 
 import pyter
@@ -206,10 +207,7 @@ def train_engine(self, engine_id):
         Trainer.stop(engine_id)
 
 @celery.task(bind=True)
-def monitor_training(self, engine_id):
-    from celery.utils.log import get_task_logger
-    logger = get_task_logger(__name__)
-    
+def monitor_training(self, engine_id):    
     redis_conn = redis.Redis()
     
     def monitor():
@@ -441,3 +439,102 @@ def generate_xlsx(user_id, rows):
     workbook.close()
 
     return file_path
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# UPLOAD TASKS
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+@celery.task(bind=True)
+def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_lang, trg_lang, corpus_name, corpus_desc=""):
+    from celery.utils.log import get_task_logger
+    logger = get_task_logger(__name__)
+
+    type = "bitext" if bitext_path else "bilingual" if trg_path else "monolingual"
+
+    def process_file(file, language, corpus, role):
+        db_file = data_utils.upload_file(file, language, user_id=user_id)
+
+        if role == "source":
+            corpus.source_id = language
+        else:
+            corpus.target_id = language
+        
+        db.session.add(db_file)
+        corpus.corpus_files.append(Corpus_File(db_file, role=role))
+
+        return db_file
+
+    def process_bitext(file):
+        file_name, file_extension = os.path.splitext(file.filename)
+        norm_name = utils.normname(user_id=user_id, filename=file_name)
+        tmp_file_fd, tmp_path = utils.tmpfile()
+        file.save(tmp_path)
+
+        if file_extension == ".tmx":
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
+            open(tmp_path, 'r') as tmx_file:
+                tmx = etree.parse(tmx_file, etree.XMLParser())
+                body = tmx.getroot().find("body")
+                for tu in body:
+                    for i, tuv in enumerate(tu):
+                        if i > 1: break
+                        line = tuv.find("seg").text.strip()
+                        dest_file = src_file if i == 0 else trg_file
+                        
+                        dest_file.write((line + '\n').encode('utf-8'))
+        else:
+            # We assume it is a TSV
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
+            open(tmp_path, 'r') as tmp_file:
+                for line in tmp_file:
+                    cols = line.strip().split('\t')
+                    src_file.write((cols[0] + '\n').encode('utf-8'))
+                    trg_file.write((cols[1] + '\n').encode('utf-8'))
+
+        src_file = open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'rb')
+        trg_file = open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'rb')
+
+        return FileStorage(src_file, filename=file.filename + "-src"), \
+                FileStorage(trg_file, filename=file.filename + "-trg")
+
+    # We create the corpus, retrieve the files and attach them to that corpus
+    target_db_file = None
+    try:
+        corpus = Corpus(name = corpus_name, type = type, 
+                    owner_id = user_id, description = corpus_desc)
+
+        if type == "bitext":
+            with open(bitext_path, 'rb') as fbitext:
+                bitext_file = FileStorage(fbitext, filename=os.path.basename(fbitext.name))
+                src_file, trg_file = process_bitext(bitext_file)
+
+                source_db_file = process_file(src_file, src_lang, corpus, 'source')
+                target_db_file = process_file(trg_file, trg_lang, corpus, 'target')
+        else:
+            with open(src_path, 'rb') as fsrctext:
+                src_file = FileStorage(fsrctext, filename=os.path.basename(fsrctext.name))
+                source_db_file = process_file(src_file, src_lang, corpus, 'source')
+
+            if type == "bilingual":
+                with open(trg_path, 'rb') as ftrgtext:
+                    trg_file = FileStorage(ftrgtext, filename=os.path.basename(ftrgtext.name))
+                    target_db_file = process_file(trg_file, trg_lang, corpus, 'target')
+
+        db.session.add(corpus)
+
+        user = User.query.filter_by(id=user_id).first()
+        user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
+    except Exception as e:
+        raise Exception("Something went wrong on our end... Please, try again later")
+
+    if target_db_file:
+        source_lines = utils.file_length(source_db_file.path)
+        target_lines = utils.file_length(target_db_file.path)
+        
+        if source_lines != target_lines:
+            raise Exception("Source and target file should have the same length")
+
+    db.session.commit()
+
+    return True
