@@ -38,7 +38,7 @@
                             <div class="row">
                                 <div class="col-6">
                                     <label for="source_lang">Source language</label>
-                                    <select class="custom-select mb-2 source_lang" name="source_lang">
+                                    <select class="custom-select mb-2 lang_sel source_lang" name="source_lang">
                                         {% for language in languages %}
                                             <option value="{{ language.code }}">{{ language.name }}</option>
                                         {% endfor %}
@@ -47,10 +47,11 @@
 
                                 <div class="col-6 target-lang-col">
                                     <label for="target_lang">Target language</label>
-                                    <select class="custom-select mb-2 target_lang" name="target_lang">
-                                        {% for language in languages %}
+                                    <select class="custom-select mb-2 lang_sel target_lang" name="target_lang">
+                                        {% for language in languages[1:] %}
                                             <option value="{{ language.code }}">{{ language.name }}</option>
                                         {% endfor %}
+                                            <option value="{{ languages[0].code }}">{{ languages[0].name }}</option>
                                     </select>
                                 </div>
                             </div>

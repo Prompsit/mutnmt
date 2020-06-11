@@ -37,6 +37,23 @@ $(document).ready(function() {
         $(other).removeClass('target-col-disabled')
     });
 
+    let adjust_languages = (el) => {
+        let other = $('.lang_sel').not(el);
+        let selected_lang = $(el).find('option:selected').val();
+        $(other).find('option').prop('disabled', false)
+        $(other).find(`option[value='${selected_lang}']`).prop('disabled', true);
+
+        if ($(other).find('option:selected').val() == selected_lang) {
+            $(other).find('option:selected').prop('selected', false);
+        }
+    }
+
+    $('.source_lang').on('change', function() {
+        adjust_languages(this);
+    });
+
+    adjust_languages($('.source_lang'));
+
     $(".bitext_file").on('click', function() {
         file_source = null;
         file_target = null;
