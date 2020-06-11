@@ -20,8 +20,12 @@ let draw_stacks = (stacks) => {
     }
 }
 
+let round = (number) => {
+    return parseInt(number);
+}
+
 let sentences_amount = (amount) => {
-    return amount < 1000 ? amount : (amount < 1000000) ? (amount / 1000) + "k" : (amount / 1000000) + "m"
+    return amount < 1000 ? amount : (amount < 1000000) ? round(amount / 1000) + "k" : round(amount / 1000000) + "m"
 }
 
 let draw_stack = (stacks, tag, container) => {
