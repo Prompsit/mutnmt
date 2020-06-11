@@ -94,6 +94,17 @@ $(document).ready(function() {
             contentType: false,
             cache: false,
             processData: false,
+            xhr: function() {
+                let xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        $(".upload-progress-container").removeClass("d-none");
+                        let prozent = parseInt((e.loaded / e.total) * 100);
+                        $(".upload-progress").html(prozent);
+                    }
+                }, false);
+                return xhr;
+            },
             success: function(data) {
                 force_quit = true;
                 if (data.result == 200) {

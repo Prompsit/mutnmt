@@ -105,9 +105,14 @@
                 <div class="token-alert d-none">
                     <div class="d-flex align-items-center">
                         {% include "cloud.html.jinja2" %}
-                        <div class="h6 ml-3">
-                            We're checking your data! Corpora should be plain text and have
-                            the same length and one sentence per line. This might take some time...
+                        <div class="ml-3">
+                            <div class="h5 upload-progress-container d-none">
+                                <span class="upload-progress">0</span>%
+                            </div>
+                            <div class="h6">
+                                We're checking your data! Corpora should be plain text and have
+                                the same length and one sentence per line. This might take some time...
+                            </div>
                         </div>
                     </div>
                 </div>
