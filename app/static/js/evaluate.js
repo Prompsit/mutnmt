@@ -139,11 +139,11 @@ $(document).ready(function() {
                             bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
                                 series: [{
                                     name: 'BLEU',
-                                    data: evaluation.spl.map(m => parseFloat(m[5]['bleu']))
+                                    data: evaluation.spl.map(m => parseFloat(m[5][0]['bleu']))
                                 },
                                 {
                                     name: 'TER',
-                                    data: evaluation.spl.map(m => (-1) * parseFloat(m[5]['ter']))
+                                    data: evaluation.spl.map(m => (-1) * parseFloat(m[5][0]['ter']))
                                 }],
                                 chart: {
                                     type: 'bar',
