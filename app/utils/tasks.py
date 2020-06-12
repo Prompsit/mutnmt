@@ -111,6 +111,7 @@ def launch_training(self, user_id, engine_path, params):
         engine.description = params['descriptionText']
         engine.source = train_corpus.source
         engine.target = train_corpus.target
+        engine.model_path = os.path.join(engine.path, "model")
 
         engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
         engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
@@ -488,8 +489,8 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
             open(tmp_path, 'r') as tmx_file:
                 tmx = etree.parse(tmx_file, etree.XMLParser())
                 body = tmx.getroot().find("body")
-                for tu in body:
-                    for i, tuv in enumerate(tu):
+                for tu in body.findall('.//tu'):
+                    for i, tuv in enumerate(tu.findall('.//tuv')):
                         if i > 1: break
                         line = tuv.find("seg").text.strip()
                         dest_file = src_file if i == 0 else trg_file

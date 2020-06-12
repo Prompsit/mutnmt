@@ -81,10 +81,10 @@ class FileTranslation:
         with open(tmx_path, 'r') as xml_file:
             tmx = etree.parse(xml_file, etree.XMLParser())
             body = tmx.getroot().find("body")
-            for tu in body:
+            for tu in body.findall('.//tu'):
                 sentence = None
 
-                for i, tuv in enumerate(tu):
+                for i, tuv in enumerate(tu.findall('.//tuv')):
                     text = tuv.find("seg").text
                     if i == 0:
                         sentence = { "source": text, "target": [] }
