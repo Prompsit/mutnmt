@@ -213,5 +213,14 @@ $(document).ready(function() {
         });
 
         return false;
-    })
+    });
+
+    $('.reset-btn').on('click', function() {
+        for (let key in corpora_stacks) {
+            corpora_stacks[key].sentences = 0
+            corpora_stacks[key].corpora = []
+        }
+
+        draw_stacks(corpora_stacks);
+    });
 });
