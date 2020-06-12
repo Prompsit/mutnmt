@@ -48,6 +48,8 @@ class Engine(Resource):
     power = db.Column(db.Integer)
     pid = db.Column(db.Integer)
     bg_task_id = db.Column(db.String())
+    model_path = db.Column(db.String(256))
+    runtime = db.Column(db.Integer)
 
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])

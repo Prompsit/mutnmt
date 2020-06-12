@@ -92,6 +92,10 @@
                 <a href="{{ url_for('train.train_finish', id=engine.id) }}" class="btn btn-danger">
                     <i class="far fa-stop-circle"></i> Stop
                 </a>
+            {% else %}
+                <a href="{{ url_for('train.train_resume', engine_id=engine.id) }}" class="btn btn-success">
+                    <i class="far fa-play-circle"></i> Resume
+                </a>
             {% endif %}
 
             {% if engine.has_stopped() %}

@@ -39,4 +39,11 @@ class Trainer(object):
 
         engine.status = "stopped" if user_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
+        
+        # Save engine runtime
+        launched = datetime.datetime.timestamp(engine.launched)
+        finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
+        elapsed = (finished - launched) + (engine.runtime if engine.runtime else 0)
+        engine.runtime = elapsed
+
         db.session.commit()

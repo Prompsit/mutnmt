@@ -26,7 +26,6 @@ import pynvml
 import re
 import json
 
-
 train_blueprint = Blueprint('train', __name__, template_folder='templates')
 
 @train_blueprint.route('/')
@@ -112,7 +111,6 @@ def train_console(id):
 
     launched = datetime.datetime.timestamp(engine.launched)
     finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
-    elapsed = (finished - launched) if engine.finished else None
 
     corpora_raw = Corpus_Engine.query.filter_by(engine_id = engine.id, is_info = True).all()
 
@@ -127,7 +125,7 @@ def train_console(id):
     return render_template("train_console.html.jinja2", page_name="train",
             engine=engine, config=config,
             launched = launched, finished = finished,
-            elapsed = elapsed, corpora=corpora, elapsed_format=utils.seconds_to_timestring(elapsed) if elapsed else None)
+            elapsed = engine.runtime, corpora=corpora, elapsed_format=utils.seconds_to_timestring(engine.runtime) if engine.runtime else None)
 
 @train_blueprint.route('/graph_data', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -356,3 +354,37 @@ def train_finish(id):
     if user_utils.is_normal(): return redirect(url_for('index'))
         
     return _train_stop(id, False)
+
+@train_blueprint.route('/resume/<engine_id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_resume(engine_id):
+    engine = Engine.query.filter_by(id=engine_id).first()
+
+    new_model_path = os.path.join(engine.path, 'model-{}'.format(utils.randomfilename(length=8)))
+    while os.path.exists(new_model_path):
+        new_model_path = os.path.join(engine.path, 'model-{}'.format(utils.randomfilename(length=8)))
+
+    config_file_path = os.path.join(engine.path, 'config.yaml')
+
+    with open(config_file_path, 'r') as config_file:
+        config = yaml.load(config_file, Loader=yaml.FullLoader)
+        current_model = config["training"]["model_dir"]
+        config["training"]["model_dir"] = new_model_path
+
+        current_model_ckpt = os.path.join(current_model, 'best.ckpt')
+        if os.path.exists(current_model_ckpt):
+            config["training"]["load_model"] = current_model_ckpt
+    
+    with open(config_file_path, 'w') as config_file:
+            yaml.dump(config, config_file)
+
+    engine.model_path = new_model_path
+    engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
+    engine.finished = None
+    db.session.commit()
+
+    task_id, _ = Trainer.launch(user_utils.get_uid(), engine_id)
+    while engine.has_stopped():
+        db.session.refresh(engine)
+
+    return redirect(url_for('train.train_console', id=engine_id))

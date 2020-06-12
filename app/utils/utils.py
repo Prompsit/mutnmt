@@ -3,6 +3,8 @@ import hashlib
 import time
 import tempfile
 import os
+import random
+import string
 
 class condec(object):
     def __init__(self, dec, condition):
@@ -57,6 +59,9 @@ def tmpfile(filename=None):
         return os.path.join(app.config['TMP_FOLDER'], filename)
     else:
         return tempfile.mkstemp(dir=app.config['TMP_FOLDER'])
+
+def randomfilename(length=16):
+    return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 def parse_number(number, round_number=None):
     if number == int(number):
