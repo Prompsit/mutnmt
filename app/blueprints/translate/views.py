@@ -15,7 +15,10 @@ translators = TranslationUtils()
 
 @translate_blueprint.route('/')
 def translate_index():
-    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
+    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
+                .join(Engine, LibraryEngine.engine) \
+                .order_by(Engine.uploaded.desc()) \
+                .all()
     return render_template('translate.html.jinja2', page_name='translate_text', page_title='Translate', engines = engines)
 
 @translate_blueprint.route('/leave', methods=['POST'])

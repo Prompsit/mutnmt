@@ -12,17 +12,26 @@ translators = TranslationUtils()
 @inspect_blueprint.route('/')
 @inspect_blueprint.route('/details')
 def inspect_index():
-    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
+    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
+            .join(Engine, LibraryEngine.engine) \
+            .order_by(Engine.uploaded.desc()) \
+            .all()
     return render_template('details.inspect.html.jinja2', page_name='inspect_details', page_title='Details', engines=engines)
 
 @inspect_blueprint.route('/compare')
 def inspect_compare():
-    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
+    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
+            .join(Engine, LibraryEngine.engine) \
+            .order_by(Engine.uploaded.desc()) \
+            .all()
     return render_template('compare.inspect.html.jinja2', page_name='inspect_compare', page_title='Compare', engines=engines)
 
 @inspect_blueprint.route('/access')
 def inspect_access():
-    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()).all()
+    engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
+            .join(Engine, LibraryEngine.engine) \
+            .order_by(Engine.uploaded.desc()) \
+            .all()
     return render_template('access.inspect.html.jinja2', page_name='inspect_access', page_title='Access', engines=engines)
 
 @inspect_blueprint.route('/leave', methods=['POST'])
