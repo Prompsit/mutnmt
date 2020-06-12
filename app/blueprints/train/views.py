@@ -147,7 +147,14 @@ def train_graph():
         if data:
             stats[tag] = []
             for item in data:
-                stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
+                if item.step % 100 == 0:
+                    stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
+            
+            # The first step contains the initial learning rate which is
+            # normally way bigger than the next one and it makes the chart
+            # look like a straight line
+            if tag == "train/train_learning_rate":
+                stats[tag] = stats[tag][1:]
 
     return jsonify({ "stopped": engine.has_stopped(), "stats": stats })
 

@@ -113,7 +113,7 @@ $(document).ready(function() {
                 let tag_stats = stats[tag];
                 if (tag_stats) {
                     for (stat of tag_stats) {
-                        if (!(stat.step in chart_series[tag].map((v) => v[0]))) {
+                        if (!(chart_series[tag].map((v) => v[0]).includes(stat.step))) {
                             if (chart_series[tag].length > 250) {
                                 chart_series[tag].shift()
                             }

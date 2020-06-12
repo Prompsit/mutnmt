@@ -162,7 +162,7 @@ $(document).ready(function() {
                         let template = document.importNode(document.querySelector("#engines-icon-template").content, true);
 
                         if (engine_data.engine_owner) {
-                            if (engine_data.public) {
+                            if (engine_data.engine_public) {
                                 $(template).find(".folder-shared").removeClass("d-none");
                             } else {
                                 $(template).find(".folder-owner").removeClass("d-none");
@@ -201,8 +201,8 @@ $(document).ready(function() {
                                     $(template).find(".stop-sharing-btn").attr("href", engine_data.engine_share);
                                     $(template).find(".stop-sharing-btn").removeClass("d-none");
                                 } else {
-                                    $(template).find(".share-btn-btn").attr("href", engine_data.engine_share);
-                                    $(template).find(".share-btn-btn").removeClass("d-none");
+                                    $(template).find(".share-btn").attr("href", engine_data.engine_share);
+                                    $(template).find(".share-btn").removeClass("d-none");
                                 }
 
                                 $(template).find(".delete-btn").attr("href", engine_data.engine_delete);

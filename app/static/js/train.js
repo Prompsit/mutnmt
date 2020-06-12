@@ -35,8 +35,6 @@ let draw_stack = (stacks, tag, container) => {
     const pxps_am = ($(container).find(".area-value-max").offset().top - $(container).find(".area-value-min").offset().top) / (max_amount - min_amount);
     const threshold = min_amount * 0.15; // If the current sentence amount is min * threshold, almost there
 
-    console.log(tag, min_amount, max_amount, pxps, pxps_am, threshold)
-
     let stack = stacks[tag];
     $(container).find(".area-value-current").html(sentences_amount(stack.sentences));
 
