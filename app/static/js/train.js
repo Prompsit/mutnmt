@@ -78,6 +78,40 @@ let draw_stack = (stacks, tag, container) => {
 }
 
 $(document).ready(function() {
+    let adjust_languages = (el) => {
+        let other = $('.lang_sel').not(el);
+        let selected_lang = $(el).find('option:selected').val();
+        $(other).find('option').prop('disabled', false)
+        $(other).find(`option[value='${selected_lang}']`).prop('disabled', true);
+
+        if ($(other).find('option:selected').val() == selected_lang) {
+            $(other).find('option:selected').prop('selected', false);
+        }
+    }
+
+    let reset_stacks = () => {
+        for (let key in corpora_stacks) {
+            corpora_stacks[key].sentences = 0
+            corpora_stacks[key].corpora = []
+        }
+
+        draw_stacks(corpora_stacks);
+    }
+
+    $('.source_lang').on('change', function() {
+        adjust_languages(this);
+    });
+
+    $('.source_lang, .target_lang').on('change', function() {
+        $(".corpus-selector-table").each(function(i, el) {
+            $(el).DataTable().draw();
+        });
+
+        reset_stacks();
+    })
+
+    adjust_languages($('.source_lang'));
+
     $(".corpus-selector-table").each(function(i, el) {
         $(el).DataTable({
             dom: "ft",
@@ -86,8 +120,16 @@ $(document).ready(function() {
             paging: false,
             responsive: true,
             drawCallback: function(settings) {
+                let sel_src = $('.source_lang option:selected').val();
+                let sel_trg = $('.target_lang option:selected').val();
+
                 $(".row-corpus").removeClass("d-none");
                 $(".row-corpus").each(function(i, row) {
+                    if ( ($(row).attr("data-src") != sel_src || $(row).attr("data-trg") != sel_trg) && 
+                            ($(row).attr("data-src") != sel_trg || $(row).attr("data-trg") != sel_src)) {
+                        $(row).addClass("d-none");
+                    }
+
                     for (let corpus of corpora_stacks[$(row).attr("data-corpus")].corpora) {
                         if (corpus.id == $(row).attr("data-corpus-id")) {
                             $(row).addClass("d-none");
@@ -175,6 +217,12 @@ $(document).ready(function() {
             }
         });
 
+        $(".train-form select").each(function(i, el) {
+            if ($(el).attr("name")) {
+                data.append($(el).attr("name"), $(el).find('option:selected').val());
+            }
+        });
+
         for (let stack in corpora_stacks) {
             for (let corpora of corpora_stacks[stack].corpora) {
                 data.append(stack + "[]", JSON.stringify({ id: corpora.id, size: corpora.selected_size }))
@@ -216,11 +264,6 @@ $(document).ready(function() {
     });
 
     $('.reset-btn').on('click', function() {
-        for (let key in corpora_stacks) {
-            corpora_stacks[key].sentences = 0
-            corpora_stacks[key].corpora = []
-        }
-
-        draw_stacks(corpora_stacks);
+        reset_stacks();
     });
 });

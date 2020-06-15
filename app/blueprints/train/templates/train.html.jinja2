@@ -33,15 +33,34 @@
                     </div>
                 </div>
 
+                <div class="col-12 col-sm-3">
+                    <label for="source_lang" class="h6">Source language</label>
+                    <select class="custom-select mb-2 lang_sel source_lang" name="source_lang" id="source_lang">
+                        {% for language in languages %}
+                            <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-sm-3">
+                    <label for="target_lang" class="h6">Target language</label>
+                    <select class="custom-select mb-2 lang_sel target_lang" name="target_lang" id="target_lang">
+                        {% for language in languages[1:] %}
+                            <option value="{{ language.code }}">{{ language.name }}</option>
+                        {% endfor %}
+                            <option value="{{ languages[0].code }}">{{ languages[0].name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-3">
                 <div class="col-12 col-sm-6">
                     <label for="descriptionText" class="h6">Description</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="descriptionText" name="descriptionText" value=""/>
                     </div>
                 </div>
-            </div>
 
-            <div class="row mt-3">
                 <div class="form-group col-12 col-sm-6">
                     <label class="col-form-label h6">Duration</label>
                     <div class="input-group">
@@ -67,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-4">
+                <div class="form-group col-12 col-sm-6">
                     <label for="layer_3_n" class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
                         <input type="number" name="vocabularySize" class="form-control" value="16000" min="16000" max="32000" />
@@ -77,7 +96,7 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-4">
+                <div class="form-group col-12 col-sm-6">
                     <label class="col-form-label h6">Batch size</label>
                     <div class="input-group">
                         <input type="number" name="batchSizeTxt" class="form-control" value="6000" min="1" />
@@ -87,7 +106,7 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-4">
+                <div class="form-group col-12 col-sm-6">
                     <label class="col-form-label h6">Validation frequency</label>
                     <div class="input-group">
                         <input type="number" name="validationFreq" class="form-control" value="1000" min="10" />
@@ -99,209 +118,87 @@
             </div>
 
             <div class="row mt-3 corpus-selector">
-                <div class="col-12 col-sm-4 mb-3">
-                    <div class="area-zone training-zone" data-valid="no">
-                        <div class="area-values">
-                            <div class="area-value-bar">
-                                <div class="area-value-bar-bg"></div>
-                                <div class="area-value-bar-fg"></div>
+                {% for phase in ["training", "dev", "test"] %}
+                    <div class="col-12 col-sm-4 mb-3">
+                        <div class="area-zone {{ phase }}-zone">
+                            <div class="area-values">
+                                <div class="area-value-bar">
+                                    <div class="area-value-bar-bg"></div>
+                                    <div class="area-value-bar-fg"></div>
+                                </div>
+                                <small class="area-value area-value-min">
+                                    {% if phase == "training" %} 10k {% else %} 1k {% endif %}
+                                </small>
+                                <small class="area-value area-value-max">
+                                    {% if phase == "training" %} 500k {% else %} 5k {% endif %}
+                                </small>
+                                <small class="area-value area-value-current">0</small>
                             </div>
-                            <small class="area-value area-value-min">10k</small>
-                            <small class="area-value area-value-max">500k</small>
-                            <small class="area-value area-value-current">0</small>
+
+                            <div class="area-info">
+                                <div class="area-name h6">
+                                    {% if phase == "train" %}
+                                        Train
+                                    {% elif phase == "dev" %}
+                                        Validation
+                                    {% else %}
+                                        Test
+                                    {% endif %}
+                                </div>
+
+                                <div class="area-corpora">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="area-info">
-                            <div class="area-name h6">Train</div>
-
-                            <div class="area-corpora">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="corpus-selector-list">
-                        <table class="table corpus-selector-table table-training">
-                            <thead>
-                                <tr>
-                                    <th>Corpus</th>
-                                    <th></th>
-                                    <th class="none"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for corpus in corpora %}
-                                    <tr class="row-corpus" data-corpus="training" data-corpus-id="{{ corpus.id }}">
-                                        <td class="border-0 py-2">
-                                            <span class="badge px-0">
-                                                {{ corpus.source.code }}—{{ corpus.target.code }}
-                                            </span>
-                                            <p>
-                                                {{ corpus.name }}
-                                            </p>
-                                        </td>
-                                        <td class="text-center border-0 p-0 py-2 align-middle" data-sort="{{ corpus.lines() }}" data-search="{{ corpus.lines() }}">
-                                            <div class="input-group">
-                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-primary corpus-selector-add"
-                                                        data-corpus="training"
-                                                        data-corpus-id="{{ corpus.id }}"
-                                                        data-corpus-name="{{ corpus.name }}"
-                                                        data-corpus-lines="{{ corpus.lines() }}">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="text-right">
-                                                <small><span class="corpus-lines-max">{{ corpus.lines(human=True, abbr=True) }}</span> total</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {{ corpus.description }}
-                                        </td>
+                        <div class="corpus-selector-list">
+                            <table class="table corpus-selector-table table-{{ phase }}">
+                                <thead>
+                                    <tr>
+                                        <th>Corpus</th>
+                                        <th></th>
+                                        <th class="none"></th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-4 mb-3">
-                    <div class="area-zone dev-zone" data-valid="no">
-                        <div class="area-values">
-                            <div class="area-value-bar">
-                                <div class="area-value-bar-bg"></div>
-                                <div class="area-value-bar-fg"></div>
-                            </div>
-                            <small class="area-value area-value-min">1k</small>
-                            <small class="area-value area-value-max">5k</small>
-                            <small class="area-value area-value-current">0</small>
-                        </div>
-
-                        <div class="area-info">
-                            <div class="area-name h6">Dev</div>
-
-                            <div class="area-corpora">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="corpus-selector-list">
-                        <table class="table corpus-selector-table table-dev">
-                            <thead>
-                                <tr>
-                                    <th>Corpus</th>
-                                    <th></th>
-                                    <th class="none"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for corpus in corpora %}
-                                    <tr class="row-corpus" data-corpus="dev" data-corpus-id="{{ corpus.id }}">
-                                        <td class="border-0 py-2">
-                                            <span class="badge px-0">
-                                                {{ corpus.source.code }}—{{ corpus.target.code }}
-                                            </span>
-                                            <p>
-                                                {{ corpus.name }}
-                                            </p>
-                                        </td>
-                                        <td class="text-center border-0 p-0 py-2 align-middle" data-sort="{{ corpus.lines() }}" data-search="{{ corpus.lines() }}">
-                                            <div class="input-group">
-                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-primary corpus-selector-add"
-                                                        data-corpus="dev"
-                                                        data-corpus-id="{{ corpus.id }}"
-                                                        data-corpus-name="{{ corpus.name }}"
-                                                        data-corpus-lines="{{ corpus.lines() }}">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
+                                </thead>
+                                <tbody>
+                                    {% for corpus in corpora %}
+                                        <tr class="row-corpus" data-corpus="{{ phase }}" data-corpus-id="{{ corpus.id }}" data-src="{{ corpus.source.code }}" data-trg="{{ corpus.target.code }}">
+                                            <td class="border-0 py-2">
+                                                <span class="badge px-0">
+                                                    {{ corpus.source.code }}—{{ corpus.target.code }}
+                                                </span>
+                                                <p>
+                                                    {{ corpus.name }}
+                                                </p>
+                                            </td>
+                                            <td class="text-center border-0 p-0 py-2 align-middle" data-sort="{{ corpus.lines() }}" data-search="{{ corpus.lines() }}">
+                                                <div class="input-group">
+                                                    <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-outline-primary corpus-selector-add"
+                                                            data-corpus="{{ phase }}"
+                                                            data-corpus-id="{{ corpus.id }}"
+                                                            data-corpus-name="{{ corpus.name }}"
+                                                            data-corpus-lines="{{ corpus.lines() }}">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="text-right">
-                                                <small><span class="corpus-lines-max">{{ corpus.lines(human=True, abbr=True) }}</span> total</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {{ corpus.description }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="col-12 col-sm-4 mb-3">
-                    <div class="area-zone test-zone" data-valid="no">
-                        <div class="area-values">
-                            <div class="area-value-bar">
-                                <div class="area-value-bar-bg"></div>
-                                <div class="area-value-bar-fg"></div>
-                            </div>
-                            <small class="area-value area-value-min">1k</small>
-                            <small class="area-value area-value-max">5k</small>
-                            <small class="area-value area-value-current">0</small>
-                        </div>
-
-                        <div class="area-info">
-                            <div class="area-name h6">Test</div>
-
-                            <div class="area-corpora">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="corpus-selector-list">
-                        <table class="table corpus-selector-table table-test">
-                            <thead>
-                                <tr>
-                                    <th>Corpus</th>
-                                    <th></th>
-                                    <th class="none"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for corpus in corpora %}
-                                    <tr class="row-corpus" data-corpus="test" data-corpus-id="{{ corpus.id }}">
-                                        <td class="border-0 py-2">
-                                            <span class="badge px-0">
-                                                {{ corpus.source.code }}—{{ corpus.target.code }}
-                                            </span>
-                                            <p>
-                                                {{ corpus.name }}
-                                            </p>
-                                        </td>
-                                        <td class="text-center border-0 p-0 py-2 align-middle" data-sort="{{ corpus.lines() }}" data-search="{{ corpus.lines() }}">
-                                            <div class="input-group">
-                                                <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-outline-primary corpus-selector-add"
-                                                        data-corpus="test"
-                                                        data-corpus-id="{{ corpus.id }}"
-                                                        data-corpus-name="{{ corpus.name }}"
-                                                        data-corpus-lines="{{ corpus.lines() }}">
-                                                        <i class="fas fa-plus"></i>
-                                                    </button>
+                                                
+                                                <div class="text-right">
+                                                    <small><span class="corpus-lines-max">{{ corpus.lines(human=True, abbr=True) }}</span> total</small>
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="text-right">
-                                                <small><span class="corpus-lines-max">{{ corpus.lines(human=True, abbr=True) }}</span> total</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {{ corpus.description }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                            </td>
+                                            <td>
+                                                {{ corpus.description }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
 
             <div class="row mt-4 align-items-center">

@@ -52,7 +52,7 @@ def launch_training(self, user_id, engine_path, params):
         Flash.issue("The engine could not be created", Flash.ERROR)
         return url_for('train.train_index', id=id)
 
-    def join_corpora(list_name, phase):
+    def join_corpora(list_name, phase, source_lang, target_lang):
         corpus = Corpus(owner_id=user_id, visible=False)
         for train_corpus in params[list_name]:
             corpus_data = json.loads(train_corpus)
@@ -76,7 +76,7 @@ def launch_training(self, user_id, engine_path, params):
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
                                     file_entry.file.language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role=file_entry.role))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.language_id == source_lang else "target"))
                     used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
@@ -95,9 +95,9 @@ def launch_training(self, user_id, engine_path, params):
         return corpus
 
     try:
-        train_corpus = join_corpora('training[]', phase="train")
-        dev_corpus = join_corpora('dev[]', phase="dev")
-        test_corpus = join_corpora('test[]', phase="test")
+        train_corpus = join_corpora('training[]', phase="train", source_lang=params['source_lang'], target_lang=params['target_lang'])
+        dev_corpus = join_corpora('dev[]', phase="dev", source_lang=params['source_lang'], target_lang=params['target_lang'])
+        test_corpus = join_corpora('test[]', phase="test", source_lang=params['source_lang'], target_lang=params['target_lang'])
 
         # We train a SentencePiece model using the training corpus and we tokenize
         # everything with that. We save the model in the engine folder to tokenize
@@ -109,8 +109,8 @@ def launch_training(self, user_id, engine_path, params):
 
         engine.name = params['nameText']
         engine.description = params['descriptionText']
-        engine.source = train_corpus.source
-        engine.target = train_corpus.target
+        engine.source_id = params['source_lang']
+        engine.target_id = params['target_lang']
         engine.model_path = os.path.join(engine.path, "model")
 
         engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
@@ -145,12 +145,11 @@ def launch_training(self, user_id, engine_path, params):
 
         def link_files(corpus, phase):
             for file_entry in corpus.corpus_files:
-                print([file_entry.file.id, file_entry.file.path], file=sys.stderr)
                 tok_path = '{}.mut.spe'.format(file_entry.file.path)
                 tok_name = phase
 
                 os.link(tok_path, os.path.join(engine.path, '{}.{}'.format(tok_name, 
-                        config["data"]["src" if file_entry.role == "source" else "trg"])))
+                        params['source_lang'] if file_entry.role == "source" else params['target_lang'])))
 
                 config["data"][phase] = os.path.join(engine.path, tok_name)
                 config["training"]["model_dir"] = os.path.join(engine.path, "model")

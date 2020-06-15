@@ -1,6 +1,6 @@
 from app import app, db
 from app.flash import Flash
-from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File
+from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File, Language
 from app.utils import user_utils, utils, data_utils, tensor_utils, tasks
 from app.utils.trainer import Trainer
 from app.utils.power import PowerUtils
@@ -22,7 +22,6 @@ import sys
 import ntpath
 import subprocess
 import glob
-import pynvml
 import re
 import json
 
@@ -51,14 +50,13 @@ def train_index():
 
     random_name = " ".join(random_name.split("-")[:2])
 
-    pynvml.nvmlInit()
-    gpus = list(range(0, pynvml.nvmlDeviceGetCount()))
     library_corpora = user_utils.get_user_corpora().filter(LibraryCorpora.corpus.has(Corpus.type == "bilingual")).all()
     corpora = [c.corpus for c in library_corpora]
+    languages = Language.query.all()
 
     return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,
-                            gpus=gpus)
+                            languages=languages)
 
 @train_blueprint.route('/start', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
