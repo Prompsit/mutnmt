@@ -45,11 +45,15 @@ def file_reader(file_path, start = None, offset = None):
                 yield line
 
 def file_length(file_path):
-    with open(file_path, 'r') as file_reader:
-        for i, line in enumerate(file_reader):
-            pass
+    if os.path.exists(file_path):
+        i = None
+        with open(file_path, 'r') as file_reader:
+            for i, line in enumerate(file_reader):
+                pass
 
-    return i + 1
+        return i + 1 if i else None
+    else:
+        return None
 
 def tmpfolder():
     return tempfile.mkdtemp(dir=app.config['TMP_FOLDER'])

@@ -143,7 +143,7 @@ def train_graph():
         if data:
             stats[tag] = []
             for item in data:
-                if item.step % 100 == 0:
+                if item.step % (len(data) / 10) == 0:
                     stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
             
             # The first step contains the initial learning rate which is
