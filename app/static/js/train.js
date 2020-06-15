@@ -168,16 +168,19 @@ $(document).ready(function() {
                     let lines = $(this).attr("data-corpus-lines")
                     let selected_lines = parseInt($(this).closest(".input-group").find(".corpus-selector-lines").val());
 
-                    if (corpora_stacks[corpus_type].sentences + selected_lines <= max_amounts[corpus_type]) {
-                        corpora_stacks[corpus_type].sentences += selected_lines;
-                        corpora_stacks[corpus_type].corpora.push({ 
-                            id: corpus_id,
-                            name: corpus_name,
-                            size: lines,
-                            selected_size: selected_lines
-                        });
-                        draw_stacks(corpora_stacks);
+                    if (corpora_stacks[corpus_type].sentences + selected_lines > max_amounts[corpus_type]) {
+                        selected_lines = max_amounts[corpus_type] - corpora_stacks[corpus_type].sentences;
                     }
+
+                    corpora_stacks[corpus_type].sentences += selected_lines;
+                    corpora_stacks[corpus_type].corpora.push({ 
+                        id: corpus_id,
+                        name: corpus_name,
+                        size: lines,
+                        selected_size: selected_lines
+                    });
+
+                    draw_stacks(corpora_stacks);
 
                     $(el).DataTable().draw();
 
