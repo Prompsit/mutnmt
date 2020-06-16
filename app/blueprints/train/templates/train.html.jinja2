@@ -137,13 +137,15 @@
 
                             <div class="area-info">
                                 <div class="area-name h6">
-                                    {% if phase == "train" %}
+                                    {% if phase == "training" %}
                                         Train
                                     {% elif phase == "dev" %}
                                         Validation
                                     {% else %}
                                         Test
                                     {% endif %}
+
+                                    corpus
                                 </div>
 
                                 <div class="area-corpora">

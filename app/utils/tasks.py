@@ -213,7 +213,7 @@ def monitor_training(self, engine_id):
     def monitor():
         engine = Engine.query.filter_by(id=engine_id).first()
         if engine:
-            while not engine.has_stopped():
+            if not engine.has_stopped():
                 current_power = int(PowerUtils.get_mean_power())
                 power = redis_conn.hget("power_value", engine_id)
                 updates = redis_conn.hget("power_update", engine_id)
@@ -226,7 +226,9 @@ def monitor_training(self, engine_id):
                 engine.power = int(power + current_power) / updates
 
                 db.session.commit()
+
                 time.sleep(10)
+                monitor()
         else:
             time.sleep(5)
             monitor()
@@ -390,16 +392,10 @@ def evaluate_files(self, user_id, mt_paths, ht_path, source_path=None):
             for i, line in enumerate(source_file):
                 rows[i].append(line.strip())
     
-    logger.info(rows[0])
-
-    xlsx_rows = []
-    for i, row in enumerate(rows):
-        xlsx_row = [i + 1, row[1]]
-
-    xlsx_file_path = generate_xlsx(user_id, xlsx_rows)
+    xlsx_file_path = generate_xlsx(user_id, rows)
 
     for mt_path in mt_paths:
-            os.remove(mt_path)
+        os.remove(mt_path)
 
     try:
         os.remove(ht_path)
@@ -407,7 +403,7 @@ def evaluate_files(self, user_id, mt_paths, ht_path, source_path=None):
         # It was the same file, we just pass
         pass
 
-    return { "result": 200, "metrics": all_metrics, "spl": rows, "xlsx_url": xlsx_file_path }
+    return { "result": 200, "metrics": all_metrics, "spl": rows }, xlsx_file_path
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
@@ -441,10 +437,39 @@ def generate_xlsx(user_id, rows):
     workbook = xlsxwriter.Workbook(file_path)
     worksheet = workbook.add_worksheet()
 
-    rows = [["Line", "Machine translation", "Human translation", "Bleu", "TER"]] + rows
+    x_rows = []
+    for i, row in enumerate(rows):
+        x_row = [i + 1, row[1]]
+
+        if len(row) > 6:
+            x_row.append(row[6])
+        
+        for mt_data in row[5]:
+            x_row.append(mt_data['text'])
+
+        for mt_data in row[5]:
+            x_row.append(mt_data['bleu'])
+
+        for mt_data in row[5]:
+            x_row.append(mt_data['ter'])
+
+        x_rows.append(x_row)
+
+    headers = ["Line"]
+    if len(row) > 6:
+        headers = headers + ["Source sentence", "Reference sentence"]
+    else:
+        headers = headers + ["Reference sentence"]
+
+
+    headers = headers + ["Machine translation {}".format(i + 1) for i in range(len(row[5]))]
+    headers = headers + ["Bleu {}".format(i + 1) for i in range(len(row[5]))]
+    headers = headers + ["TER {}".format(i + 1) for i in range(len(row[5]))]
+
+    x_rows = [headers] + x_rows
 
     row_cursor = 0
-    for row in rows:
+    for row in x_rows:
         for col_cursor, col in enumerate(row):
             worksheet.write(row_cursor, col_cursor, col)
         row_cursor  += 1

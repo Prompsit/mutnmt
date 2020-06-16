@@ -21,10 +21,13 @@ evaluate_blueprint = Blueprint('evaluate', __name__, template_folder='templates'
 def evaluate_index():
     return render_template('evaluate.html.jinja2', page_name='evaluate', page_title='Evaluate')
 
-@evaluate_blueprint.route('/download/<name>')
-def evaluate_download(name):
-    task_result = utils.get_task_result(tasks.evaluate_files, name)
-    return send_file(task_result['xlsx_url'], as_attachment=True)
+@evaluate_blueprint.route('/download/<id>')
+def evaluate_download(id):
+    task_result = utils.get_task_result(tasks.evaluate_files, id)
+    if task_result:
+        file_result = task_result[1]
+        return send_file(file_result, as_attachment=True)
+    return "Error"
 
 @evaluate_blueprint.route('/evaluate_files', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -64,6 +67,7 @@ def get_evaluation():
     task_id = request.form.get('task_id')
     task_result = utils.get_task_result(tasks.evaluate_files, task_id)
     if task_result:
-        return jsonify({ "result": 200, "evaluation": task_result })
+        evaluation_result = task_result[0]
+        return jsonify({ "result": 200, "task_id": task_id, "evaluation": evaluation_result })
     else:
         return jsonify({ "result": -1 })

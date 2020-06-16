@@ -1,21 +1,10 @@
 $(document).ready(function() {
-    let source_file = false;
     let file_names = []
 
-    $('.source-text-control .btn').on('click', function() {
-        $('.source-text-control').addClass('d-none');
-        $('.source-text-content').removeClass('d-none');
-        source_file = true;
-    });
-
-    $('.source-text-close').on('click', function() {
-        $('.source-text-control').removeClass('d-none');
-        $('.source-text-content').addClass('d-none');
-        source_file = false;
-    });
-
     $('.add-mt-btn').on('click', function() {
-        let index = $('.mt-file').length + 1
+        let index = $('.mt_file').length + 1
+        if (index > 3) return; // No more than 2 MT files
+
         let template = document.importNode(document.querySelector("#mt-file-template").content, true);
         $(template).find('.mt-file-row').attr('id', `mt-file-row-${index}`)
         $(template).find('.mt-file').attr('id', `mt-file-${index}`).attr('name', `mt-file-${index}`)
@@ -66,7 +55,7 @@ $(document).ready(function() {
 
         let data = new FormData();
         data.append("ht_file", document.querySelector("#ht_file").files[0])
-        if (source_file) data.append("source_file", document.querySelector("#source_file").files[0])
+        data.append("source_file", document.querySelector("#source_file").files[0])
 
         file_names = []
         $(".mt_file").each(function(i, el) {

@@ -136,14 +136,15 @@ def train_graph():
     last = json.loads(last_raw)
 
     engine = Engine.query.filter_by(id=id).first()
+    tensor = tensor_utils.TensorUtils(id)
 
     stats = {}
     for tag in tags:
-        data = tensor_utils.get_tag(id, tag)
+        data = tensor.get_tag(tag)
         if data:
             stats[tag] = []
             for item in data:
-                if item.step % (len(data) / 10) == 0:
+                if item.step % 100 == 0:
                     stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
             
             # The first step contains the initial learning rate which is
@@ -162,34 +163,16 @@ def train_status():
     id = request.form.get('id')
 
     engine = Engine.query.filter_by(id = id).first()
-    tensor_path = os.path.join(engine.path, "model/tensorboard")
-    files = glob.glob(os.path.join(tensor_path, "*"))
+    tensor = tensor_utils.TensorUtils(id)
     
-    if len(files) > 0:
-        log = files[0]
-
-        eacc = EventAccumulator(log)
-        eacc.Reload()
-
+    if tensor.is_loaded():
         stats = {}
 
-        try:
-            epoch_no = 0
-            for data in eacc.Scalars("train/epoch"):
-                if data.value > epoch_no:
-                    epoch_no = data.value
-            stats["epoch"] = epoch_no
-        except:
-            pass
-
-        try:
-            done = False
-            for data in eacc.Scalars("train/done"):
-                if data.value == 1:
-                    done = True
-            stats["done"] = done
-        except:
-            pass
+        epoch_no = 0
+        for data in tensor.get_tag("train/epoch"):
+            if data.value > epoch_no:
+                epoch_no = data.value
+        stats["epoch"] = epoch_no
 
         launched = datetime.datetime.timestamp(engine.launched)
         now = datetime.datetime.timestamp(datetime.datetime.now())
@@ -197,7 +180,8 @@ def train_status():
         power_reference = PowerUtils.get_reference_text(power, now - launched)
         power_wh = power * ((now - launched) / 3600)
 
-        return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "power": int(power_wh), "power_reference": power_reference })
+        return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "done": engine.bg_task_id is None,
+                            "power": int(power_wh), "power_reference": power_reference })
     else:
         return jsonify({ "stats": [], "stopped": False })
 
@@ -275,7 +259,10 @@ def train_log():
     dir = request.form.get('order[0][dir]')
 
     engine = Engine.query.filter_by(id = engine_id).first()
-    train_log_path = os.path.join(engine.path, 'model/train.log')
+    if engine.model_path:
+        train_log_path = os.path.join(engine.model_path, 'train.log')
+    else:
+        train_log_path = os.path.join(engine.path, 'model/train.log')
 
     rows = []
     try:

@@ -19,18 +19,13 @@
 
 <form action="{{ url_for('evaluate.evaluate_files') }}" method="post" enctype="multipart/form-data" class="evaluate-form">
     <div class="row mt-3">
-        <div class="col-sm-12 col-12 source-text-control">
-            <a href="#" class="btn btn-link pl-0">
-                <i class="fas fa-plus"></i> Source text
-            </a>
-        </div>
-
-        <div class="col-sm col-12 mt-4 mt-sm-0 source-text-content d-none">
+        <div class="col-sm col-12 mt-4 mt-sm-0 source-text-content">
             <div class="d-flex justify-content-between">
                 <h2 class="h6">Source text</h2>
-                <a href="#" class="source-text-close" title="Remove source text">
-                    <i class="fas fa-times"></i>
-                </a>
+
+                <div>
+                    <span class="badge badge-secondary">Optional</span>
+                </div>
             </div>
             <div class="custom-file">
                 <input type="file" class="custom-file-input" id="source_file" name="source_file">

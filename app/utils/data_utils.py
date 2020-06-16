@@ -120,7 +120,7 @@ def shuffle_sentences(corpus):
                         shell=True, cwd=app.config['TMP_FOLDER'])
         extract_target.wait()
 
-        os.remove(utils.sub('TMP_FOLDER', '.', 'mut.{}.shuf'.format(corpus.id)))
+        os.remove(utils.filepath('TMP_FOLDER', filename='mut.{}.shuf'.format(corpus.id)))
     else:
         raise Exception("Corpora with multiple files cannot be shuffled")
 

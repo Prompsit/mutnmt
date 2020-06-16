@@ -1,6 +1,6 @@
 $(document).ready(function() {
     let engine_id = $("#engine_id").val();
-    let engine_stopped = false;
+    let engine_stopped = undefined;
 
     const interval = 1000;
 
@@ -140,10 +140,6 @@ $(document).ready(function() {
             id: engine_id
         }
     }, (data) => {
-        if (data.stats && data.stats['done'] && data.stopped == false) {
-            window.location.href = `../finish/${engine_id}`
-        }
-
         if (data.stats && data.stats['epoch']) {
             $(".epoch-no").html(data.stats['epoch'])
         }
@@ -157,6 +153,11 @@ $(document).ready(function() {
             for (power_ref of data.power_reference) {
                 $(".power-reference").html($(".power-reference").html() + `${power_ref}<br />`)
             }
+        }
+
+        if (engine_stopped != undefined && engine_stopped == false && data.stopped == true) {
+            // This means the engine stopped while the console was open
+            window.location.reload();
         }
 
         // We don't keep longpolling if training is done
