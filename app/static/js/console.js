@@ -56,12 +56,15 @@ $(document).ready(function() {
                 title: { text: chart_data.y },
                 labels: {
                     formatter: (val) => {
+                        if (val == 0) return 0
                         if (val % parseInt(val) == 0) return parseInt(val)
                         return val.toFixed(8)
                     },
 
                     minWidth: 40
-                }
+                },
+                min: (chart_data.id == "valid_score") ? 0 : undefined,
+                max: (chart_data.id == "valid_score") ? 100 : undefined
             },
             xaxis: {
                 title: {text : chart_data.x },
@@ -102,8 +105,7 @@ $(document).ready(function() {
         method: "post",
         data: {
             tags: Object.keys(chart_metadata),
-            id: engine_id,
-            last: JSON.stringify(Object.keys(chart_metadata).reduce((obj, x) => { obj[x] = chart_metadata[x].last; return obj }, {}))
+            id: engine_id
         }
     }, function(data) {
         $(".training-chart").each(function(i, e) {
@@ -112,18 +114,12 @@ $(document).ready(function() {
                 let { stats, stopped } = data
                 let tag_stats = stats[tag];
                 if (tag_stats) {
+                    let series = []
                     for (stat of tag_stats) {
-                        if (!(chart_series[tag].map((v) => v[0]).includes(stat.step))) {
-                            if (chart_series[tag].length > 250) {
-                                chart_series[tag].shift()
-                            }
-
-                            chart_series[tag].push([stat.step, stat.value])
-                            chart_metadata[tag].last = stat.step
-                        }
+                        series.push([stat.step, stat.value])
                     }
 
-                    charts[tag].updateSeries([{ data: chart_series[tag].map((v) => v) }]);
+                    charts[tag].updateSeries([{ data: series }]);
                 }
             }
         });

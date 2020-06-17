@@ -132,8 +132,6 @@ def train_graph():
 
     tags = request.form.getlist('tags[]')
     id = request.form.get('id')
-    last_raw = request.form.get('last')
-    last = json.loads(last_raw)
 
     engine = Engine.query.filter_by(id=id).first()
     tensor = tensor_utils.TensorUtils(id)
@@ -143,8 +141,10 @@ def train_graph():
         data = tensor.get_tag(tag)
         if data:
             stats[tag] = []
-            for item in data:
-                if item.step % 100 == 0:
+            data_len = len(data)
+            data_breakpoint = int(data_len/10) if data_len >= 100 else 10 if data_len > 10 else 1
+            for i, item in enumerate(data):
+                if item.step % data_breakpoint == 0 or (i + 1) == data_len:
                     stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
             
             # The first step contains the initial learning rate which is

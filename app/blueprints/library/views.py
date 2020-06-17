@@ -71,11 +71,14 @@ def library_corpora_feed():
                             corpus.lines(), corpus.words(), corpus.chars(),
                             corpus.uploaded()])
 
-    recordsTotal = 0
+    recordsTotal = len(corpus_rows)
     recordsFiltered = 0
     
     if order:
         corpus_rows.sort(key=lambda c: c[order], reverse=(dir == 'asc'))
+
+    if start is not None and length is not None:
+        corpus_rows = corpus_rows[start:(start + length)]
 
     corpus_data = []
     for row in corpus_rows:
@@ -121,19 +124,13 @@ def library_corpora_feed():
         if search:
             found = False
             for col in row + file_data:
-                found = found or search in str(col)
+                found = found or (search in str(col))
             
             if found:
                 corpus_data = corpus_data + file_data
                 recordsFiltered += 1
         else:
             corpus_data = corpus_data + file_data
-
-        recordsTotal += 1
-
-    if start is not None and length is not None:
-        corpus_data = corpus_data[start:(start + length)]
-
 
     return jsonify({
             "draw": draw + 1,
@@ -145,7 +142,7 @@ def library_corpora_feed():
 @library_blueprint.route('/engines_feed', methods=["POST"])
 def library_engines_feed():
     public = request.form.get('public') == "true"
-    columns = [Engine.id, Engine.name, Engine.description, Engine.source_id, Engine.target_id, Engine.uploaded]
+    columns = [Engine.id, Engine.name, Engine.description, Engine.source_id, Engine.uploaded, Engine.uploader_id]
     dt = datatables.Datatables()
 
     rows, rows_filtered, search = dt.parse(Engine, columns, request, 
@@ -154,7 +151,7 @@ def library_engines_feed():
 
     engine_data = []
     for engine in (rows_filtered if search else rows):
-        uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y %H:%M:%S")
+        uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y")
         engine_data.append([engine.id, engine.name, engine.description, "{} — {}".format(engine.source.name, engine.target.name),
                             uploaded_date, engine.uploader.username if engine.uploader else "MutNMT", "",
                             {
