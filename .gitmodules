@@ -1,0 +1,3 @@
+[submodule "app/joeynmt"]
+	path = app/joeynmt
+	url = https://github.com/Prompsit/joeynmt.git
