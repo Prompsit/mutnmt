@@ -312,8 +312,12 @@ def inspect_details(self, user_id, engine_id, line):
 
     n_best = []
     if line.strip() != "":
-        line_tok = tokenizer.tokenize(line)
-        n_best = translator.translate(line_tok, 5)
+        sentences = sent_tokenize(line.strip())
+        if len(sentences) > 0:
+            line_tok = tokenizer.tokenize(sentences[0])
+            n_best = translator.translate(line_tok, 5)
+        else:
+            return None
     else:
         return None
 
