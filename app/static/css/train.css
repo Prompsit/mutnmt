@@ -105,4 +105,5 @@
 
 .corpus-selector-list .dataTables_filter .form-control {
     width: 100%;
+    min-width: 0px;
 }
