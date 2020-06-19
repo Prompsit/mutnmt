@@ -51,6 +51,8 @@ $(document).ready(function() {
         // Clean previous
         $(".evaluate-results").addClass("d-none");
         $(".evaluate-results-row").empty();
+        $(".chart-select").empty();
+
         if (bpl_table) bpl_table.destroy();
 
         let data = new FormData();
@@ -125,14 +127,22 @@ $(document).ready(function() {
                             $(".chart-container div").remove();
                             $(".chart-container").append(document.createElement("div"));
 
+                            let file_series = [];
+                            for (let file_ix in file_names) {
+                                let series = { bleu: [], ter: [] };
+                                series['bleu'] = evaluation.spl.map(m => parseFloat(m[5][file_ix]['bleu']))
+                                series['ter'] = evaluation.spl.map(m => parseFloat(m[5][file_ix]['ter']))
+                                file_series.push(series);
+                            }
+
                             bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
                                 series: [{
                                     name: 'BLEU',
-                                    data: evaluation.spl.map(m => parseFloat(m[5][0]['bleu']))
+                                    data: file_series[0]['bleu']
                                 },
                                 {
                                     name: 'TER',
-                                    data: evaluation.spl.map(m => (-1) * parseFloat(m[5][0]['ter']))
+                                    data: file_series[0]['ter'].map(m => (-1) * m)
                                 }],
                                 chart: {
                                     type: 'bar',
@@ -173,14 +183,44 @@ $(document).ready(function() {
                                         }
                                     }
                                 },
-                                colors: ['rgba(87, 119, 144, 1)', '#ffc107']
+                                colors: ['rgba(87, 119, 144, 1)', '#ffc107'],
+                                tooltip: {
+                                    y: {
+                                        formatter: function(value, { _, seriesIndex }) {
+                                            if (seriesIndex == 1) { // Series 1 is TER
+                                                return parseFloat(value * -1).toFixed(2) + "%";
+                                            } else {
+                                                return parseFloat(value).toFixed(2);
+                                            }
+                                        }
+                                    }
+                                }
                             });
 
-                            
                             $('.evaluate-status').attr('data-status', 'none');
                             $(".evaluate-results").removeClass("d-none");
                             
                             bpl_chart.render();
+
+                            for (let file_ix in file_names) {
+                                let chart_select_template = document.importNode(document.querySelector("#btn-chart-select-template").content, true);
+                                
+                                if (file_ix == 0) $(chart_select_template).find(".btn-chart-select").addClass("active");
+                                $(chart_select_template).find(".btn-chart-select").html(file_names[file_ix]);
+                                $(chart_select_template).find(".btn-chart-select").on('click', function() {
+                                    $(".btn-chart-select").removeClass("active");
+                                    $(this).addClass("active");
+
+                                    bpl_chart.updateSeries([{
+                                        data: file_series[file_ix]['bleu']
+                                    },
+                                    {
+                                        data: file_series[file_ix]['ter'].map(m => (-1) * m)
+                                    }]);
+                                });
+
+                                $(".chart-select").append(chart_select_template)
+                            }
 
                             bpl_table = $(".bleu-line").DataTable({
                                 data: evaluation.spl,
