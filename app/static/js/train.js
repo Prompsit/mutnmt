@@ -125,7 +125,7 @@ $(document).ready(function() {
 
                 $(".row-corpus").removeClass("d-none");
                 $(".row-corpus").each(function(i, row) {
-                    if ( ($(row).attr("data-src") != sel_src || $(row).attr("data-trg") != sel_trg) && 
+                    if ( ($(row).attr("data-src") != sel_src || $(row).attr("data-trg") != sel_trg) &&
                             ($(row).attr("data-src") != sel_trg || $(row).attr("data-trg") != sel_src)) {
                         $(row).addClass("d-none");
                     }
@@ -140,7 +140,7 @@ $(document).ready(function() {
                     for (let stack_name in corpora_stacks) {
                         if (stack_name != $(row).attr("data-corpus")) {
                             for (let corpus of corpora_stacks[stack_name].corpora) {
-                                if (corpus.id == $(row).attr("data-corpus-id")) {                                    
+                                if (corpus.id == $(row).attr("data-corpus-id")) {
                                     sentences_already_used += corpus.selected_size;
                                 }
                             }
@@ -173,7 +173,7 @@ $(document).ready(function() {
                     }
 
                     corpora_stacks[corpus_type].sentences += selected_lines;
-                    corpora_stacks[corpus_type].corpora.push({ 
+                    corpora_stacks[corpus_type].corpora.push({
                         id: corpus_id,
                         name: corpus_name,
                         size: lines,
@@ -268,5 +268,32 @@ $(document).ready(function() {
 
     $('.reset-btn').on('click', function() {
         reset_stacks();
+    });
+
+    /* Tour */
+    Tour.get('train', (response) => {
+        let { tour } = response;
+        let { tour_title, popovers } = tour;
+        let steps = []
+        for (let element_id in popovers) {
+            steps.push({
+                element: `#${element_id}`,
+                popover: {
+                    title: popovers[element_id]['title'],
+                    description: popovers[element_id]['description']
+                }
+            });
+        }
+
+        const driver = new Driver();
+        driver.defineSteps(steps);
+
+        $('.tour-guide-bubble').html(tour_title);
+
+        $('.btn-begin-tour').on('click', function() {
+            setTimeout(() => {
+                driver.start();
+            }, 250);
+        });
     });
 });

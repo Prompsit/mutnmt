@@ -29,6 +29,7 @@ from .blueprints.translate.views import translate_blueprint
 from .blueprints.inspect.views import inspect_blueprint
 from .blueprints.evaluate.views import evaluate_blueprint
 from .blueprints.admin.views import admin_blueprint
+from .blueprints.tour.views import tour_blueprint
 
 blueprints = [["/auth", auth_blueprint],
                 ["/data", data_blueprint],
@@ -37,7 +38,8 @@ blueprints = [["/auth", auth_blueprint],
                 ["/translate", translate_blueprint],
                 ["/inspect", inspect_blueprint],
                 ["/evaluate", evaluate_blueprint],
-                ["/admin", admin_blueprint]]
+                ["/admin", admin_blueprint],
+                ["/tour", tour_blueprint]]
 
 for blueprint in blueprints:
     app.register_blueprint(blueprint[1], url_prefix=blueprint[0])

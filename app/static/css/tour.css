@@ -1,0 +1,59 @@
+.tour-guide {
+    position: fixed;
+    left: 0px;
+    bottom: 0px;
+    max-width: 400px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    transition: bottom 0.2s linear;
+}
+
+.tour-guide.hidden {
+    bottom: -150px;
+}
+
+@media screen and (max-width: 576px) {
+    .tour-guide {
+        display: none;
+    }
+}
+
+    .tour-guide .tour-guide-picture {
+        flex: 1 0 150px;
+        background-color: white;
+        background-image: url(/img/aitor.svg);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        width: 150px;
+        height: 100%;
+    }
+
+    .tour-guide .tour-guide-bubble {
+        background-color: white;
+        margin-left: 0.5rem;
+        padding: 0.5rem;
+        border: solid 1px var(--dark);
+        border-radius: 0.5rem;
+        position: relative;
+    }
+
+    .tour-guide .tour-guide-bubble:before {
+        content: "";
+        display: block;
+        width: 0.5rem;
+        height: 0.5rem;
+        background-color: white;
+        border-left: solid 1px var(--dark);
+        border-bottom: solid 1px var(--dark);
+        position: absolute;
+        bottom: 0.5rem;
+        left: calc((0.25rem + 1px) / -1);
+        transform: rotate(45deg);
+    }
+
+    .tour-guide .tour-guide-controls {
+        margin-top: 1rem;
+        margin-left: 0.5rem;
+    }

@@ -78,7 +78,7 @@
                             <i class="far fa-question-circle"></i>
                         </a>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group" id="patienceGroup">
                         <input type="number" name="patienceTxt" class="form-control" value="5" min="1" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">validations</div>
@@ -86,8 +86,8 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-6">
-                    <label for="layer_3_n" class="col-form-label h6">Vocabulary size</label>
+                <div class="form-group col-12 col-sm-6" id="vocabularySizeGroup">
+                    <label class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
                         <input type="number" name="vocabularySize" class="form-control" value="16000" min="16000" max="32000" />
                         <div class="input-group-prepend">
@@ -204,7 +204,7 @@
             </div>
 
             <div class="row mt-4 align-items-center">
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <div class="token-alert d-none">
                         <div class="d-flex align-items-center">
                             {% include "cloud.html.jinja2" %}
@@ -215,7 +215,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 text-right">
+                <div class="col-12 col-sm-6 text-right">
                     <input type=reset class="btn btn-secondary reset-btn" value="Reset" />
                     <input type=submit class="btn btn-primary btn-start-training" value="Start training" disabled />
                 </div>
