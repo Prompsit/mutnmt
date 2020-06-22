@@ -141,6 +141,7 @@ $(document).ready(function() {
                     }
 
                     if ($(el).find(".row-corpus").length == $(el).find(".row-corpus[class*='d-none']").length) {
+                        console.log('return')
                         let template = document.importNode(document.querySelector("#no-corpora-template").content, true);
                         $(row).parent().append(template);
                         return;
@@ -194,7 +195,9 @@ $(document).ready(function() {
 
                     draw_stacks(corpora_stacks);
 
-                    $(el).DataTable().draw();
+                    $(".corpus-selector-table").each(function(i, _el) {
+                        $(_el).DataTable().draw();
+                    });
 
                     return false;
                 });
