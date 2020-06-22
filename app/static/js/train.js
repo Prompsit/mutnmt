@@ -96,6 +96,10 @@ $(document).ready(function() {
         }
 
         draw_stacks(corpora_stacks);
+
+        $(".corpus-selector-table").each(function(i, el) {
+            $(el).DataTable().draw();
+        });
     }
 
     $('.source_lang').on('change', function() {
@@ -123,8 +127,8 @@ $(document).ready(function() {
                 let sel_src = $('.source_lang option:selected').val();
                 let sel_trg = $('.target_lang option:selected').val();
 
-                $(".row-corpus").removeClass("d-none");
-                $(".row-corpus").each(function(i, row) {
+                $(el).find(".row-corpus").removeClass("d-none");
+                $(el).find(".row-corpus").each(function(i, row) {
                     if ( ($(row).attr("data-src") != sel_src || $(row).attr("data-trg") != sel_trg) &&
                             ($(row).attr("data-src") != sel_trg || $(row).attr("data-trg") != sel_src)) {
                         $(row).addClass("d-none");
@@ -134,6 +138,14 @@ $(document).ready(function() {
                         if (corpus.id == $(row).attr("data-corpus-id")) {
                             $(row).addClass("d-none");
                         }
+                    }
+
+                    if ($(el).find(".row-corpus").length == $(el).find(".row-corpus[class*='d-none']").length) {
+                        let template = document.importNode(document.querySelector("#no-corpora-template").content, true);
+                        $(row).parent().append(template);
+                        return;
+                    } else {
+                        $(row).parent().find('.no-corpora-row').remove();
                     }
 
                     let sentences_already_used = 0;

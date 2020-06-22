@@ -72,12 +72,7 @@
                 </div>
 
                 <div class="form-group col-12 col-sm-6">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <label class="col-form-label h6">Stopping condition</label>
-                        <a href="#" class="text-dark">
-                            <i class="far fa-question-circle"></i>
-                        </a>
-                    </div>
+                    <label class="col-form-label h6">Stopping condition</label>
                     <div class="input-group" id="patienceGroup">
                         <input type="number" name="patienceTxt" class="form-control" value="5" min="1" />
                         <div class="input-group-prepend">
@@ -251,6 +246,14 @@
 
         <a href="#" class="btn btn-primary addcorpus_btn mr-2">Add</a>
     </div>
+</template>
+
+<template id="no-corpora-template">
+    <tr class="no-corpora-row">
+        <td colspan="2" class="overflow">
+            No corpora available for the selected languages
+        </td>
+    </tr>
 </template>
 {% endif %}
 {% endblock %}
