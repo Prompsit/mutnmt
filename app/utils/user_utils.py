@@ -49,19 +49,23 @@ def library_delete(type, id, user_id = None):
     user_id = get_uid() if not user_id else user_id
 
     if type == "library_corpora":
-        corpus = Corpus.query.filter_by(id = id).first()
+        library = LibraryCorpora.query.filter_by(corpus_id = id, user_id = user_id).first()
+        if LibraryCorpora.query.filter_by(corpus_id = id).filter(LibraryCorpora.user_id != user_id).count() == 0:
+            for file_entry in library.corpus.corpus_files:
+                os.remove(file_entry.file.path)
+                db.session.delete(file_entry.file)
 
-        for file_entry in corpus.corpus_files:
-            os.remove(file_entry.file.path)
-            db.session.delete(file_entry.file)
+            db.session.delete(library.corpus)
 
-        db.session.delete(corpus)
+        db.session.delete(library)
         db.session.commit()
     else:
         library = LibraryEngine.query.filter_by(engine_id = id, user_id = user_id).first()
-        shutil.rmtree(library.engine.path)
-        
-        db.session.delete(library.engine)
+
+        if LibraryEngine.query.filter_by(engine_id = id).filter(LibraryEngine.user_id != user_id).count() == 0:
+            shutil.rmtree(library.engine.path)
+            db.session.delete(library.engine)
+
         db.session.delete(library)
         db.session.commit()
 
