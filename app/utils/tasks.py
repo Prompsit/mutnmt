@@ -245,17 +245,21 @@ def test_training(self, engine_id):
     bleu = 0.0
 
     _, hyps_tmp_file = utils.tmpfile()
-    joey_translate = subprocess.Popen("cat {} | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
+    _, test_crop_file = utils.tmpfile()
+    joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
                                         .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
                                         cwd=app.config['JOEYNMT_FOLDER'], shell=True)
     joey_translate.wait()
 
-    decode_hyps = subprocess.Popen("cat {} | spm_decode --model={} --input_format=piece > {}.dec" \
+    decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
                                         .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
                                         cwd=app.config['MUTNMT_FOLDER'], shell=True)
     decode_hyps.wait()
 
-    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_dec_file), 
+    crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
+    crop_test.wait()
+
+    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file), 
                         cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
     sacreBLEU.wait()
 
