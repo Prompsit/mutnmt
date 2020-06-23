@@ -1,6 +1,7 @@
 from app import app, db
 from app.utils import user_utils, data_utils, utils
 from app.utils.power import PowerUtils
+from app.utils.GPUManager import GPUManager
 from app.utils.translation.utils import TranslationUtils
 from app.utils.translation.filetranslation import FileTranslation
 from app.utils.translation.joeywrapper import JoeyWrapper
@@ -191,20 +192,41 @@ def train_engine(self, engine_id):
     # Trains an engine by calling JoeyNMT and keeping
     # track of its progress
 
-    engine = Engine.query.filter_by(id=engine_id).first()
-    running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
-                                            os.path.join(engine.path, "config.yaml"), 
-                                            "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'])
+    gpu_id = GPUManager.wait_for_available_device()
 
-    engine.status = "training"
-    engine.pid = running_joey.pid
-    db.session.commit()
+    try:
 
-    # Trainings are limited to 1 hour
-    time.sleep(3600)
+        engine = Engine.query.filter_by(id=engine_id).first()
+        env = os.environ.copy()
+        env["CUDA_VISIBLE_DEVICES"] = "{}".format(gpu_id)
+        running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
+                                                os.path.join(engine.path, "config.yaml"), 
+                                                "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'],
+                                                env=env)
 
-    if running_joey.poll() is None:
-        Trainer.stop(engine_id)
+        engine.status = "training"
+        engine.pid = running_joey.pid
+        db.session.commit()
+
+        # Trainings are limited to 1 hour
+        start = datetime.datetime.now()
+        difference = 0
+
+        while difference < 3600:
+            time.sleep(10)
+            difference = (datetime.datetime.now() - start).total_seconds()
+            if running_joey.poll() is not None:
+                # JoeyNMT finished (or died) before timeout
+                db.session.refresh(engine)
+                if engine.status != "stopped":
+                    Trainer.stop(engine_id)
+                GPUManager.free_device(gpu_id)
+                return
+
+        if running_joey.poll() is None:
+            Trainer.stop(engine_id)
+    finally:
+        GPUManager.free_device(gpu_id)
 
 @celery.task(bind=True)
 def monitor_training(self, engine_id):    
@@ -273,7 +295,7 @@ def test_training(self, engine_id):
 def launch_engine(user_id, engine_id):
     user = User.query.filter_by(id=user_id).first()
     engine = Engine.query.filter_by(id=engine_id).first()
-    
+        
     translator = JoeyWrapper(engine.path)
     translator.load()
 

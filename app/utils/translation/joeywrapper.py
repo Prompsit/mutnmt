@@ -1,6 +1,7 @@
 # Inspired in https://github.com/juliakreutzer/slack-joey/blob/master/bot.py
 
 from app import app
+from app.utils.GPUManager import GPUManager
 
 from torchtext import data
 from torchtext.data import Dataset, Iterator, Field
@@ -15,6 +16,7 @@ from joeynmt.constants import UNK_TOKEN, EOS_TOKEN, BOS_TOKEN, PAD_TOKEN
 import os
 import logging
 import sys
+import time
 
 class MonoLineDataset(Dataset):
     @staticmethod
@@ -32,6 +34,7 @@ class JoeyWrapper:
         self.engine_path = engine_path
         self.model_path = os.path.join(engine_path, 'model')
         self.config_path = os.path.join(engine_path, 'config.yaml')
+        self.gpu_id = None
         
         # Load parameters from configuration file
         config = load_config(self.config_path)
@@ -65,6 +68,10 @@ class JoeyWrapper:
         
         self.logger = logging.getLogger(__name__)
 
+    def __del__(self):
+        if self.gpu_id is not None:
+            GPUManager.free_device(self.gpu_id)
+
     def load(self):
         # build model and load parameters into it
         model_checkpoint = load_checkpoint(self.ckpt, self.use_cuda)
@@ -72,7 +79,8 @@ class JoeyWrapper:
         self.model.load_state_dict(model_checkpoint["model_state"])
 
         if self.use_cuda:
-            self.model.cuda()
+            self.gpu_id = GPUManager.wait_for_available_device()
+            self.model.cuda(self.gpu_id)
 
         return True
 

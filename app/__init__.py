@@ -60,3 +60,6 @@ for folder in folders:
         os.stat(app.config[folder])
     except:
         os.mkdir(app.config[folder])
+
+from app.utils.GPUManager import GPUManager
+GPUManager.scan_devices(reset=True)
