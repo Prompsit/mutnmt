@@ -235,6 +235,34 @@ def monitor_training(self, engine_id):
 
     monitor()
 
+@celery.task(bind=True)
+def test_training(self, engine_id):
+    engine = Engine.query.filter_by(id=engine_id).first()
+    test_dec_file = Corpus_File.query.filter_by(role = "target") \
+                    .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
+                    .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
+
+    bleu = 0.0
+
+    _, hyps_tmp_file = utils.tmpfile()
+    joey_translate = subprocess.Popen("cat {} | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
+                                        .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
+                                        cwd=app.config['JOEYNMT_FOLDER'], shell=True)
+    joey_translate.wait()
+
+    decode_hyps = subprocess.Popen("cat {} | spm_decode --model={} --input_format=piece > {}.dec" \
+                                        .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
+                                        cwd=app.config['MUTNMT_FOLDER'], shell=True)
+    decode_hyps.wait()
+
+    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_dec_file), 
+                        cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
+    sacreBLEU.wait()
+
+    score = sacreBLEU.stdout.readline().decode("utf-8")
+
+    return { "bleu": float(score) }
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

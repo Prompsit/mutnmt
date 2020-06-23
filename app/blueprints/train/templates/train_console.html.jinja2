@@ -129,6 +129,53 @@
     </div>
 </div>
 
+{% if engine.has_stopped() %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="d-flex align-items-center">
+            <div class="h3 mr-3">
+                <i class="fas fa-vial"></i> Test zone
+            </div>
+
+            <div class="ml-2 flex-grow-1"><hr class="border-test border-bottom-0" /></div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="p-3 border-test border-top-0">
+            <div class="row align-items-center">
+                <div class="col-12 col-sm-4">
+                    <p>This engine scored <span class="score-container">0.00</span> points in validation.</p>
+                    <p>You can get a more accurate score by performing a translation test against the Test corpora.</p>
+                </div>
+                <div class="col-12 col-sm-4 offset-sm-4">
+                    <div class="test-panel d-none">
+                        <div class="d-flex align-items-center">
+                            <div class="test-animation">
+                                <div class="test-animation-icon">
+                                    <i class="fas fa-file"></i>
+                                </div>
+
+                                <div class="test-animation-bar"></div>
+                            </div>
+
+                            <div class="ml-4">
+                                <div class="h1 mb-0 bold test-bleu-value">00.0</div>
+                                <div class="h4">BLEU</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-warning btn-lg test-btn">Start test</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row mt-5">
     <div class="col-12 mb-4">
         <div class="d-flex align-items-center">
@@ -136,9 +183,7 @@
                 <i class="fas fa-chart-line"></i> Dashboard
             </div>
 
-            <div class="ml-2 flex-grow-1">
-                <hr />
-            </div>
+            <div class="ml-2 flex-grow-1"><hr /></div>
         </div>
     </div>
 
@@ -182,9 +227,7 @@
                 <i class="fas fa-clipboard-list"></i> Training log
             </div>
 
-            <div class="ml-2 flex-grow-1">
-                <hr />
-            </div>
+            <div class="ml-2 flex-grow-1"><hr /></div>
         </div>
     </div>
 

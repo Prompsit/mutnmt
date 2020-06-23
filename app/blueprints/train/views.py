@@ -373,3 +373,26 @@ def train_resume(engine_id):
         db.session.refresh(engine)
 
     return redirect(url_for('train.train_console', id=engine_id))
+
+@train_blueprint.route('/test', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_test():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    engine_id = request.form.get('engine_id')
+    task = tasks.test_training.apply_async(args=[engine_id])
+    return task.id
+
+@train_blueprint.route('/test_status', methods=["POST"])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_test_status():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    task_id = request.form.get('task_id')
+    task_result = utils.get_task_result(tasks.test_training, task_id)
+    if task_result:
+        if task_result == -1:
+            return jsonify({ "result": -2 })
+        return jsonify({ "result": 200, "test": task_result })
+    else:
+        return jsonify({ "result": -1 })
