@@ -181,9 +181,9 @@ def train_status():
         power_wh = power * ((now - launched) / 3600)
 
         return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "done": engine.bg_task_id is None,
-                            "power": int(power_wh), "power_reference": power_reference })
+                            "power": int(power_wh), "power_reference": power_reference, "test_task_id": engine.test_task_id })
     else:
-        return jsonify({ "stats": [], "stopped": False })
+        return jsonify({ "stats": [], "stopped": engine.has_stopped() })
 
 @train_blueprint.route('/train_stats', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
@@ -381,6 +381,11 @@ def train_test():
 
     engine_id = request.form.get('engine_id')
     task = tasks.test_training.apply_async(args=[engine_id])
+
+    engine = Engine.query.filter_by(id=engine_id).first()
+    engine.test_task_id = task.id
+    db.session.commit()
+
     return task.id
 
 @train_blueprint.route('/test_status', methods=["POST"])

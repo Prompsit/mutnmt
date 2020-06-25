@@ -287,6 +287,9 @@ def test_training(self, engine_id):
 
     score = sacreBLEU.stdout.readline().decode("utf-8")
 
+    engine.test_task_id = None
+    db.session.commit()
+
     return { "bleu": float(score) }
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

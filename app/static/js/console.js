@@ -128,6 +128,38 @@ $(document).ready(function() {
         if (data && data.stopped) return false
     }, true);
 
+    let monitor_test = (task_id) => {
+        $('.test-btn').addClass('d-none');
+        $('.test-panel').removeClass('d-none');
+
+        longpoll(5000, {
+            url: '../test_status',
+            method: 'POST',
+            data: { task_id: task_id }
+        }, (data) => {
+            if (data.result == 200) {
+                let score = parseFloat(data.test.bleu).toFixed(2);
+                $('.test-bleu-value').html(score);
+                $('.test-animation').addClass('done');
+                return false;
+            } else if (data.result == -2) {
+                $('.test-btn').removeClass('d-none');
+                $('.test-panel').addClass('d-none');
+                return false;
+            }
+        });
+    }
+
+    $('.test-btn').on('click', function() {
+        $.ajax({
+            url: '../test',
+            method: 'POST',
+            data: { engine_id: engine_id }
+        }).done(function(task_id) {
+            monitor_test(task_id);
+        })
+    });
+
     /* Train status */
     longpoll(5000, {
         url: `../train_status`,
@@ -136,6 +168,15 @@ $(document).ready(function() {
             id: engine_id
         }
     }, (data) => {
+        if (engine_stopped != undefined && engine_stopped == false && data.stopped == true) {
+            // This means the engine stopped while the console was open
+            window.location.reload();
+        }
+
+        if (data.test_task_id) {
+            monitor_test(data.test_task_id);
+        }
+
         if (data.stats && data.stats['epoch']) {
             $(".epoch-no").html(data.stats['epoch'])
         }
@@ -149,11 +190,6 @@ $(document).ready(function() {
             for (power_ref of data.power_reference) {
                 $(".power-reference").html($(".power-reference").html() + `${power_ref}<br />`)
             }
-        }
-
-        if (engine_stopped != undefined && engine_stopped == false && data.stopped == true) {
-            // This means the engine stopped while the console was open
-            window.location.reload();
         }
 
         // We don't keep longpolling if training is done
@@ -197,33 +233,4 @@ $(document).ready(function() {
             log_table.ajax.reload()
         }
     }, 5000);
-
-    $('.test-btn').on('click', function() {
-        $.ajax({
-            url: '../test',
-            method: 'POST',
-            data: { engine_id: engine_id }
-        }).done(function(task_id) {
-            $('.test-btn').addClass('d-none');
-            $('.test-panel').removeClass('d-none');
-
-            longpoll(5000, {
-                url: '../test_status',
-                method: 'POST',
-                data: { task_id: task_id }
-            }, (data) => {
-                console.log(data);
-                if (data.result == 200) {
-                    let score = parseFloat(data.test.bleu).toFixed(2);
-                    $('.test-bleu-value').html(score);
-                    $('.test-animation').addClass('done');
-                    return false;
-                } else if (data.result == -2) {
-                    $('.test-btn').removeClass('d-none');
-                    $('.test-panel').addClass('d-none');
-                    return false;
-                }
-            });
-        })
-    });
 });
