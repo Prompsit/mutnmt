@@ -188,6 +188,7 @@ $(document).ready(function() {
                         let template = document.importNode(document.querySelector("#engines-options-template").content, true);
 
                         $(template).find(".export-btn").attr("href", engine_data.engine_export);
+                        $(template).find(".export-corpora-btn").attr("href", engine_data.engine_corpora_export);
 
                         $(template).find(".summary-btn").attr("href", engine_data.engine_summary);
                         $(template).find(".summary-btn").removeClass("d-none");

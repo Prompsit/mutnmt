@@ -162,7 +162,8 @@ def library_engines_feed():
                                 "engine_delete": url_for('library.library_delete', id = engine.id, type = "library_engines"),
                                 "engine_grab": url_for('library.library_grab', id = engine.id, type = "library_engines"),
                                 "engine_ungrab": url_for('library.library_ungrab', id = engine.id, type = "library_engines"),
-                                "engine_export": url_for('library.library_export', id= engine.id, type = "library_engines")
+                                "engine_export": url_for('library.library_export', id = engine.id, type = "library_engines"),
+                                "engine_corpora_export": url_for('library.library_corpora_export', id = engine.id)
                             }])
 
     return dt.response(rows, rows_filtered, engine_data)
@@ -262,5 +263,31 @@ def library_export(type, id):
         zip_path = os.path.join(app.config['TMP_FOLDER'], 'corpus-{}.mut.zip'.format(corpus.id))
         shutil.make_archive(zip_path, 'zip', tmp_folder, '.')
         shutil.rmtree(tmp_folder)
+
+    return send_file(zip_path + '.zip', as_attachment=True)
+
+@library_blueprint.route('/export-corpora/<id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def library_corpora_export(id):
+    """
+    Decodes corpora of engine with ID :id, zips everything
+    and serves it as a download
+    """
+
+    zip_path = None
+    tmp_folder = utils.tmpfolder()
+    
+    corpora = Corpus_Engine.query.filter_by(engine_id=id, is_info=False).all()
+    for corpus_entry in corpora:
+        suffix = '{}-{}'.format(corpus_entry.corpus.source.code, corpus_entry.corpus.target.code)
+        for file_entry in corpus_entry.corpus.corpus_files:
+            filename = '{}.{}.{}'.format(corpus_entry.phase, suffix, corpus_entry.corpus.source.code if file_entry.role == "source" else corpus_entry.corpus.target.code)
+            shutil.copy(file_entry.file.path, os.path.join(tmp_folder, filename))
+
+    
+
+    zip_path = os.path.join(app.config['TMP_FOLDER'], 'engine-corpora-{}.mut.zip'.format(id))
+    shutil.make_archive(zip_path, 'zip', tmp_folder, '.')
+    shutil.rmtree(tmp_folder)
 
     return send_file(zip_path + '.zip', as_attachment=True)
