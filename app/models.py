@@ -48,6 +48,7 @@ class Engine(Resource):
     power = db.Column(db.Integer)
     pid = db.Column(db.Integer)
     bg_task_id = db.Column(db.String())
+    test_task_id = db.Column(db.String())
     model_path = db.Column(db.String(256))
     runtime = db.Column(db.Integer)
 
