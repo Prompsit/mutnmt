@@ -26,12 +26,11 @@ with open(os.path.join(app.config['MUTNMT_FOLDER'], 'scripts/langs.txt'), 'r') a
         lang_data = line.split(',')
         languages.append([lang_data[0], lang_data[1]])
 
-def upgrade():
-    Language.query.delete()
-    
+def upgrade():    
     for language in languages:
-        lang = Language(code = language[0], name = language[1])
-        db.session.add(lang)
+        if not Language.query.filter_by(code = language[0]).first():
+            lang = Language(code = language[0], name = language[1])
+            db.session.add(lang)
 
     db.session.commit()
 
