@@ -101,7 +101,12 @@
                         {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
                             <img alt="" src="{{ current_user.avatar_url }}" class="img-avatar" />
-                            <span class="ml-2">{{ current_user.username }}</span>
+                            <div class="ml-2">
+                                <div>{{ current_user.username }}</div>
+                                <small class="text-uppercase">
+                                    {% if current_user.admin %} {% elif current_user.expert %} expert {% else %} user {% endif %}
+                                </small>
+                            </div>
                         </div>
 
                         <div class="text-center mt-4">
