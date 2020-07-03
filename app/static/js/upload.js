@@ -81,13 +81,12 @@ $(document).ready(function() {
     $(".data-upload-form").on("submit", function(e) {
         e.preventDefault();
 
-        $(".data-upload-form fieldset").prop("disabled", true);
-
-        $(".token-alert").addClass("d-none");
-
+        // Check if files are selected
         if (file_source == null && bitext_file == null) return false;
+        if ($(".bilingual-nav-tab").hasClass("active") && (file_target == null && bitext_file == null)) return false;
 
-        $('.translate-form').attr('data-status', 'launching');
+        $(".data-upload-form fieldset").prop("disabled", true);
+        $(".token-alert").addClass("d-none");
 
         let data = new FormData();
         data.append("name", $("#name").val());
