@@ -85,8 +85,15 @@ $(document).ready(function() {
         if (file_source == null && bitext_file == null) return false;
         if ($(".bilingual-nav-tab").hasClass("active") && (file_target == null && bitext_file == null)) return false;
 
+        // Check file size
+        if ((bitext_file != null && bitext_file.size / 1073741824 > 2) || (file_source && (file_source.size + file_target.size) / 1073741824 > 2)) {
+            $(".file-size-warning").removeClass("d-none");
+            return false;
+        }
+
         $(".data-upload-form fieldset").prop("disabled", true);
         $(".token-alert").addClass("d-none");
+        $(".file-size-warning").addClass("d-none");
 
         let data = new FormData();
         data.append("name", $("#name").val());
@@ -101,6 +108,7 @@ $(document).ready(function() {
             if (file_target) data.append("target_file", file_target)
         }
 
+        $(".file-size-warning").addClass("d-none");
         $(".token-alert").removeClass("d-none");
 
         $.ajax({

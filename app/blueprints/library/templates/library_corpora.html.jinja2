@@ -63,7 +63,10 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="d-flex align-items-center">
-                                        <div class="mr-2"><span class="badge badge-secondary">TEXT</span></div>
+                                        <div class="mr-2" style="flex: 1 0 auto;">
+                                            <span class="badge badge-secondary">TEXT</span>
+                                            <small>2GB total max</small>
+                                        </div>
                                         <div class="w-100 flex-grow-1"><hr /></div>
                                     </div>
                                 </div>
@@ -87,7 +90,10 @@
 
                         <div class="col-12 col-sm-8 bitext-col mt-2">
                             <div class="d-flex align-items-center">
-                                <div class="mr-2"><span class="badge badge-secondary">TSV/TMX</span></div>
+                                <div class="mr-2" style="flex: 1 0 auto;">
+                                    <span class="badge badge-secondary">TSV/TMX</span>
+                                    <small>2GB max</small>
+                                </div>
                                 <div class="w-100 flex-grow-1"><hr /></div>
                             </div>
 
@@ -103,6 +109,10 @@
 
         <div class="form-group row mt-4">
             <div class="col-12 col-sm-5">
+                <div class="file-size-warning text-danger d-none">
+                    <i class="fas fa-exclamation-triangle"></i> The selected files are too large
+                </div>
+
                 <div class="token-alert d-none">
                     <div class="d-flex align-items-center">
                         {% include "cloud.html.jinja2" %}
