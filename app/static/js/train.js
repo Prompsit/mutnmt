@@ -141,7 +141,6 @@ $(document).ready(function() {
                     }
 
                     if ($(el).find(".row-corpus").length == $(el).find(".row-corpus[class*='d-none']").length) {
-                        console.log('return')
                         let template = document.importNode(document.querySelector("#no-corpora-template").content, true);
                         $(row).parent().append(template);
                         return;
@@ -181,23 +180,25 @@ $(document).ready(function() {
                     let lines = $(this).attr("data-corpus-lines")
                     let selected_lines = parseInt($(this).closest(".input-group").find(".corpus-selector-lines").val());
 
-                    if (corpora_stacks[corpus_type].sentences + selected_lines > max_amounts[corpus_type]) {
-                        selected_lines = max_amounts[corpus_type] - corpora_stacks[corpus_type].sentences;
+                    if (selected_lines) {
+                        if (corpora_stacks[corpus_type].sentences + selected_lines > max_amounts[corpus_type]) {
+                            selected_lines = max_amounts[corpus_type] - corpora_stacks[corpus_type].sentences;
+                        }
+
+                        corpora_stacks[corpus_type].sentences += selected_lines;
+                        corpora_stacks[corpus_type].corpora.push({
+                            id: corpus_id,
+                            name: corpus_name,
+                            size: lines,
+                            selected_size: selected_lines
+                        });
+
+                        draw_stacks(corpora_stacks);
+
+                        $(".corpus-selector-table").each(function(i, _el) {
+                            $(_el).DataTable().draw();
+                        });
                     }
-
-                    corpora_stacks[corpus_type].sentences += selected_lines;
-                    corpora_stacks[corpus_type].corpora.push({
-                        id: corpus_id,
-                        name: corpus_name,
-                        size: lines,
-                        selected_size: selected_lines
-                    });
-
-                    draw_stacks(corpora_stacks);
-
-                    $(".corpus-selector-table").each(function(i, _el) {
-                        $(_el).DataTable().draw();
-                    });
 
                     return false;
                 });
@@ -256,24 +257,7 @@ $(document).ready(function() {
             processData: false,
             success: function(data) {
                 if (data.result == 200) {
-                    longpoll(5000, {
-                        url: "launch_status",
-                        method: "POST",
-                        data: { task_id: data.task_id }
-                    }, (task_status) => {
-                        if (task_status.result == 200) {
-                            $.ajax({
-                                url: "launch",
-                                method: "POST",
-                                data: { engine_id: task_status.engine_id }
-                            }).done(function(url) {
-                                window.location.href = url;
-                                return false;
-                            });
-
-                            return false;
-                        }
-                    });
+                    window.location.href = data.launching_url;
                 }
             }
         });
@@ -281,8 +265,10 @@ $(document).ready(function() {
         return false;
     });
 
-    $('.reset-btn').on('click', function() {
-        reset_stacks();
+    $('.train-form').on('reset', function() {
+        setTimeout(() => {
+            $('.source_lang, .target_lang').trigger('change');
+        }, 10);
     });
 
     /* Tour */

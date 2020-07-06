@@ -6,6 +6,7 @@ from app.utils.translation.utils import TranslationUtils
 from flask import Blueprint, render_template, request, send_file, after_this_request, url_for, redirect, jsonify
 from werkzeug.utils import secure_filename
 from celery.result import AsyncResult
+from sqlalchemy import or_
 
 import subprocess, sys, logging, os, glob, shutil
 
@@ -17,6 +18,7 @@ translators = TranslationUtils()
 def translate_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
                 .join(Engine, LibraryEngine.engine) \
+                .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
                 .order_by(Engine.uploaded.desc()) \
                 .all()
     return render_template('translate.html.jinja2', page_name='translate_text', page_title='Translate', engines = engines)

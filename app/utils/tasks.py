@@ -45,6 +45,13 @@ def launch_training(self, user_id, engine_path, params):
     # and get it ready for training
 
     engine = Engine(path = engine_path)
+    engine.uploader_id = user_id
+    engine.status = "launching"
+    engine.bg_task_id = self.request.id
+
+    db.session.add(engine)
+    db.session.commit()
+
     used_corpora = {}
 
     try:
@@ -120,7 +127,6 @@ def launch_training(self, user_id, engine_path, params):
 
         engine.status = "training_pending"
         engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
-        engine.uploader_id = user_id
 
         user = User.query.filter_by(id = user_id).first()
         user.user_engines.append(LibraryEngine(engine=engine, user=user))
@@ -177,6 +183,7 @@ def launch_training(self, user_id, engine_path, params):
             yaml.dump(config, config_file)
 
         engine.status = "ready"
+        engine.bg_task_id = None
         db.session.commit()
 
         return engine.id

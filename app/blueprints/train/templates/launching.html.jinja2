@@ -1,0 +1,20 @@
+{% extends "base.html.jinja2" %}
+
+{% block head %}
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
+<script src="{{ url_for('static', filename='js/launching.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<input type=hidden id="task_id" value="{{ task_id }}" />
+<div class="row align-items-center">
+    <div class="col-12 col-sm-4">
+        <img alt="Hieroglyphs" src="{{ url_for('static', filename='img/hieroglyphs.svg') }}" style="height: 48px;" class="mb-4" />
+        <h1>Your engine is launching</h1>
+        <p>This may take a while</p>
+    </div>
+</div>
+{% endblock %}

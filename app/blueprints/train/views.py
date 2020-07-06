@@ -38,6 +38,12 @@ def train_index():
     if (len(currently_training) > 0):
         return redirect(url_for('train.train_console', id=currently_training[0].id))
 
+    currently_launching = Engine.query.filter_by(uploader_id = user_utils.get_uid()) \
+                            .filter(Engine.status.like("launching")).all()
+                            
+    if (len(currently_launching) > 0): 
+        return redirect(url_for('train.train_launching', task_id=currently_launching[0].bg_task_id))
+
     random_name = namegenerator.gen()
     tryout = 0
     while len(Engine.query.filter_by(name = random_name).all()):
@@ -58,6 +64,13 @@ def train_index():
                             corpora=corpora, random_name=random_name,
                             languages=languages)
 
+@train_blueprint.route('/launching/<task_id>')
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def train_launching(task_id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    return render_template('launching.html.jinja2', page_name='train', page_title='Launching training', task_id=task_id)
+
 @train_blueprint.route('/start', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_start():
@@ -65,7 +78,7 @@ def train_start():
     engine_path = os.path.join(user_utils.get_user_folder("engines"), utils.normname(user_utils.get_user().username, request.form['nameText']))
     task = tasks.launch_training.apply_async(args=[user_utils.get_uid(), engine_path, { i[0]: i[1] if i[0].endswith('[]') else i[1][0] for i in request.form.lists()}])
 
-    return jsonify({ "result": 200, "task_id": task.id })
+    return jsonify({ "result": 200, "launching_url": url_for('train.train_launching', task_id=task.id) })
 
 @train_blueprint.route('/launch_status', methods=['POST'])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())

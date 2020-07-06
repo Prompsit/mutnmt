@@ -4,6 +4,7 @@ from app.utils import user_utils
 from app.utils.translation.utils import TranslationUtils
 from app.utils import tasks
 from flask import Blueprint, render_template, request, jsonify
+from sqlalchemy import or_
 
 inspect_blueprint = Blueprint('inspect', __name__, template_folder='templates')
 
@@ -14,6 +15,7 @@ translators = TranslationUtils()
 def inspect_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('details.inspect.html.jinja2', page_name='inspect_details', page_title='Details', engines=engines)
@@ -22,6 +24,7 @@ def inspect_index():
 def inspect_compare():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('compare.inspect.html.jinja2', page_name='inspect_compare', page_title='Compare', engines=engines)
@@ -30,6 +33,7 @@ def inspect_compare():
 def inspect_access():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('access.inspect.html.jinja2', page_name='inspect_access', page_title='Access', engines=engines)
