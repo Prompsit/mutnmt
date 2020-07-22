@@ -194,7 +194,8 @@ def train_status():
         power_wh = power * ((now - launched) / 3600)
 
         return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "done": engine.bg_task_id is None,
-                            "power": int(power_wh), "power_reference": power_reference, "test_task_id": engine.test_task_id })
+                            "power": int(power_wh), "power_reference": power_reference, 
+                            "test_task_id": engine.test_task_id, "test_score": engine.test_score })
     else:
         return jsonify({ "stats": [], "stopped": engine.has_stopped() })
 

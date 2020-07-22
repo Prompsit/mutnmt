@@ -129,7 +129,9 @@ $(document).ready(function() {
     }, true);
 
     let monitor_test = (task_id) => {
+        $('.test-bleu-value').html("0.00");
         $('.test-btn').addClass('d-none');
+        $('.test-animation').removeClass('done');
         $('.test-panel').removeClass('d-none');
 
         longpoll(5000, {
@@ -175,6 +177,10 @@ $(document).ready(function() {
 
         if (data.test_task_id) {
             monitor_test(data.test_task_id);
+        } else if (data.test_score) {
+            $('.test-bleu-value').html(data.test_score);
+            $('.test-animation').addClass('done');
+            $('.test-panel').removeClass('d-none');
         }
 
         if (data.stats && data.stats['epoch']) {
