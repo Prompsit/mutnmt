@@ -32,7 +32,9 @@
     <div class="d-flex align-items-center mt-2">
         <select class="custom-select mr-1 engine-select" name="engine_id">
             {% for engine_entry in engines %}
-                <option value="{{ engine_entry.engine.id }}">{{ engine_entry.engine.name }}</option>
+                <option value="{{ engine_entry.engine.id }}">
+                    {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                </option>
             {% endfor %}
         </select>
 
