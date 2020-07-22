@@ -177,6 +177,10 @@ $(document).ready(function() {
                         return ghost.innerHTML;
                     }
                 },
+                {
+                    targets: [1, 2, 3, 4, 5],
+                    className: "overflow"
+                },
                 { 
                     targets: 6,
                     responsivePriority: 1,
