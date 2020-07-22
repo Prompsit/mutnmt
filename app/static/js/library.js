@@ -236,5 +236,13 @@ $(document).ready(function() {
         $(".tab-pane.active .dataTable").each(function(i, el) {
             $(el).DataTable().ajax.reload();
         })
+    });
+
+    $('.upload-header').on('click', function(e) {
+        e.preventDefault();
+
+        $('.data-upload-form').toggleClass('collapsed');
+        $('.header-collapse-icon').toggleClass('d-none');
+        $('.header-collapsed-icon').toggleClass('d-none');
     })
 });

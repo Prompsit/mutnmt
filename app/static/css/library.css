@@ -56,3 +56,12 @@
         background-size: 450px 225px;
     }
 }
+
+.data-upload-form {
+    overflow: hidden;
+}
+
+.data-upload-form.collapsed {
+    height: 0px;
+    padding: 0px;
+}

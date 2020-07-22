@@ -2,7 +2,13 @@
 
 {% block library_content %}
 
-<h2 class="h5">Upload corpora</h2>
+<a href="#" class="text-reset text-decoration-none upload-header">
+    <h2 class="h5">
+        <span class="mr-2">Upload corpora</span>
+        <i class="fas fa-caret-up header-collapse-icon"></i>
+        <i class="fas fa-caret-down header-collapsed-icon d-none"></i>
+    </h2>
+</a>
 
 <form class="data-upload-form" action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
     <fieldset>
