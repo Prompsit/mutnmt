@@ -222,6 +222,7 @@ $(document).ready(function() {
                                 $(".chart-select").append(chart_select_template)
                             }
 
+                            $('.page-number').attr('max', evaluation.spl.length);
                             bpl_table = $(".bleu-line").DataTable({
                                 data: evaluation.spl,
                                 dom: "tp",
@@ -230,6 +231,9 @@ $(document).ready(function() {
                                     let api = this.api()
                                     let rows = api.rows({ page: 'current' }).nodes();
                                     let row_data = api.rows({ page: 'current' }).data();
+
+                                    $('.page-number').val(api.page() + 1);
+                                    
                                     rows.each(function(row, i) {
                                         let data = row_data[i];
                                         let sentences_data = data[5];
@@ -267,6 +271,11 @@ $(document).ready(function() {
                                         return "<strong>" + data + "</strong>"
                                     }
                                 }]
+                            });
+
+                            $('.page-btn').on('click', function() {
+                                let page_val = parseInt($('.page-number').val()) - 1;
+                                bpl_table.page(page_val).draw(false);
                             });
 
                             return false;

@@ -2,7 +2,6 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
-<link rel="stylesheet" href="{{ url_for('static', filename='lib/chart.bundle.min.css') }}" /> 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/evaluate.css') }}" />
 {% endblock %}
 
@@ -110,6 +109,13 @@
                 <th>TER</th>
             </thead>
         </table>
+
+        <div class="input-group justify-content-end mt-2">
+            <input type=number min="1" class="from-control page-number" style="width: 84px;" />
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary page-btn">Go</button>
+            </div>
+        </div>
     </div>
 </div>
 
