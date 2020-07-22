@@ -494,7 +494,7 @@ def spl(mt_path, ht_path):
             mt_line = mt_file.readline().strip()
             if ht_line and mt_line:
                 ter = round(pyter.ter(ht_line.split(), mt_line.split()), 2)
-                rows[i]['ter'] = 100 if ter > 1 else (ter * 100)
+                rows[i]['ter'] = 100 if ter > 1 else utils.parse_number(ter * 100, 2)
                 rows[i]['text'] = mt_line
 
     return rows
