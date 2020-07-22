@@ -233,8 +233,6 @@ $(document).ready(function() {
                 file_as_tmx = false;
                 $('.btn-as-tmx').removeClass("d-none");
                 $('.live-translate-source').prop('disabled', false);
-                $(".file-label-name").html("");
-                $(".file-label-text").css({ display: 'inline' });
 
                 longpoll(2000, {
                     url: 'get_file',
@@ -243,6 +241,8 @@ $(document).ready(function() {
                 }, (data) => {
                     if (data.result == 200) {
                         $('.live-translate-form').attr('data-status', 'ready');
+                        $(".file-label-name").html("");
+                        $(".file-label-text").css({ display: 'inline' });
                         window.location.href = data.url;
                         return false;
                     }
