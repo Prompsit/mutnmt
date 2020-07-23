@@ -26,12 +26,13 @@ class Config(object):
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
     USER_LOGIN_ENABLED          = True
-    ENABLE_NEW_LOGINS           = True
-    ADMINS                      = ['sjarmero@gmail.com']
+    ENABLE_NEW_LOGINS           = False
+    ADMINS                      = ['sjarmero@gmail.com', 'gramirez@gmail.com', 'sergio.ortiz@gmail.com', 'motagirl2@gmail.com', 'zarberj@gmail.com']
+    WHITELIST	                = ['sjarmero@gmail.com', 'gramirez@gmail.com', 'sergio.ortiz@gmail.com', 'motagirl2@gmail.com', 'zarberj@gmail.com']
     BANNED_USERS                = []
-    OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> require HTTPS
-    GOOGLE_OAUTH_CLIENT_ID      = '481103200747-c9g4nsv7ud7ojj9dgv5s1nvhsdkvqji3.apps.googleusercontent.com'
-    GOOGLE_OAUTH_CLIENT_SECRET  = '__TyuCk8eD0kR594K18MitZw'
+    OAUTHLIB_INSECURE_TRANSPORT = False # True also behind firewall,  False -> require HTTPS
+    GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
+    GOOGLE_OAUTH_CLIENT_SECRET  = 'dACUBYZhq4tEdR_wnbodWfGx'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
 
     # Celery

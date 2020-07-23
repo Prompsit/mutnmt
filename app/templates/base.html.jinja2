@@ -104,7 +104,7 @@
                             <div class="ml-2">
                                 <div>{{ current_user.username }}</div>
                                 <small class="text-uppercase">
-                                    {% if current_user.admin %} {% elif current_user.expert %} expert {% else %} user {% endif %}
+                                    {% if current_user.admin %} admin {% elif current_user.expert %} expert {% else %} user {% endif %}
                                 </small>
                             </div>
                         </div>
