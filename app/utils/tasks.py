@@ -35,6 +35,10 @@ import redis
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
+from celery.utils.log import get_task_logger
+logger = get_task_logger(__name__)
+
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Engine training tasks
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -412,9 +416,6 @@ def inspect_compare(self, user_id, engines, text):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EVALUATE TASKS
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-from celery.utils.log import get_task_logger
-logger = get_task_logger(__name__)
-
 @celery.task(bind=True)
 def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
 
@@ -589,13 +590,16 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
             open(tmp_path, 'r') as tmx_file:
                 tmx = etree.parse(tmx_file, etree.XMLParser())
                 body = tmx.getroot().find("body")
+
                 for tu in body.findall('.//tu'):
                     for i, tuv in enumerate(tu.findall('.//tuv')):
                         if i > 1: break
                         line = tuv.find("seg").text.strip()
+                        line = re.sub(r'[\r\n\t\f\v]', " ", line)
                         dest_file = src_file if i == 0 else trg_file
-                        
-                        dest_file.write((line + '\n').encode('utf-8'))
+
+                        dest_file.write(line.encode('utf-8'))
+                        dest_file.write(os.linesep.encode('utf-8'))
         else:
             # We assume it is a TSV
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
@@ -640,13 +644,15 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         user = User.query.filter_by(id=user_id).first()
         user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
     except Exception as e:
+        db.session.rollback()
         raise Exception("Something went wrong on our end... Please, try again later")
 
     if target_db_file:
         source_lines = utils.file_length(source_db_file.path)
         target_lines = utils.file_length(target_db_file.path)
-        
+
         if source_lines != target_lines:
+            db.session.rollback()
             raise Exception("Source and target file should have the same length")
 
     db.session.commit()
