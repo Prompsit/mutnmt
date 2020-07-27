@@ -416,7 +416,7 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 @celery.task(bind=True)
-def evaluate_files(self, user_id, mt_paths, ht_path, source_path=None):
+def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
 
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
@@ -430,49 +430,56 @@ def evaluate_files(self, user_id, mt_paths, ht_path, source_path=None):
 
     all_metrics = []
     for mt_path in mt_paths:
-        mt_name = os.path.basename(mt_path)
         metrics = []
-        for evaluator in evaluators:
-            try:
-                metrics.append({
-                    "name": evaluator.get_name(),
-                    "value": evaluator.get_value(mt_path, ht_path)
-                })
-            except:
-                # If a metric throws an error because of things,
-                # we just skip it for now
-                pass
+
+        for ht_path in ht_paths:
+            ht_metric = []
+            for evaluator in evaluators:
+                try:
+                    ht_metric.append({
+                        "name": evaluator.get_name(),
+                        "value": evaluator.get_value(mt_path, ht_path)
+                    })
+                except:
+                    # If a metric throws an error because of things,
+                    # we just skip it for now
+                    pass
+
+            metrics.append(ht_metric)
 
         all_metrics.append(metrics)
 
-    rows = []
-    with open(ht_path, 'r') as ht_file:
-        for i, line in enumerate(ht_file):
-            line = line.strip()
-            rows.append(["Reference", line, None, None, i + 1, []])
+    xlsx_file_paths = []
+    ht_rows = []
+    for ht_path in ht_paths:
+        rows = []
+        with open(ht_path, 'r') as ht_file:
+            for i, line in enumerate(ht_file):
+                line = line.strip()
+                rows.append(["Reference", line, None, None, i + 1, []])
 
-    for mt_path in mt_paths:
-        scores = spl(mt_path, ht_path)
-        for i, score in enumerate(scores):
-            rows[i][5].append(score)
+        for mt_path in mt_paths:
+            scores = spl(mt_path, ht_path)
+            for i, score in enumerate(scores):
+                rows[i][5].append(score)
 
-    if source_path:
-        with open(source_path, 'r') as source_file:
-            for i, line in enumerate(source_file):
-                rows[i].append(line.strip())
-    
-    xlsx_file_path = generate_xlsx(user_id, rows)
+        if source_path:
+            with open(source_path, 'r') as source_file:
+                for i, line in enumerate(source_file):
+                    rows[i].append(line.strip())
+        
+        xlsx_file_paths.append(generate_xlsx(user_id, rows))
 
-    for mt_path in mt_paths:
-        os.remove(mt_path)
+        ht_rows.append(rows)
 
-    try:
-        os.remove(ht_path)
-    except FileNotFoundError:
-        # It was the same file, we just pass
-        pass
+    for path in (mt_paths + ht_paths):
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            # It was the same file, we just pass
+            pass
 
-    return { "result": 200, "metrics": all_metrics, "spl": rows }, xlsx_file_path
+    return { "result": 200, "metrics": all_metrics, "spl": ht_rows }, xlsx_file_paths
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
