@@ -24,18 +24,22 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-12 col-sm-6 d-flex" style="padding-right: 0.4rem;">
-            <select class="custom-select mr-1 engine-select w-75" name="engine_id">
-                {% for engine_entry in engines %}
-                    <option value="{{ engine_entry.engine.id }}">
-                        {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
-                        </option>
-                {% endfor %}
-            </select>
+        <div class="col-12 col-sm-6" style="padding-right: 0.4rem;">
+            <div class="d-flex">
+                <select class="custom-select mr-1 engine-select w-100 flex-grow-1" name="engine_id">
+                    {% for engine_entry in engines %}
+                        <option value="{{ engine_entry.engine.id }}">
+                            {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                            </option>
+                    {% endfor %}
+                </select>
 
-            <a href="#" class="btn btn-link chain-btn">
-                <i class="fas fa-plus"></i> Chain
-            </a>
+                <div>
+                    <a href="#" class="btn btn-link chain-btn">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row mt-2 chain-row d-none">
