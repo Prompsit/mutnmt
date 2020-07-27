@@ -81,7 +81,7 @@ $(document).ready(function() {
         $(".chart-select").empty();
         $('.results-select').empty();
 
-        if (bpl_table) bpl_table.destroy();
+        if (bpl_table) bpl_table.clear().draw();
 
         let data = new FormData();
         data.append("source_file", document.querySelector("#source_file").files[0])
