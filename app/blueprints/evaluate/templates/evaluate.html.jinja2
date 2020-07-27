@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div class="col-sm col-12">
+        <div class="col-sm col-12 mt-4 mt-sm-0">
             <h2 class="h6">Machine translation</h2>
 
             <div class="mt-file-container">
@@ -50,9 +50,18 @@
         </div>
         <div class="col-sm col-12 mt-4 mt-sm-0">
             <h2 class="h6">Human translation</h2>
-            <div class="custom-file">
-                <input type="file" class="custom-file-input" id="ht_file" name="ht_file" required>
-                <label class="custom-file-label" for="ht_file">Choose file</label>
+
+            <div class="ht-file-container">
+                <div class="d-flex align-items-start">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input ht_file" id="ht_file" name="ht_file" required>
+                        <label class="custom-file-label" for="ht_file">Choose file</label>
+                    </div>
+                    
+                    <a href="#" class="add-ht-btn ml-3" title="Add HT file">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -67,7 +76,7 @@
 </form>
 
 <div class="row evaluate-status" data-status="none">
-    <div class="col-12 col-sm-4">
+    <div class="col-12 col-sm-4 mt-4 mt-sm-0">
         <div class="alert evaluate-status-pending alert-warning mb-0" role="alert">
             <i class="fas fa-circle-notch fa-spin"></i> Computing metrics...
         </div>
@@ -78,7 +87,7 @@
 </div>
 
 <div class="evaluate-results d-none">
-    <div class="row my-4">
+    <div class="row mt-4">
         <div class="col-6">
             <h2 class="h5">Metrics</h2>
         </div>
@@ -89,7 +98,19 @@
         </div>
     </div>
 
-    <div class="row evaluate-results-row">
+    <div class="row mt-2">
+        <div class="col-12 col-sm-6">
+            <label for="results-mt-select">Machine translation file</label>
+            <select class="results-select results-mt-select custom-select" id="results-mt-select"></select>
+        </div>
+
+        <div class="col-12 col-sm-6">
+            <label for="results-ht-select">Human translation file</label>
+            <select class="results-select results-ht-select custom-select" id="results-ht-select"></select>
+        </div>
+    </div>
+
+    <div class="row mt-5 evaluate-results-row">
     </div>
 
     <h2 class="h5 mt-5">Score map</h2>
@@ -145,6 +166,19 @@
         </div>
 
         <a href="#" class="remove-mt-btn ml-3">
+            <i class="fas fa-times"></i>
+        </a>
+    </div>
+</template>
+
+<template id="ht-file-template">
+    <div class="mt-4 d-flex align-items-center ht-file-row">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input ht_file" id="" name="" required>
+            <label class="custom-file-label" for="">Choose file</label>
+        </div>
+
+        <a href="#" class="remove-ht-btn ml-3">
             <i class="fas fa-times"></i>
         </a>
     </div>

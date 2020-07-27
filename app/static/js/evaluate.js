@@ -1,5 +1,6 @@
 $(document).ready(function() {
-    let file_names = []
+    let mt_filenames = []
+    let ht_filenames = []
 
     $('.add-mt-btn').on('click', function() {
         let index = $('.mt_file').length + 1
@@ -27,6 +28,32 @@ $(document).ready(function() {
         $('.mt-file-container').append(template);
     });
 
+    $('.add-ht-btn').on('click', function() {
+        let index = $('.ht_file').length + 1
+        if (index > 3) return; // No more than 2 MT files
+
+        let template = document.importNode(document.querySelector("#ht-file-template").content, true);
+        $(template).find('.ht-file-row').attr('id', `ht-file-row-${index}`)
+        $(template).find('.ht-file').attr('id', `ht-file-${index}`).attr('name', `ht-file-${index}`)
+        $(template).find('label').attr('for', `ht-file-${index}`);
+
+        $(template).find('.remove-ht-btn').on('click', function() {
+            $(`#ht-file-row-${index}`).remove()
+        });
+
+        $(template).find('.custom-file input[type=file]').each(function (i, el) {
+            if (el.files.length > 0) {
+                $(el).closest(".custom-file").find(".custom-file-label").html(el.files[0].name);
+            }
+        });
+        
+        $(template).find('.custom-file input[type=file]').on('change', function() {
+            $(this).closest(".custom-file").find(".custom-file-label").html(this.files[0].name);
+        });
+
+        $('.ht-file-container').append(template);
+    });
+
     let bpl_chart, bleu_dataset, ter_dataset;
 
     $('.bleu-btn').on('click', function() {
@@ -52,22 +79,201 @@ $(document).ready(function() {
         $(".evaluate-results").addClass("d-none");
         $(".evaluate-results-row").empty();
         $(".chart-select").empty();
+        $('.results-select').empty();
 
         if (bpl_table) bpl_table.destroy();
 
         let data = new FormData();
-        data.append("ht_file", document.querySelector("#ht_file").files[0])
         data.append("source_file", document.querySelector("#source_file").files[0])
 
-        file_names = []
+        mt_filenames = []
         $(".mt_file").each(function(i, el) {
             if (el.files.length > 0) {
                 data.append("mt_files[]", el.files[0])
-                file_names.push(el.files[0].name)
+                mt_filenames.push(el.files[0].name)
+            }
+        });
+
+        ht_filenames = []
+        $(".ht_file").each(function(i, el) {
+            if (el.files.length > 0) {
+                data.append("ht_files[]", el.files[0]);
+                ht_filenames.push(el.files[0].name);
             }
         });
 
         $('.evaluate-status').attr('data-status', 'pending');
+
+        let show_results = (evaluation, task_id, mt_ix, ht_ix) => {
+            // Clean previous
+            $(".evaluate-results").addClass("d-none");
+            $(".evaluate-results-row").empty();
+            $(".chart-select").empty();
+
+            if (bpl_table) bpl_table.destroy();
+
+            $(".btn-xlsx-download").attr("href", `download/${task_id}/${ht_ix}`);
+
+            for (metric of evaluation.metrics[mt_ix][ht_ix]) {
+                let template = document.importNode(document.querySelector("#metric-template").content, true);
+                let [min, value, max] = metric.value;
+                let reversed = (min > max)
+                
+                if (reversed) {
+                    // Normally, min is the worst value and max is the best
+                    // In the case those values come reversed (for example [100, 50, 0])
+                    // it means that min is the best value and max is the worst (e.g. TER scores)
+                    // So we reverse the progress bar in the UI
+
+                    $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .high-zone"))
+                    $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .medium-zone"))
+
+                    let min_aux = min;
+                    min = max;
+                    max = min_aux;
+                }
+
+                let proportion = max - min;
+                let norm_value = (100 * (value > max ? max : value < min ? min : value)) / proportion;
+
+                $(template).find(".metric-name").html(metric.name);
+                $(template).find(".metric-value").html(value);
+                $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
+                $(".evaluate-results-row").append(template);
+            }
+
+            $(".chart-container div").remove();
+            $(".chart-container").append(document.createElement("div"));
+
+            let file_series = { bleu: [], ter: [] };
+            file_series['bleu'] = evaluation.spl[ht_ix].map(m => parseFloat(m[5][mt_ix]['bleu']))
+            file_series['ter'] = evaluation.spl[ht_ix].map(m => parseFloat(m[5][mt_ix]['ter']))
+
+            bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
+                series: [{
+                    name: 'BLEU',
+                    data: file_series['bleu']
+                },
+                {
+                    name: 'TER',
+                    data: file_series['ter'].map(m => (-1) * m)
+                }],
+                chart: {
+                    type: 'bar',
+                    width: '100%',
+                    height: 500,
+                    stacked: true,
+                    toolbar: {
+                        show: true
+                    },
+                    zoom: {
+                        enabled: true
+                    }
+                },
+                plotOptions: {
+                    bar: {
+                        colors: {
+                            ranges: [{
+                                from: -100,
+                                to: 0,
+                                color: '#ffc107'
+                            },
+                            {
+                                from: 0,
+                                to: 100,
+                                color: 'rgba(87, 119, 144, 1)'
+                            }]
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                yaxis: {
+                    max: 100,
+                    min: -100,
+                    labels: {
+                        formatter: (val) => {
+                            if (val % parseInt(val) == 0) return parseInt(val)
+                            return val.toFixed(2)
+                        }
+                    }
+                },
+                colors: ['rgba(87, 119, 144, 1)', '#ffc107'],
+                tooltip: {
+                    y: {
+                        formatter: function(value, { _, seriesIndex }) {
+                            if (seriesIndex == 1) { // Series 1 is TER
+                                return parseFloat(value * -1).toFixed(2) + "%";
+                            } else {
+                                return parseFloat(value).toFixed(2);
+                            }
+                        }
+                    }
+                }
+            });
+
+            $('.evaluate-status').attr('data-status', 'none');
+            $(".evaluate-results").removeClass("d-none");
+            
+            bpl_chart.render();
+
+            $('.page-number').attr('max', evaluation.spl[mt_ix].length);
+            bpl_table = $(".bleu-line").DataTable({
+                data: evaluation.spl[mt_ix],
+                dom: "tp",
+                pageLength: 1,
+                responsive: true,
+                pagingType: "full",
+                drawCallback: function(settings) {
+                    let api = this.api()
+                    let rows = api.rows({ page: 'current' }).nodes();
+                    let row_data = api.rows({ page: 'current' }).data();
+
+                    $('.page-number').val(api.page() + 1);
+                    
+                    rows.each(function(row, i) {
+                        let data = row_data[i];
+                        let sentences_data = data[5];
+                    
+                        if (data.length > 6) {
+                            let template = document.importNode(document.querySelector("#sentences-view-template").content, true);
+                            $(template).find(".sentences-view-source").html(data[6])
+                            $(row).before(template);
+                        }
+
+                        for (sentence_data of sentences_data) {
+                            let mt_template = document.importNode(document.querySelector("#sentences-view-mt-template").content, true);
+                            $(mt_template).find(".sentences-view-mt").html(sentence_data.text);
+                            $(mt_template).find(".sentences-view-bleu").html(sentence_data.bleu);
+                            $(mt_template).find(".sentences-view-ter").html(sentence_data.ter);
+                            $(row).after(mt_template);
+                        }
+
+                        $(".score-table-line-no").html(data[4]);
+
+                        this.columns.adjust();
+                    });
+                },
+                columnDefs: [{
+                    targets: '_all',
+                    orderable: false    
+                },
+                {
+                    targets: [0, 1],
+                    className: "overflow"
+                },
+                {
+                    targets: 0,
+                    render: function(data, type, row) {
+                        return "<strong>" + data + "</strong>"
+                    }
+                }]
+            });
+
+            $('.page-btn').on('click', function() {
+                let page_val = parseInt($('.page-number').val()) - 1;
+                bpl_table.page(page_val).draw(false);
+            });
+        }
 
         $.ajax({
             url: $(this).attr("action"),
@@ -86,196 +292,24 @@ $(document).ready(function() {
                         if (data.result == 200) {
                             let evaluation = data.evaluation;
 
-                            $(".btn-xlsx-download").attr("href", `download/${data.task_id}`)
-
-                            let i = 0;
-                            for (metrics of evaluation.metrics) {
-                                let title_template = document.importNode(document.querySelector("#metric-title-template").content, true);
-                                $(title_template).find('.metric-title').html(file_names[i]);
-                                $(".evaluate-results-row").append(title_template);
-                                i++;
-                                
-                                for (metric of metrics) {
-                                    let template = document.importNode(document.querySelector("#metric-template").content, true);
-                                    let [min, value, max] = metric.value;
-                                    let reversed = (min > max)
-                                    
-                                    if (reversed) {
-                                        // Normally, min is the worst value and max is the best
-                                        // In the case those values come reversed (for example [100, 50, 0])
-                                        // it means that min is the best value and max is the worst (e.g. TER scores)
-                                        // So we reverse the progress bar in the UI
-
-                                        $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .high-zone"))
-                                        $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .medium-zone"))
-
-                                        let min_aux = min;
-                                        min = max;
-                                        max = min_aux;
-                                    }
-
-                                    let proportion = max - min;
-                                    let norm_value = (100 * value) / proportion;
-
-                                    $(template).find(".metric-name").html(metric.name);
-                                    $(template).find(".metric-value").html(value);
-                                    $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
-                                    $(".evaluate-results-row").append(template);
-                                }
+                            for (let i = 0; i < mt_filenames.length; i++) {
+                                let opt_el = document.createElement('option');
+                                $(opt_el).attr("value", i).html(mt_filenames[i]);
+                                $(".results-mt-select").append(opt_el);
                             }
 
-                            $(".chart-container div").remove();
-                            $(".chart-container").append(document.createElement("div"));
-
-                            let file_series = [];
-                            for (let file_ix in file_names) {
-                                let series = { bleu: [], ter: [] };
-                                series['bleu'] = evaluation.spl.map(m => parseFloat(m[5][file_ix]['bleu']))
-                                series['ter'] = evaluation.spl.map(m => parseFloat(m[5][file_ix]['ter']))
-                                file_series.push(series);
+                            for (let i = 0; i < ht_filenames.length; i++) {
+                                let opt_el = document.createElement('option');
+                                $(opt_el).attr("value", i).html(ht_filenames[i]);
+                                $(".results-ht-select").append(opt_el);
                             }
 
-                            bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
-                                series: [{
-                                    name: 'BLEU',
-                                    data: file_series[0]['bleu']
-                                },
-                                {
-                                    name: 'TER',
-                                    data: file_series[0]['ter'].map(m => (-1) * m)
-                                }],
-                                chart: {
-                                    type: 'bar',
-                                    width: '100%',
-                                    height: 500,
-                                    stacked: true,
-                                    toolbar: {
-                                        show: true
-                                    },
-                                    zoom: {
-                                        enabled: true
-                                    }
-                                },
-                                plotOptions: {
-                                    bar: {
-                                        colors: {
-                                            ranges: [{
-                                                from: -100,
-                                                to: 0,
-                                                color: '#ffc107'
-                                            },
-                                            {
-                                                from: 0,
-                                                to: 100,
-                                                color: 'rgba(87, 119, 144, 1)'
-                                            }]
-                                        }
-                                    }
-                                },
-                                dataLabels: { enabled: false },
-                                yaxis: {
-                                    max: 100,
-                                    min: -100,
-                                    labels: {
-                                        formatter: (val) => {
-                                            if (val % parseInt(val) == 0) return parseInt(val)
-                                            return val.toFixed(2)
-                                        }
-                                    }
-                                },
-                                colors: ['rgba(87, 119, 144, 1)', '#ffc107'],
-                                tooltip: {
-                                    y: {
-                                        formatter: function(value, { _, seriesIndex }) {
-                                            if (seriesIndex == 1) { // Series 1 is TER
-                                                return parseFloat(value * -1).toFixed(2) + "%";
-                                            } else {
-                                                return parseFloat(value).toFixed(2);
-                                            }
-                                        }
-                                    }
-                                }
-                            });
+                            $(".btn-xlsx-download").attr("href", `download/${data.task_id}/0`)
 
-                            $('.evaluate-status').attr('data-status', 'none');
-                            $(".evaluate-results").removeClass("d-none");
-                            
-                            bpl_chart.render();
+                            show_results(evaluation, data.task_id, 0, 0);
 
-                            for (let file_ix in file_names) {
-                                let chart_select_template = document.importNode(document.querySelector("#btn-chart-select-template").content, true);
-                                
-                                if (file_ix == 0) $(chart_select_template).find(".btn-chart-select").addClass("active");
-                                $(chart_select_template).find(".btn-chart-select").html(file_names[file_ix]);
-                                $(chart_select_template).find(".btn-chart-select").on('click', function() {
-                                    $(".btn-chart-select").removeClass("active");
-                                    $(this).addClass("active");
-
-                                    bpl_chart.updateSeries([{
-                                        data: file_series[file_ix]['bleu']
-                                    },
-                                    {
-                                        data: file_series[file_ix]['ter'].map(m => (-1) * m)
-                                    }]);
-                                });
-
-                                $(".chart-select").append(chart_select_template)
-                            }
-
-                            $('.page-number').attr('max', evaluation.spl.length);
-                            bpl_table = $(".bleu-line").DataTable({
-                                data: evaluation.spl,
-                                dom: "tp",
-                                pageLength: 1,
-                                drawCallback: function(settings) {
-                                    let api = this.api()
-                                    let rows = api.rows({ page: 'current' }).nodes();
-                                    let row_data = api.rows({ page: 'current' }).data();
-
-                                    $('.page-number').val(api.page() + 1);
-                                    
-                                    rows.each(function(row, i) {
-                                        let data = row_data[i];
-                                        let sentences_data = data[5];
-                                    
-                                        if (data.length > 6) {
-                                            let template = document.importNode(document.querySelector("#sentences-view-template").content, true);
-                                            $(template).find(".sentences-view-source").html(data[6])
-                                            $(row).before(template);
-                                        }
-
-                                        for (sentence_data of sentences_data) {
-                                            let mt_template = document.importNode(document.querySelector("#sentences-view-mt-template").content, true);
-                                            $(mt_template).find(".sentences-view-mt").html(sentence_data.text);
-                                            $(mt_template).find(".sentences-view-bleu").html(sentence_data.bleu);
-                                            $(mt_template).find(".sentences-view-ter").html(sentence_data.ter);
-                                            $(row).after(mt_template);
-                                        }
-
-                                        $(".score-table-line-no").html(data[4]);
-
-                                        this.columns.adjust();
-                                    });
-                                },
-                                columnDefs: [{
-                                    targets: '_all',
-                                    orderable: false    
-                                },
-                                {
-                                    targets: [0, 1],
-                                    className: "overflow"
-                                },
-                                {
-                                    targets: 0,
-                                    render: function(data, type, row) {
-                                        return "<strong>" + data + "</strong>"
-                                    }
-                                }]
-                            });
-
-                            $('.page-btn').on('click', function() {
-                                let page_val = parseInt($('.page-number').val()) - 1;
-                                bpl_table.page(page_val).draw(false);
+                            $('.results-select').off('change').on('change', function() {
+                                show_results(evaluation, data.task_id, $(".results-mt-select option:selected").val(), $(".results-ht-select option:selected").val());
                             });
 
                             return false;
@@ -289,4 +323,4 @@ $(document).ready(function() {
 
         return false;
     });
-})
+});
