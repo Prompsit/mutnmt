@@ -24,3 +24,6 @@ python3 -c 'import nltk; nltk.download("punkt")'
 
 cd app/joeynmt
 pip3 install .
+
+rm /opt/mutnmt/app/base/transformer.yaml
+ln -s /opt/mutnmt/app/base/transformer-small.yaml /opt/mutnmt/app/base/transformer.yaml
