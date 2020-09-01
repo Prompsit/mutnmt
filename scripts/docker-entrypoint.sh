@@ -2,6 +2,12 @@
 PORT=5000
 ROOT=/opt/mutnmt
 
+mkdir -p /opt/mutnmt/data
+mkdir -p /opt/mutnmt/data/redis-data
+mkdir -p /opt/mutnmt/data/logs
+mkdir -p /opt/mutnmt/data/tmp
+mkdir -p /opt/mutnmt/data/userspace
+
 cd $ROOT
 source venv/bin/activate
 

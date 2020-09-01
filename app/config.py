@@ -7,7 +7,8 @@ class Config(object):
     TMP_FOLDER = '/tmp'
     PRELOADED_ENGINES_FOLDER = os.path.join(basedir, "preloaded")
     JOEYNMT_FOLDER = os.path.join(basedir, "joeynmt")
-    USERSPACE_FOLDER = os.path.join(MUTNMT_FOLDER, "data/userspace")
+    DATA_FOLDER = os.path.join(MUTNMT_FOLDER, "data")
+    USERSPACE_FOLDER = os.path.join(DATA_FOLDER, "userspace")
     STORAGE_FOLDER = os.path.join(USERSPACE_FOLDER, "storage")
     FILES_FOLDER = os.path.join(STORAGE_FOLDER, "files")
     ENGINES_FOLDER = os.path.join(STORAGE_FOLDER, "engines")
@@ -16,7 +17,7 @@ class Config(object):
     EVALUATORS_FOLDER = os.path.join(BASEDIR, "blueprints/evaluate/evaluators")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
+        'sqlite:///' + os.path.join(DATA_FOLDER, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     SECRET_KEY = 'development key' # change by your own
