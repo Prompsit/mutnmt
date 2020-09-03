@@ -152,11 +152,11 @@ $(document).ready(function() {
             bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
                 series: [{
                     name: 'BLEU',
-                    data: file_series['bleu']
+                    data: file_series['bleu'].splice(0, 100)
                 },
                 {
                     name: 'TER',
-                    data: file_series['ter'].map(m => (-1) * m)
+                    data: file_series['ter'].splice(0, 100).map(m => (-1) * m)
                 }],
                 chart: {
                     type: 'bar',
@@ -216,9 +216,9 @@ $(document).ready(function() {
             
             bpl_chart.render();
 
-            $('.page-number').attr('max', evaluation.spl[mt_ix].length);
+            $('.page-number').attr('max', evaluation.spl[ht_ix].length);
             bpl_table = $(".bleu-line").DataTable({
-                data: evaluation.spl[mt_ix],
+                data: evaluation.spl[ht_ix],
                 dom: "tp",
                 pageLength: 1,
                 responsive: true,
@@ -240,12 +240,16 @@ $(document).ready(function() {
                             $(row).before(template);
                         }
 
+                        let ix = 1;
                         for (sentence_data of sentences_data) {
                             let mt_template = document.importNode(document.querySelector("#sentences-view-mt-template").content, true);
+                            $(mt_template).find(".sentences-view-mt-index").html(ix);
                             $(mt_template).find(".sentences-view-mt").html(sentence_data.text);
                             $(mt_template).find(".sentences-view-bleu").html(sentence_data.bleu);
                             $(mt_template).find(".sentences-view-ter").html(sentence_data.ter);
-                            $(row).after(mt_template);
+                            $(row).before(mt_template);
+                            
+                            ix++;
                         }
 
                         $(".score-table-line-no").html(data[4]);
