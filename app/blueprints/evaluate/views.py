@@ -43,7 +43,7 @@ def evaluate_files():
         with open(path, 'w') as output_file:
             for i, line in enumerate(file):
                 if i < limit:
-                    print(line.strip(), file=output_file)
+                    print(line.decode('utf-8').strip(), file=output_file)
 
     mt_paths = []
     for mt_file in mt_files:
