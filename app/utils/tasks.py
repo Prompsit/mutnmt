@@ -528,7 +528,7 @@ def generate_xlsx(user_id, rows):
         x_row = [i + 1, row[1]]
 
         if len(row) > 6:
-            x_row.append(row[6])
+            x_row = [i + 1, row[6], row[1]]
         
         for mt_data in row[5]:
             x_row.append(mt_data['text'])
@@ -549,8 +549,8 @@ def generate_xlsx(user_id, rows):
 
 
     headers = headers + ["Machine translation {}".format(i + 1) for i in range(len(row[5]))]
-    headers = headers + ["Bleu {}".format(i + 1) for i in range(len(row[5]))]
-    headers = headers + ["TER {}".format(i + 1) for i in range(len(row[5]))]
+    headers = headers + ["Bleu MT{}".format(i + 1) for i in range(len(row[5]))]
+    headers = headers + ["TER MT{}".format(i + 1) for i in range(len(row[5]))]
 
     x_rows = [headers] + x_rows
 
