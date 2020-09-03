@@ -76,9 +76,20 @@
 </form>
 
 <div class="row evaluate-status" data-status="none">
-    <div class="col-12 col-sm-4 mt-4 mt-sm-0">
-        <div class="alert evaluate-status-pending alert-warning mb-0" role="alert">
-            <i class="fas fa-circle-notch fa-spin"></i> Computing metrics...
+    <!-- Icons made by <a href="https://www.flaticon.com/authors/mangsaabguru" title="mangsaabguru">mangsaabguru</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> -->
+    <!-- Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> -->
+
+    <div class="col-12 mt-4 mt-sm-0">
+        <div class="alert evaluate-status-pending mb-0 mt-3">
+            <div class="d-flex w-100 align-items-center">
+                <div class="mr-5">
+                    <img alt="Pyramids" src="{{ url_for('static', filename='img/pyramids.svg') }}" style="width: 200px;" />
+                </div>
+
+                <div class="h3 mb-0">
+                    Computing metrics... <br /> this may take a while
+                </div>
+            </div>
         </div>
         <div class="alert evaluate-status-error alert-danger mb-0">
             <i class="fas fa-exclamation-circle"></i> Something went wrong...
