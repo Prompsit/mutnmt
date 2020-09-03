@@ -152,11 +152,11 @@ $(document).ready(function() {
             bpl_chart = new ApexCharts(document.querySelector('.chart-container div'), {
                 series: [{
                     name: 'BLEU',
-                    data: file_series['bleu']
+                    data: file_series['bleu'].splice(0, 100)
                 },
                 {
                     name: 'TER',
-                    data: file_series['ter'].map(m => (-1) * m)
+                    data: file_series['ter'].splice(0, 100).map(m => (-1) * m)
                 }],
                 chart: {
                     type: 'bar',
