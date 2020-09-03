@@ -1,5 +1,5 @@
 from app import app, db
-from app.utils import user_utils, data_utils, utils
+from app.utils import user_utils, data_utils, utils, ttr
 from app.utils.power import PowerUtils
 from app.utils.GPUManager import GPUManager
 from app.utils.translation.utils import TranslationUtils
@@ -429,6 +429,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                 evaluator = getattr(module, name)
                 evaluators.append(evaluator())
 
+    lexical_var = ttr.Ttr()
     all_metrics = []
     for mt_path in mt_paths:
         metrics = []
@@ -445,6 +446,14 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                     # If a metric throws an error because of things,
                     # we just skip it for now
                     pass
+
+            ## Lexical variety for original, MT translation and reference
+            for path in [source_path, mt_path, ht_path]:
+                if path:
+                    ht_metric.append({
+                        "name": "{} - {}".format(lexical_var.get_name(), "MT" if path == mt_path else "Human translation" if path == ht_path else "Source"),
+                        "value": lexical_var.compute(path)
+                    })
 
             metrics.append(ht_metric)
 
