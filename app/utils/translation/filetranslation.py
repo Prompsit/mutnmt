@@ -22,7 +22,7 @@ class FileTranslation:
         }
         
         self.format_filters = {
-            ".pdf": "odg",
+            ".pdf": "docx",
             ".rtf": "docx"
         }
 
@@ -60,11 +60,15 @@ class FileTranslation:
         shutil.move(translated_path, file_path)
 
     def translate_xml(self, user_id, xml_path, mode = "xml", as_tmx = False):
+        office = (mode == "office")
+        mode = "xml" if mode == "office" else mode
+
         def explore_node(node):
             if node.text and node.text.strip():
-                translation = self.line(node.text)
-                if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": [translation] })
-                node.text = translation
+                if not office or (office and node.tag in ["{http://schemas.openxmlformats.org/wordprocessingml/2006/main}t", "{urn:oasis:names:tc:opendocument:xmlns:text:1.0}p"]):
+                    translation = self.line(node.text)
+                    if as_tmx: self.sentences[str(user_id)].append({ "source": node.text, "target": [translation] })
+                    node.text = translation
             for child in node:
                 explore_node(child)
         
@@ -113,20 +117,32 @@ class FileTranslation:
 
             for xml_file_path in [f for f in glob.glob(os.path.join(extract_path, "**/*.xml"), recursive=True)]:
                 if re.search(self.format_mappings[norm_extension], xml_file_path):
-                    self.translate_xml(user_id, xml_file_path, "xml", as_tmx)
+                    self.translate_xml(user_id, xml_file_path, "office", as_tmx)
             
             shutil.make_archive(filename, 'zip', extract_path, '.')
             shutil.move('{}.zip'.format(filename), file_path)
             shutil.rmtree(extract_path)
 
     def translate_bridge(self, user_id, file_path, original_extension, as_tmx = False):
+        dest_format = self.format_filters[original_extension]
         filename, extension = os.path.splitext(file_path)
-        dest_path = filename + "." + self.format_filters[original_extension]
+        dest_path = filename + "." + dest_format
 
-        convert = subprocess.Popen("soffice --convert-to {} {} --outdir {}".format(self.format_filters[original_extension],
-                        file_path, os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], 
-                        stdout=subprocess.PIPE) 
-        convert.wait()
+        if original_extension == ".pdf":
+            convert = subprocess.Popen("soffice --convert-to doc {} --outdir {} --infilter=\"writer_pdf_import\"".format(file_path, os.path.dirname(dest_path)),
+                            shell=True, cwd=app.config['MUTNMT_FOLDER'], 
+                            stdout=subprocess.PIPE)
+            convert.wait()
+
+            convert = subprocess.Popen("soffice --convert-to {} {}.doc --outdir {}".format(dest_format,
+                            filename, os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], 
+                            stdout=subprocess.PIPE)
+            convert.wait()
+        else:
+            convert = subprocess.Popen("soffice --convert-to {} {} --outdir {} --infilter=\"writer_pdf_import\"".format(dest_format,
+                    file_path, os.path.dirname(dest_path)), shell=True, cwd=app.config['MUTNMT_FOLDER'], 
+                    stdout=subprocess.PIPE)
+            convert.wait()
 
         self.translate_office(user_id, dest_path, as_tmx)
 
