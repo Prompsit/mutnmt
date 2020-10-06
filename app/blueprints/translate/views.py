@@ -18,7 +18,7 @@ translators = TranslationUtils()
 def translate_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
                 .join(Engine, LibraryEngine.engine) \
-                .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+                .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
                 .order_by(Engine.uploaded.desc()) \
                 .all()
     return render_template('translate.html.jinja2', page_name='translate_text', page_title='Translate', engines = engines)

@@ -33,11 +33,11 @@ class Trainer(object):
             db.session.commit()
 
     @staticmethod
-    def stop(id, user_stop=False):
+    def stop(id, user_stop=False, admin_stop=False):
         engine = Engine.query.filter_by(id = id).first()
         Trainer.finish(engine)
 
-        engine.status = "stopped" if user_stop else "finished"
+        engine.status = "stopped" if user_stop else "stopped_admin" if admin_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
         
         # Save engine runtime

@@ -69,7 +69,7 @@ class Engine(Resource):
         )
 
     def has_stopped(self):
-        return self.status == "stopped" or self.status == "finished"
+        return self.status == "stopped" or self.status == "finished" or self.status == "stopped_admin"
 
 class Corpus(db.Model):
     __tablename__ = 'corpus'

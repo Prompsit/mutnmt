@@ -15,7 +15,7 @@ translators = TranslationUtils()
 def inspect_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
-            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('details.inspect.html.jinja2', page_name='inspect_details', page_title='Details', engines=engines)
@@ -24,7 +24,7 @@ def inspect_index():
 def inspect_access():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
-            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('access.inspect.html.jinja2', page_name='inspect_access', page_title='Access', engines=engines)

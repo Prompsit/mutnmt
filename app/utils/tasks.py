@@ -229,7 +229,7 @@ def train_engine(self, engine_id):
             if running_joey.poll() is not None:
                 # JoeyNMT finished (or died) before timeout
                 db.session.refresh(engine)
-                if engine.status != "stopped":
+                if engine.status != "stopped" and engine.status != "stopped_admin":
                     Trainer.stop(engine_id)
                 GPUManager.free_device(gpu_id)
                 return
