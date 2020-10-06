@@ -23,10 +23,15 @@ $(document).ready(function() {
                 sortable: false,
                 render: function(data, type, row) {
                     let template = document.importNode(document.querySelector("#instances-table-actions-template").content, true);
-                    $(template).find(".stop-engine").attr("href", `stop_engine?id=${row[0]}`);
-                    let ghost = document.createElement('div');
-                    ghost.appendChild(template);
-                    return ghost.innerHTML;
+
+                    if (row[3] == "Training") {
+                        $(template).find(".stop-engine").attr("href", `stop_engine?id=${row[0]}`);
+                        let ghost = document.createElement('div');
+                        ghost.appendChild(template);
+                        return ghost.innerHTML;
+                    } else {
+                        return "";
+                    }
                 }
             }
         ]
