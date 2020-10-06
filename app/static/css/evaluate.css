@@ -31,6 +31,16 @@
     height: 100%;
 }
 
+.metric-hint .progress .metric-bar {
+    background: rgb(255,215,43);
+    background: linear-gradient(90deg, rgba(255,215,43,1) 0%, rgba(40,167,111,1) 100%); 
+}
+
+.metric-hint .progress .metric-bar.reversed {
+    background: rgb(206,255,43);
+    background: linear-gradient(90deg, rgba(40,167,111,1) 0%, rgba(255,215,43,1) 100%); 
+}
+
 .metric-hint .metric-indicator {
     content: "";
     display: block;

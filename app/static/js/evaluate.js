@@ -125,8 +125,7 @@ $(document).ready(function() {
                     // it means that min is the best value and max is the worst (e.g. TER scores)
                     // So we reverse the progress bar in the UI
 
-                    $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .high-zone"))
-                    $(template).find(".metric-hint .low-zone").before($(template).find(".metric-hint .medium-zone"))
+                    $(template).find(".metric-bar").addClass("reversed");
 
                     let min_aux = min;
                     min = max;
