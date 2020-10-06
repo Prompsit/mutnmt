@@ -35,8 +35,8 @@ class TranslationUtils:
         task = tasks.translate_text.apply_async(args=[user_id, engine_id, lines])
         return task.id
 
-    def get_inspect(self, user_id, engine_id, line):
-        task = tasks.inspect_details.apply_async(args=[user_id, engine_id, line])
+    def get_inspect(self, user_id, engine_id, line, engines):
+        task = tasks.inspect_details.apply_async(args=[user_id, engine_id, line, engines])
         return task.id
             
     def deattach(self, user_id):

@@ -16,7 +16,31 @@
     </div>
 </div>
 
+<h3 class="h6 mt-3">Compare with</h3>
+
+<div class="compare-btns d-none">
+    <div class="d-flex">
+        {% for engine_entry in engines %}
+        <div class="btn-group-toggle mr-2" data-toggle="buttons">
+            <label class="btn btn-sm btn-outline-success">
+                <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}" /> {{ engine_entry.engine.name }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="inspect-compare-content my-4 d-none">
+    <hr />
+    <h3 class="h6 mb-3">Comparison</h3>
+</div>
+
 <div class="row row-striped inspect-row d-none">
+    <div class="col-12">
+        <hr />
+        <h3 class="h6">Inspection</h3>
+    </div>
+
     <div class="col-12">
         <div class="row">
             <div class="col-12 col-sm-4">
@@ -62,17 +86,16 @@
             </div>
         </div>
     </div>
+</div>
 
-    <div class="col-12">
-        <div class="row">
-            <div class="col-12 col-sm-4">
-                <strong>Alignments</strong>
-            </div>
-
-            <div class="col-12 col-sm-8">
-                <span class="inspect-content alignments"></span>
-            </div>
+<template id="translation-template">
+    <div class="row mb-1 translation-row">
+        <div class="col-12 col-sm-3">
+            <strong class="engine-name"></strong>
+        </div>
+        <div class="col-12 col-sm-8">
+            <span class="user-engine-target"></span>
         </div>
     </div>
-</div>
+</template>
 {% endblock %}

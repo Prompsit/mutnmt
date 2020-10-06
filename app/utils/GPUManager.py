@@ -1,5 +1,6 @@
 import redis
 import pynvml
+import time
 
 class GPUManager(object):
     redis_conn = redis.Redis()

@@ -375,32 +375,28 @@ def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @celery.task(bind=True)
-def inspect_details(self, user_id, engine_id, line):
+def inspect_details(self, user_id, engine_id, line, engines):
     translator, tokenizer = launch_engine(user_id, engine_id)
     engine = Engine.query.filter_by(id=engine_id).first()
 
-    n_best = []
+    inspect_details = None
     if line.strip() != "":
         sentences = sent_tokenize(line.strip())
         if len(sentences) > 0:
             line_tok = tokenizer.tokenize(sentences[0])
             n_best = translator.translate(line_tok, 5)
-        else:
-            return None
-    else:
-        return None
+            del translator # Free GPU slot
 
-    return {
-        "source": engine.source.code,
-        "target": engine.target.code,
-        "preproc_input": line_tok,
-        "preproc_output": n_best[0],
-        "nbest": [tokenizer.detokenize(n) for n in n_best],
-        "alignments": [],
-        "postproc_output": tokenizer.detokenize(n_best[0])
-    }
-@celery.task(bind=True)
-def inspect_compare(self, user_id, engines, text):
+            inspect_details = {
+                "source": engine.source.code,
+                "target": engine.target.code,
+                "preproc_input": line_tok,
+                "preproc_output": n_best[0],
+                "nbest": [tokenizer.detokenize(n) for n in n_best],
+                "alignments": [],
+                "postproc_output": tokenizer.detokenize(n_best[0])
+            }
+    
     translations = []
     for engine_id in engines:
         engine = Engine.query.filter_by(id = engine_id).first()
@@ -408,10 +404,12 @@ def inspect_compare(self, user_id, engines, text):
             {
                 "id": engine_id,
                 "name": engine.name,
-                "text": translate_text(user_id, engine_id, [text])
+                "text": translate_text(user_id, engine_id, [line])
             })
 
-    return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
+    compare = { "source": engine.source.code, "target": engine.target.code, "translations": translations }
+
+    return inspect_details, compare
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EVALUATE TASKS
