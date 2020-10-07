@@ -147,7 +147,7 @@ def delete_user():
         for engine_entry in user.user_engines:
             user_utils.library_delete("library_engines", engine_entry.engine.id, id)
 
-        shutil.rmtree(user_utils.get_user_folder())
+        shutil.rmtree(user_utils.get_user_folder(user_id=id))
         db.session.delete(user)
         db.session.commit()
     except:
