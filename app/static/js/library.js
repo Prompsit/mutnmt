@@ -31,6 +31,7 @@ $(document).ready(function() {
                 method: "post",
                 data: { public: public_mode }
             },
+            order: [[0, "asc"]],
             drawCallback: function(settings) {
                 let api = this.api()
                 let rows = api.rows({ page: 'current' }).nodes();

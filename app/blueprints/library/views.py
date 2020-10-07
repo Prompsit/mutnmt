@@ -73,8 +73,8 @@ def library_corpora_feed():
 
     recordsTotal = len(corpus_rows)
     recordsFiltered = 0
-    
-    if order:
+
+    if order is not None:
         corpus_rows.sort(key=lambda c: c[order], reverse=(dir == 'asc'))
 
     if start is not None and length is not None:
