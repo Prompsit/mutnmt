@@ -80,9 +80,9 @@ def get_user_corpora(user_id=None, public=False):
                 Corpus.visible == True,
                 Corpus.public == True,
                 Corpus.owner_id != user_id
-            )))
+            ))).order_by(LibraryCorpora.id.desc())
     else:
         return LibraryCorpora.query.filter(LibraryCorpora.user_id == user_id) \
                 .filter(LibraryCorpora.corpus.has(and_(
                     Corpus.visible == True
-                )))
+                ))).order_by(LibraryCorpora.id.desc())
