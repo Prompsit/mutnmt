@@ -58,24 +58,6 @@ $(document).ready(function() {
         file_source = null;
         file_target = null;
         $(".source_file, .target_file").removeClass("dragged");
-    })
-
-    $(".monolingual-nav-tab").on('click', function(e) {
-        e.preventDefault();
-        if ($(this).closest("fieldset").prop("disabled") == true) return;
-
-        $(".target-file-col, .target-lang-col, .bitext-col").addClass("target-col-disabled");
-        $(".target_file").removeClass("dragged");
-        $(".upload-nav-tabs .nav-link").removeClass("active");
-        $(this).addClass("active");
-        file_target = null;
-    });
-
-    $(".bilingual-nav-tab").on('click', function(e) {
-        e.preventDefault();
-        $(".target-file-col, .target-lang-col, .bitext-col").removeClass("target-col-disabled");
-        $(".upload-nav-tabs .nav-link").removeClass("active");
-        $(this).addClass("active");
     });
 
     $(".data-upload-form").on("submit", function(e) {

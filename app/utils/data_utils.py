@@ -13,7 +13,7 @@ import datetime
 import shutil
 
 def process_upload_request(user_id, bitext_file, src_file, trg_file, src_lang, trg_lang, corpus_name, corpus_desc):
-    type = "bitext" if bitext_file else "bilingual" if trg_file else "monolingual"
+    type = "bitext" if bitext_file else "bilingual"
 
     bitext_path = None
     src_path = None
