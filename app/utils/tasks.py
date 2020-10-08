@@ -459,12 +459,12 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
 
     xlsx_file_paths = []
     ht_rows = []
-    for ht_path in ht_paths:
+    for ht_index, ht_path in enumerate(ht_paths):
         rows = []
         with open(ht_path, 'r') as ht_file:
             for i, line in enumerate(ht_file):
                 line = line.strip()
-                rows.append(["Reference", line, None, None, i + 1, []])
+                rows.append(["Reference {}".format(ht_index + 1), line, None, None, i + 1, []])
 
         for mt_path in mt_paths:
             scores = spl(mt_path, ht_path)
@@ -476,7 +476,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                 for i, line in enumerate(source_file):
                     rows[i].append(line.strip())
         
-        xlsx_file_paths.append(generate_xlsx(user_id, rows))
+        xlsx_file_paths.append(generate_xlsx(user_id, rows, ht_index))
 
         ht_rows.append(rows)
 
@@ -514,7 +514,7 @@ def spl(mt_path, ht_path):
 
     return rows
 
-def generate_xlsx(user_id, rows):
+def generate_xlsx(user_id, rows, ht_path_index):
     file_name = utils.normname(user_id, "evaluation") + ".xlsx"
     file_path = utils.tmpfile(file_name)
 
@@ -541,9 +541,9 @@ def generate_xlsx(user_id, rows):
 
     headers = ["Line"]
     if len(row) > 6:
-        headers = headers + ["Source sentence", "Reference sentence"]
+        headers = headers + ["Source sentence", "Reference {}".format(ht_path_index + 1)]
     else:
-        headers = headers + ["Reference sentence"]
+        headers = headers + ["Reference {}".format(ht_path_index + 1)]
 
 
     headers = headers + ["Machine translation {}".format(i + 1) for i in range(len(row[5]))]
