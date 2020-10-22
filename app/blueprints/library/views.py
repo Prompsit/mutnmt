@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine
+from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine, Topic
 from app.utils import user_utils, utils, datatables, tensor_utils
 from app.utils.power import PowerUtils
 from app.flash import Flash
@@ -27,9 +27,10 @@ def library_corpora():
     public_files = user_utils.get_user_corpora(public=True).count()
 
     languages = Language.query.all()
+    topics = Topic.query.all()
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',
-            user_library = user_library, public_files = public_files, languages=languages)
+            user_library = user_library, public_files = public_files, languages=languages, topics=topics)
 
 @library_blueprint.route('/engines')
 def library_engines():
@@ -98,7 +99,8 @@ def library_corpora_feed():
                 file.language.name,
                 utils.format_number(file.lines), 
                 utils.format_number(file.words), 
-                utils.format_number(file.chars), 
+                utils.format_number(file.chars),
+                corpus.topic.name if corpus.topic else "",
                 uploaded_date,
                 {
                     "corpus_owner": file.uploader.id == user_utils.get_uid() if file.uploader else False,
@@ -124,7 +126,7 @@ def library_corpora_feed():
         if search:
             found = False
             for col in row + file_data:
-                found = found or (search in str(col))
+                found = found or (search.lower() in str(col).lower())
             
             if found:
                 corpus_data = corpus_data + file_data

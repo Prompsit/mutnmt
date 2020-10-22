@@ -566,10 +566,7 @@ def generate_xlsx(user_id, rows, ht_path_index):
 # UPLOAD TASKS
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 @celery.task(bind=True)
-def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_lang, trg_lang, corpus_name, corpus_desc=""):
-    from celery.utils.log import get_task_logger
-    logger = get_task_logger(__name__)
-
+def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_lang, trg_lang, corpus_name, corpus_desc="", corpus_topic=None):
     type = "bitext" if bitext_path else "bilingual" if trg_path else "monolingual"
 
     def process_file(file, language, corpus, role):
@@ -627,7 +624,7 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
     target_db_file = None
     try:
         corpus = Corpus(name = corpus_name, type = "bilingual" if type == "bitext" else type, 
-                    owner_id = user_id, description = corpus_desc)
+                    owner_id = user_id, description = corpus_desc, topic_id = corpus_topic)
 
         if type == "bitext":
             with open(bitext_path, 'rb') as fbitext:

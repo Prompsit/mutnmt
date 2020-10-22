@@ -41,7 +41,7 @@ def data_upload_perform():
         if request.method == 'POST':
             task_id = data_utils.process_upload_request(user_utils.get_uid(), request.files.get('bitext_file'), request.files.get('source_file'),
                     request.files.get('target_file'), request.form.get('source_lang'), request.form.get('target_lang'),
-                    request.form.get('name'), request.form.get('description'))
+                    request.form.get('name'), request.form.get('description'), request.form.get('topic'))
 
             return jsonify({ "result": 200, "task_id": task_id })
         else:

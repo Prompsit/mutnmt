@@ -71,6 +71,11 @@ class Engine(Resource):
     def has_stopped(self):
         return self.status == "stopped" or self.status == "finished" or self.status == "stopped_admin"
 
+class Topic(db.Model):
+    __tablename__ = 'topics'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64))
+
 class Corpus(db.Model):
     __tablename__ = 'corpus'
     id = db.Column(db.Integer, primary_key=True)
@@ -90,6 +95,9 @@ class Corpus(db.Model):
 
     target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
     target = db.relationship("Language", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
+
+    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'))
+    topic = db.relationship("Topic", backref = db.backref("corpus_topic", cascade="all, delete-orphan"))
 
     def lines(self, human=False, abbr=False):
         if len(self.corpus_files) > 0:

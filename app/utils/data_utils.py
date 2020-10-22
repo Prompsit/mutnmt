@@ -12,7 +12,7 @@ import re
 import datetime
 import shutil
 
-def process_upload_request(user_id, bitext_file, src_file, trg_file, src_lang, trg_lang, corpus_name, corpus_desc):
+def process_upload_request(user_id, bitext_file, src_file, trg_file, src_lang, trg_lang, corpus_name, corpus_desc, corpus_topic):
     type = "bitext" if bitext_file else "bilingual"
 
     bitext_path = None
@@ -31,7 +31,7 @@ def process_upload_request(user_id, bitext_file, src_file, trg_file, src_lang, t
             trg_file.save(trg_path)
     
     task = tasks.process_upload_request.apply_async(args=[user_id, bitext_path, src_path, 
-            trg_path, src_lang, trg_lang, corpus_name, corpus_desc])
+            trg_path, src_lang, trg_lang, corpus_name, corpus_desc, corpus_topic])
     return task.id
 
 def upload_file(file, language, format="text", selected_size=None, offset=None, user_id=None):
