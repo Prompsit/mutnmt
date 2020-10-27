@@ -38,6 +38,11 @@ class TranslationUtils:
     def get_inspect(self, user_id, engine_id, line, engines):
         task = tasks.inspect_details.apply_async(args=[user_id, engine_id, line, engines])
         return task.id
+
+    def get_compare(self, user_id, line, engines):
+        task = tasks.inspect_compare.apply_async(args=[user_id, line, engines])
+        return task.id
+
             
     def deattach(self, user_id):
         user_engine = self.get_user_running_engine(user_id)

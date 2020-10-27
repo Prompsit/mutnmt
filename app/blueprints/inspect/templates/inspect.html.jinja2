@@ -8,6 +8,9 @@
         <a href="{{ url_for('inspect.inspect_index') }}" 
             class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_details' else '' }}">Details</a>
 
+        <a href="{{ url_for('inspect.inspect_compare') }}"
+            class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_compare' else '' }}">Compare</a>
+
         <a href="{{ url_for('inspect.inspect_access') }}"
             class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_access' else '' }}">Access</a>
     </div>
@@ -29,7 +32,7 @@
     <div class="d-flex align-items-center mt-2">
         <select class="custom-select mr-1 engine-select" name="engine_id">
             {% for engine_entry in engines %}
-                <option value="{{ engine_entry.engine.id }}">
+                <option value="{{ engine_entry.engine.id }}" data-src="{{ engine_entry.engine.source.code }}" data-trg="{{ engine_entry.engine.target.code }}">
                     {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
                 </option>
             {% endfor %}

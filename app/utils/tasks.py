@@ -396,7 +396,11 @@ def inspect_details(self, user_id, engine_id, line, engines):
                 "alignments": [],
                 "postproc_output": tokenizer.detokenize(n_best[0])
             }
-    
+
+    return inspect_details
+
+@celery.task(bind=True)
+def inspect_compare(self, user_id, line, engines):
     translations = []
     for engine_id in engines:
         engine = Engine.query.filter_by(id = engine_id).first()
@@ -407,9 +411,7 @@ def inspect_details(self, user_id, engine_id, line, engines):
                 "text": translate_text(user_id, engine_id, [line])
             })
 
-    compare = { "source": engine.source.code, "target": engine.target.code, "translations": translations }
-
-    return inspect_details, compare
+    return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EVALUATE TASKS

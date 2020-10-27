@@ -1,0 +1,43 @@
+{% extends "inspect.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inspect/compare.inspect.js') }}"></script>
+{% endblock %}
+
+{% block inspect_content %}
+<h3 class="h6 mt-3">Compare with</h3>
+
+<div class="compare-btns">
+    <div class="d-flex">
+        {% for engine_entry in engines %}
+        <div class="btn-group-toggle mr-2" data-toggle="buttons">
+            <label class="btn btn-sm btn-outline-success">
+                <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}"
+                    data-src="{{ engine_entry.engine.source.code }}" data-trg="{{ engine_entry.engine.target.code }}" /> {{ engine_entry.engine.name }}
+            </label>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="inspect-compare-content my-4 d-none">
+    <hr />
+    <h3 class="h6 mb-3">Comparison</h3>
+</div>
+
+<template id="translation-template">
+    <div class="row mb-1 translation-row">
+        <div class="col-12 col-sm-3">
+            <strong class="engine-name"></strong>
+        </div>
+        <div class="col-12 col-sm-8">
+            <span class="user-engine-target"></span>
+        </div>
+    </div>
+</template>
+{% endblock %}
