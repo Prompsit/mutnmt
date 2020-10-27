@@ -22,23 +22,47 @@
 }
 
 .metric-hint {
-    position: relative;
     height: 8px;
 }
 
-.metric-hint .progress {
+.metric-hint .metric-hint-content {
     width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-hint .metric-hint-content .metric-icon {
+    margin-left: 0.5rem;
+}
+
+.metric-hint.reversed .metric-hint-content {
+    flex-direction: row-reverse;
+}
+
+.metric-hint.reversed .metric-hint-content .metric-icon {
+    margin-right: 0.5rem;
+}
+
+.metric-hint .metric-hint-content .metric-hint-bar {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.metric-hint .metric-hint-content .metric-hint-bar .progress {
     height: 100%;
 }
 
 .metric-hint .progress .metric-bar {
-    background: rgb(255,215,43);
-    background: linear-gradient(90deg, rgba(255,215,43,1) 0%, rgba(40,167,111,1) 100%); 
+    background: rgb(129,144,155);
+    background: linear-gradient(90deg, rgb(214 216 217) 0%, rgba(87,119,144,1) 75%);
 }
 
-.metric-hint .progress .metric-bar.reversed {
-    background: rgb(206,255,43);
-    background: linear-gradient(90deg, rgba(40,167,111,1) 0%, rgba(255,215,43,1) 100%); 
+.metric-hint.reversed .progress .metric-bar {
+    background: rgb(129,144,155);
+    background: linear-gradient(90deg, rgba(87,119,144,1) 0%,  rgb(214 216 217) 75%);
 }
 
 .metric-hint .metric-indicator {

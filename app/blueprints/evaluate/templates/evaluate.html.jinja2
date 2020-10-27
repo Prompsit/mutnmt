@@ -130,6 +130,10 @@
     <div class="row mt-5 evaluate-results-row">
     </div>
 
+    <h2 class="h5 mt-5">Information</h2>
+    <div class="row my-3 info-row">
+    </div>
+
     <h2 class="h5 mt-5">Score map</h2>
     
     <div class="my-3 chart-select">
@@ -162,7 +166,7 @@
         <td class="overflow"><strong>Source</strong></td>
         <td class="sentences-view-source overflow"></td>
         <td></td>
-        <td ></td>
+        <td></td>
     </tr>
 </template>
 
@@ -212,13 +216,29 @@
         <strong class="h1 bold metric-value"></strong>
 
         <div class="metric-hint my-3">
-            <div class="metric-indicator"></div>
-            <div class="progress">
-                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+            <div class="metric-hint-content">
+                <div class="metric-hint-bar">
+                    <div class="progress">
+                        <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                    </div>
+
+                    <div class="metric-indicator"></div>
+                </div>
+                
+                <div class="metric-icon">
+                    <i class="far fa-laugh"></i>
+                </div>
             </div>
         </div>
 
         <strong class="metric-name"></strong>
+    </div>
+</template>
+
+<template id="lexical-template">
+    <div class="col-12 col-sm-3 text-center">
+        <div class="h1 lexical-value"></div>
+        <strong class="bold mt-1 lexical-name"></strong>
     </div>
 </template>
 

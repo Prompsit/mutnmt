@@ -109,36 +109,45 @@ $(document).ready(function() {
             $(".evaluate-results").addClass("d-none");
             $(".evaluate-results-row").empty();
             $(".chart-select").empty();
+            $(".info-row").empty();
 
             if (bpl_table) bpl_table.destroy();
 
             $(".btn-xlsx-download").attr("href", `download/${task_id}/${ht_ix}`);
 
-            for (metric of evaluation.metrics[mt_ix][ht_ix]) {
-                let template = document.importNode(document.querySelector("#metric-template").content, true);
-                let [min, value, max] = metric.value;
-                let reversed = (min > max)
-                
-                if (reversed) {
-                    // Normally, min is the worst value and max is the best
-                    // In the case those values come reversed (for example [100, 50, 0])
-                    // it means that min is the best value and max is the worst (e.g. TER scores)
-                    // So we reverse the progress bar in the UI
+            for (let _eval of evaluation.evals[mt_ix][ht_ix]) {
+                if (_eval.is_metric) {
+                    let template = document.importNode(document.querySelector("#metric-template").content, true);
+                    let [min, value, max] = _eval.value;
+                    let reversed = (min > max)
+                    
+                    if (reversed) {
+                        // Normally, min is the worst value and max is the best
+                        // In the case those values come reversed (for example [100, 50, 0])
+                        // it means that min is the best value and max is the worst (e.g. TER scores)
+                        // So we reverse the progress bar in the UI
 
-                    $(template).find(".metric-bar").addClass("reversed");
+                        $(template).find(".metric-hint").addClass("reversed");
 
-                    let min_aux = min;
-                    min = max;
-                    max = min_aux;
+                        let min_aux = min;
+                        min = max;
+                        max = min_aux;
+                    }
+
+                    let proportion = max - min;
+                    let norm_value = (100 * (value > max ? max : value < min ? min : value)) / proportion;
+
+                    $(template).find(".metric-name").html(_eval.name);
+                    $(template).find(".metric-value").html(value);
+                    $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
+                    $(".evaluate-results-row").append(template);
+                } else {
+                    let template = document.importNode(document.querySelector("#lexical-template").content, true);
+                    let [min, value, max] = _eval.value;
+                    $(template).find(".lexical-value").html(value);
+                    $(template).find(".lexical-name").html(_eval.name);
+                    $(".info-row").append(template);
                 }
-
-                let proportion = max - min;
-                let norm_value = (100 * (value > max ? max : value < min ? min : value)) / proportion;
-
-                $(template).find(".metric-name").html(metric.name);
-                $(template).find(".metric-value").html(value);
-                $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
-                $(".evaluate-results-row").append(template);
             }
 
             $(".chart-container div").remove();

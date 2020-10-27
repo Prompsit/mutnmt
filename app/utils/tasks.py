@@ -430,17 +430,18 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                 evaluators.append(evaluator())
 
     lexical_var = ttr.Ttr()
-    all_metrics = []
+    all_evals = []
     for mt_path in mt_paths:
-        metrics = []
+        evals = []
 
         for ht_path in ht_paths:
-            ht_metric = []
+            ht_eval = []
             for evaluator in evaluators:
                 try:
-                    ht_metric.append({
+                    ht_eval.append({
                         "name": evaluator.get_name(),
-                        "value": evaluator.get_value(mt_path, ht_path)
+                        "value": evaluator.get_value(mt_path, ht_path),
+                        "is_metric": True
                     })
                 except:
                     # If a metric throws an error because of things,
@@ -450,14 +451,15 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
             ## Lexical variety for original, MT translation and reference
             for path in [source_path, mt_path, ht_path]:
                 if path:
-                    ht_metric.append({
+                    ht_eval.append({
                         "name": "{} - {}".format(lexical_var.get_name(), "MT" if path == mt_path else "Human translation" if path == ht_path else "Source"),
-                        "value": lexical_var.compute(path)
+                        "value": lexical_var.compute(path),
+                        "is_metric": False
                     })
 
-            metrics.append(ht_metric)
+            evals.append(ht_eval)
 
-        all_metrics.append(metrics)
+        all_evals.append(evals)
 
     xlsx_file_paths = []
     ht_rows = []
@@ -489,7 +491,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
             # It was the same file, we just pass
             pass
 
-    return { "result": 200, "metrics": all_metrics, "spl": ht_rows }, xlsx_file_paths
+    return { "result": 200, "evals": all_evals, "spl": ht_rows }, xlsx_file_paths
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
