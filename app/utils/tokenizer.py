@@ -22,5 +22,8 @@ class Tokenizer:
     def detokenize(self, text):
         if self.sp:
             tokenized = text.split(" ")
-            return self.sp.DecodePieces(tokenized)
+            detokenized = self.sp.DecodePieces(tokenized)
+            if detokenized is not None:
+                return detokenized.replace("⁇", "&lt;unk&gt;")
+            return None
         return None
