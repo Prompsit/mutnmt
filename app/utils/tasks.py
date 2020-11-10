@@ -199,11 +199,11 @@ def launch_training(self, user_id, engine_path, params):
         return -1
 
 @celery.task(bind=True)
-def train_engine(self, engine_id):
+def train_engine(self, engine_id, is_admin):
     # Trains an engine by calling JoeyNMT and keeping
     # track of its progress
 
-    gpu_id = GPUManager.wait_for_available_device()
+    gpu_id = GPUManager.wait_for_available_device(is_admin=is_admin)
 
     try:
 
@@ -307,11 +307,11 @@ def test_training(self, engine_id):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-def launch_engine(user_id, engine_id):
+def launch_engine(user_id, engine_id, is_admin):    
     user = User.query.filter_by(id=user_id).first()
     engine = Engine.query.filter_by(id=engine_id).first()
         
-    translator = JoeyWrapper(engine.path)
+    translator = JoeyWrapper(engine.path, is_admin)
     translator.load()
 
     # If this user is already using another engine, we switch
@@ -327,9 +327,9 @@ def launch_engine(user_id, engine_id):
     return translator, tokenizer
 
 @celery.task(bind=True)
-def translate_text(self, user_id, engine_id, lines):    
+def translate_text(self, user_id, engine_id, lines, is_admin):    
     # We launch the engine
-    translator, tokenizer = launch_engine(user_id, engine_id)
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
 
     # We translate
     translations = []
@@ -345,14 +345,14 @@ def translate_text(self, user_id, engine_id, lines):
     return translations
 
 @celery.task(bind=True)
-def translate_file(self, user_id, engine_id, user_file_path, as_tmx, tmx_mode):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def translate_file(self, user_id, engine_id, user_file_path, as_tmx, tmx_mode, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     file_translation = FileTranslation(translator, tokenizer)
     return file_translation.translate_file(user_id, user_file_path, as_tmx, tmx_mode)
 
 @celery.task(bind=True)
-def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def generate_tmx(self, user_id, engine_id, chain_engine_id, text, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     file_translation = FileTranslation(translator, tokenizer)
 
     if chain_engine_id:
@@ -375,8 +375,8 @@ def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @celery.task(bind=True)
-def inspect_details(self, user_id, engine_id, line, engines):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def inspect_details(self, user_id, engine_id, line, engines, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     engine = Engine.query.filter_by(id=engine_id).first()
 
     inspect_details = None
@@ -400,7 +400,7 @@ def inspect_details(self, user_id, engine_id, line, engines):
     return inspect_details
 
 @celery.task(bind=True)
-def inspect_compare(self, user_id, line, engines):
+def inspect_compare(self, user_id, line, engines, is_admin):
     translations = []
     for engine_id in engines:
         engine = Engine.query.filter_by(id = engine_id).first()
@@ -408,7 +408,7 @@ def inspect_compare(self, user_id, line, engines):
             {
                 "id": engine_id,
                 "name": engine.name,
-                "text": translate_text(user_id, engine_id, [line])
+                "text": translate_text(user_id, engine_id, [line], is_admin)
             })
 
     return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
@@ -498,8 +498,6 @@ def spl(mt_path, ht_path):
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
                         cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
     sacreBLEU.wait()
-
-    logger.info("bleu ready")
 
     rows = []
     with open('{}.bpl'.format(mt_path), 'r') as bl_file:

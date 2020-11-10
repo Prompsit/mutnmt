@@ -30,8 +30,9 @@ class MonoLineDataset(Dataset):
         super(MonoLineDataset, self).__init__(examples, fields, **kwargs)
 
 class JoeyWrapper:
-    def __init__(self, engine_path):
+    def __init__(self, engine_path, is_admin):
         self.engine_path = engine_path
+        self.is_admin = is_admin
         self.model_path = os.path.join(engine_path, 'model')
         self.config_path = os.path.join(engine_path, 'config.yaml')
         self.gpu_id = None
@@ -79,7 +80,7 @@ class JoeyWrapper:
         self.model.load_state_dict(model_checkpoint["model_state"])
 
         if self.use_cuda:
-            self.gpu_id = GPUManager.wait_for_available_device()
+            self.gpu_id = GPUManager.wait_for_available_device(is_admin=self.is_admin)
             self.model.cuda(self.gpu_id)
 
         return True

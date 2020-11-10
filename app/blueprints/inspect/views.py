@@ -48,6 +48,7 @@ def inspect_details():
     line = request.form.get('line')
     engine_id = request.form.get('engine_id')
     engines = request.form.getlist('engines[]')
+    translators.set_admin(user_utils.is_admin())
     translation_task_id = translators.get_inspect(user_utils.get_uid(), engine_id, line, engines)
 
     return translation_task_id
@@ -56,6 +57,7 @@ def inspect_details():
 def inspect_compare_text():
     line = request.form.get('line')
     engines = request.form.getlist('engines[]')
+    translators.set_admin(user_utils.is_admin())
     translation_task_id = translators.get_compare(user_utils.get_uid(), line, engines)
 
     return translation_task_id
