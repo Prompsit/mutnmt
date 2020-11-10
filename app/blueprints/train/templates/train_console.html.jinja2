@@ -24,6 +24,8 @@
             <span class="badge badge-success">
                 {% if engine.status == "stopped" %}
                     Stopped
+                {% elif engine.status == "stopped_admin" %}
+                    Stopped by admin
                 {% else %}
                     Finished
                 {% endif %}

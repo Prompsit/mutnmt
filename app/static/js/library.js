@@ -38,7 +38,7 @@ $(document).ready(function() {
                 let last_group = -1;
                 rows.each(function(row, i) {
                     let data = row_data[i];
-                    let corpus_data = data[7];
+                    let corpus_data = data[8];
                     
                     if (corpus_data.corpus_id != last_group) {
                         let template = document.importNode(document.querySelector("#corpus-header-template").content, true);
@@ -125,6 +125,12 @@ $(document).ready(function() {
                         let ghost = document.createElement('div');
                         $(ghost).append(template);
                         return ghost.innerHTML;
+                    }
+                },
+                {
+                    targets: 6,
+                    render: function(data, type, row) {
+                        return (data != "") ? data : "—";
                     }
                 }
             ]

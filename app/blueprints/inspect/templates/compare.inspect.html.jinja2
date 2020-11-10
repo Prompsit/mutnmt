@@ -10,49 +10,24 @@
 {% endblock %}
 
 {% block inspect_content %}
-<h3 class="h6">Compare with</h3>
+<h3 class="h6 mt-3">Compare with</h3>
 
-<div class="compare-btns d-none">
+<div class="compare-btns">
     <div class="d-flex">
         {% for engine_entry in engines %}
         <div class="btn-group-toggle mr-2" data-toggle="buttons">
             <label class="btn btn-sm btn-outline-success">
-                <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}" /> {{ engine_entry.engine.name }}
+                <input type="checkbox" class="compare-engine" data-engine-id="{{ engine_entry.engine_id }}"
+                    data-src="{{ engine_entry.engine.source.code }}" data-trg="{{ engine_entry.engine.target.code }}" /> {{ engine_entry.engine.name }}
             </label>
         </div>
         {% endfor %}
     </div>
 </div>
 
-<div class="inspect-compare-content mt-5 d-none">
-    <div class="row mb-1">
-        <div class="col-12 col-sm-3">
-            <strong>Bing</strong>
-        </div>
-        <div class="col-12 col-sm-9">
-            <span class="engine-target bing-target"></span>
-        </div>
-    </div>
-    <div class="row mb-1">
-        <div class="col-12 col-sm-3">
-            <strong>Google</strong>
-        </div>
-        <div class="col-12 col-sm-9">
-            <a href="#" target="_blank" class="google-link">
-                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
-            </a>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-12 col-sm-3">
-            <strong>DeepL</strong>
-        </div>
-        <div class="col-12 col-sm-9">
-            <a href="#" target="_blank" class="deepl-link">
-                <i class="fas fa-external-link-alt"></i> Open translation in a new tab
-            </a>
-        </div>
-    </div>
+<div class="inspect-compare-content my-4 d-none">
+    <hr />
+    <h3 class="h6 mb-3">Comparison</h3>
 </div>
 
 <template id="translation-template">

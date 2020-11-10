@@ -121,7 +121,7 @@ def instances_datatables_feed():
 
     user_data = []
     for engine in (rows_filtered if search else rows):
-        user_data.append([engine.id, engine.name, engine.uploader.email if engine.uploader else "", "Training"])
+        user_data.append([engine.id, engine.name, engine.uploader.email if engine.uploader else "", "Training", None])
 
     columns_translating = [RunningEngines.id]
     rows_translating, rows_translating_filtered, search_translating = dt.parse(RunningEngines, columns_translating, request)
@@ -129,7 +129,7 @@ def instances_datatables_feed():
     for engine_entry in (rows_translating_filtered if search_translating else rows_translating):
         user_data.append([engine_entry.engine.id, engine_entry.engine.name, 
                             engine_entry.engine.uploader.email if engine_entry.engine.uploader else "", 
-                            "Translating", ""])
+                            "Translating", None])
 
     return dt.response(rows, rows_filtered, user_data)
 
@@ -147,7 +147,7 @@ def delete_user():
         for engine_entry in user.user_engines:
             user_utils.library_delete("library_engines", engine_entry.engine.id, id)
 
-        shutil.rmtree(user_utils.get_user_folder())
+        shutil.rmtree(user_utils.get_user_folder(user_id=id))
         db.session.delete(user)
         db.session.commit()
     except:
@@ -161,7 +161,7 @@ def stop_engine():
     id = request.args.get('id')
 
     try:
-        Trainer.stop(id)
+        Trainer.stop(id, admin_stop=True)
     except:
         pass
 

@@ -5,7 +5,7 @@ import pynvml
 class PowerUtils(object):
     # Units are Wh
     references = {
-        "lightbulb": { "power": 15, "name": "light bulbs" },
+        "lightbulb": { "power": 15, "name": "CFL light bulbs" },
         "c3po": { "power": 48.6, "name": "C3PO Droids" } # source: https://www.wired.com/2012/05/how-big-is-c-3p0s-battery/,
     }
 

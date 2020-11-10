@@ -15,7 +15,7 @@ translators = TranslationUtils()
 def inspect_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
-            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('details.inspect.html.jinja2', page_name='inspect_details', page_title='Details', engines=engines)
@@ -24,7 +24,7 @@ def inspect_index():
 def inspect_compare():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
-            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('compare.inspect.html.jinja2', page_name='inspect_compare', page_title='Compare', engines=engines)
@@ -33,7 +33,7 @@ def inspect_compare():
 def inspect_access():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
             .join(Engine, LibraryEngine.engine) \
-            .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+            .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
             .order_by(Engine.uploaded.desc()) \
             .all()
     return render_template('access.inspect.html.jinja2', page_name='inspect_access', page_title='Access', engines=engines)
@@ -47,31 +47,37 @@ def translate_leave():
 def inspect_details():
     line = request.form.get('line')
     engine_id = request.form.get('engine_id')
-    translation_task_id = translators.get_inspect(user_utils.get_uid(), engine_id, line)
+    engines = request.form.getlist('engines[]')
+    translators.set_admin(user_utils.is_admin())
+    translation_task_id = translators.get_inspect(user_utils.get_uid(), engine_id, line, engines)
+
+    return translation_task_id
+
+@inspect_blueprint.route('/compare_text', methods=["POST"])
+def inspect_compare_text():
+    line = request.form.get('line')
+    engines = request.form.getlist('engines[]')
+    translators.set_admin(user_utils.is_admin())
+    translation_task_id = translators.get_compare(user_utils.get_uid(), line, engines)
 
     return translation_task_id
 
 @inspect_blueprint.route('/get_details', methods=["POST"])
 def get_inspect_details():
     task_id = request.form.get('task_id')
-    result = tasks.translate_text.AsyncResult(task_id)
+    result = tasks.inspect_details.AsyncResult(task_id)
     if result and result.status == "SUCCESS":
-        return jsonify({ "result": 200, "details": result.get() })
+        details = result.get()
+        return jsonify({ "result": 200, "details": details })
     else:
         return jsonify({ "result": -1 })
 
-@inspect_blueprint.route('/compare/text', methods=["POST"])
-def inspect_compare_text():
-    text = request.form.get('text')
-    engines = request.form.getlist('engines[]')
-    task_id = tasks.inspect_compare.apply_async(args=[user_utils.get_uid(), engines, text]).id
-    return task_id
-
 @inspect_blueprint.route('/get_compare', methods=["POST"])
-def inspect_get_compare():
+def get_compare_details():
     task_id = request.form.get('task_id')
-    result = tasks.translate_text.AsyncResult(task_id)
+    result = tasks.inspect_compare.AsyncResult(task_id)
     if result and result.status == "SUCCESS":
-        return jsonify({ "result": 200, "compare": result.get() })
+        compare = result.get()
+        return jsonify({ "result": 200, "compare": compare })
     else:
         return jsonify({ "result": -1 })

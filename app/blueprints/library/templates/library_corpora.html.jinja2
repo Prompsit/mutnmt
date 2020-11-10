@@ -2,6 +2,7 @@
 
 {% block library_content %}
 
+{% if not is_normal() %}
 <a href="#" class="text-reset text-decoration-none upload-header">
     <h2 class="h5">
         <span class="mr-2">Upload corpora</span>
@@ -10,7 +11,7 @@
     </h2>
 </a>
 
-<form class="data-upload-form" action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
+<form class="data-upload-form mb-4 " action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
     <fieldset>
         <div class="row">
             <div class="col-12">
@@ -27,16 +28,15 @@
                             <textarea class="form-control" id="description" name="description" placeholder="Write a description..." rows="1"></textarea>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <ul class="nav nav-tabs upload-nav-tabs">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link active bilingual-nav-tab">Bilingual</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link monolingual-nav-tab">Monolingual</a>
-                            </li>
-                        </ul>
+                    <div class="row">
+                        <div class="form-group col-12 col-sm-6">
+                            <label for="description">Topic</label>
+                            <select class="custom-select" id="topic" name="topic">
+                                {% for topic in topics %}
+                                    <option value="{{topic.id}}">{{topic.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group row">
@@ -141,9 +141,10 @@
         </div>
     </fieldset>
 </form>
+{% endif %}
 
 <h2 class="h5 sr-only">Your corpora</h2>
-<ul class="mt-4 nav nav-tabs corpora-nav-tabs" id="your_corpora">
+<ul class="nav nav-tabs corpora-nav-tabs" id="your_corpora">
     <li class="nav-item">
         <a class="nav-link active private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
     </li>
@@ -164,6 +165,7 @@
                     <th>Lines</th>
                     <th>Words</th>
                     <th>Chars</th>
+                    <th>Topic</th>
                     <th>Date</th>
                 </thead>
             </table>
@@ -186,6 +188,7 @@
                     <th>Lines</th>
                     <th>Words</th>
                     <th>Chars</th>
+                    <th>Topic</th>
                     <th>Date</th>
                 </thead>
             </table>
@@ -256,6 +259,7 @@
         <th></th>
         <th></th>
         <th></th>
+        <th></th>
     </tr>
     <tr class="corpus-files-header">
         <th class="border-right-0"></th>
@@ -264,6 +268,7 @@
         <th>Lines</th>
         <th>Words</th>
         <th>Chars</th>
+        <th>Topic</th>
         <th>Date</th>
     </tr>
 </template>

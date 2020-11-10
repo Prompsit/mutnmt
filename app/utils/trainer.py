@@ -16,8 +16,8 @@ class Trainer(object):
     running_joey = {}
 
     @staticmethod
-    def launch(user_id, id):
-        task = tasks.train_engine.apply_async(args=[id])
+    def launch(id, is_admin):
+        task = tasks.train_engine.apply_async(args=[id, is_admin])
         monitor_task = tasks.monitor_training.apply_async(args=[id])
         return task.id, monitor_task.id
 
@@ -33,11 +33,11 @@ class Trainer(object):
             db.session.commit()
 
     @staticmethod
-    def stop(id, user_stop=False):
+    def stop(id, user_stop=False, admin_stop=False):
         engine = Engine.query.filter_by(id = id).first()
         Trainer.finish(engine)
 
-        engine.status = "stopped" if user_stop else "finished"
+        engine.status = "stopped" if user_stop else "stopped_admin" if admin_stop else "finished"
         engine.finished = datetime.datetime.utcnow().replace(tzinfo=None)
         
         # Save engine runtime

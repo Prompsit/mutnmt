@@ -33,8 +33,8 @@ def is_normal():
 def is_not_normal():
     return not is_normal()
 
-def get_user_folder(subfolder = None):
-    base_folder = os.path.join(app.config['USERS_FOLDER'], '{}'.format(get_uid()))
+def get_user_folder(subfolder = None, user_id = None):
+    base_folder = os.path.join(app.config['USERS_FOLDER'], '{}'.format(get_uid() if user_id is None else user_id))
     if subfolder:
         return os.path.join(base_folder, subfolder)
     else:
@@ -80,9 +80,9 @@ def get_user_corpora(user_id=None, public=False):
                 Corpus.visible == True,
                 Corpus.public == True,
                 Corpus.owner_id != user_id
-            )))
+            ))).order_by(LibraryCorpora.id.desc())
     else:
         return LibraryCorpora.query.filter(LibraryCorpora.user_id == user_id) \
                 .filter(LibraryCorpora.corpus.has(and_(
                     Corpus.visible == True
-                )))
+                ))).order_by(LibraryCorpora.id.desc())

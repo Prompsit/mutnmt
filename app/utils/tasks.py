@@ -199,11 +199,11 @@ def launch_training(self, user_id, engine_path, params):
         return -1
 
 @celery.task(bind=True)
-def train_engine(self, engine_id):
+def train_engine(self, engine_id, is_admin):
     # Trains an engine by calling JoeyNMT and keeping
     # track of its progress
 
-    gpu_id = GPUManager.wait_for_available_device()
+    gpu_id = GPUManager.wait_for_available_device(is_admin=is_admin)
 
     try:
 
@@ -229,7 +229,7 @@ def train_engine(self, engine_id):
             if running_joey.poll() is not None:
                 # JoeyNMT finished (or died) before timeout
                 db.session.refresh(engine)
-                if engine.status != "stopped":
+                if engine.status != "stopped" and engine.status != "stopped_admin":
                     Trainer.stop(engine_id)
                 GPUManager.free_device(gpu_id)
                 return
@@ -307,11 +307,11 @@ def test_training(self, engine_id):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-def launch_engine(user_id, engine_id):
+def launch_engine(user_id, engine_id, is_admin):    
     user = User.query.filter_by(id=user_id).first()
     engine = Engine.query.filter_by(id=engine_id).first()
         
-    translator = JoeyWrapper(engine.path)
+    translator = JoeyWrapper(engine.path, is_admin)
     translator.load()
 
     # If this user is already using another engine, we switch
@@ -327,9 +327,9 @@ def launch_engine(user_id, engine_id):
     return translator, tokenizer
 
 @celery.task(bind=True)
-def translate_text(self, user_id, engine_id, lines):    
+def translate_text(self, user_id, engine_id, lines, is_admin):    
     # We launch the engine
-    translator, tokenizer = launch_engine(user_id, engine_id)
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
 
     # We translate
     translations = []
@@ -345,14 +345,14 @@ def translate_text(self, user_id, engine_id, lines):
     return translations
 
 @celery.task(bind=True)
-def translate_file(self, user_id, engine_id, user_file_path, as_tmx, tmx_mode):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def translate_file(self, user_id, engine_id, user_file_path, as_tmx, tmx_mode, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     file_translation = FileTranslation(translator, tokenizer)
     return file_translation.translate_file(user_id, user_file_path, as_tmx, tmx_mode)
 
 @celery.task(bind=True)
-def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def generate_tmx(self, user_id, engine_id, chain_engine_id, text, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     file_translation = FileTranslation(translator, tokenizer)
 
     if chain_engine_id:
@@ -375,32 +375,32 @@ def generate_tmx(self, user_id, engine_id, chain_engine_id, text):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 @celery.task(bind=True)
-def inspect_details(self, user_id, engine_id, line):
-    translator, tokenizer = launch_engine(user_id, engine_id)
+def inspect_details(self, user_id, engine_id, line, engines, is_admin):
+    translator, tokenizer = launch_engine(user_id, engine_id, is_admin)
     engine = Engine.query.filter_by(id=engine_id).first()
 
-    n_best = []
+    inspect_details = None
     if line.strip() != "":
         sentences = sent_tokenize(line.strip())
         if len(sentences) > 0:
             line_tok = tokenizer.tokenize(sentences[0])
             n_best = translator.translate(line_tok, 5)
-        else:
-            return None
-    else:
-        return None
+            del translator # Free GPU slot
 
-    return {
-        "source": engine.source.code,
-        "target": engine.target.code,
-        "preproc_input": line_tok,
-        "preproc_output": n_best[0],
-        "nbest": [tokenizer.detokenize(n) for n in n_best],
-        "alignments": [],
-        "postproc_output": tokenizer.detokenize(n_best[0])
-    }
+            inspect_details = {
+                "source": engine.source.code,
+                "target": engine.target.code,
+                "preproc_input": line_tok,
+                "preproc_output": n_best[0],
+                "nbest": [tokenizer.detokenize(n) for n in n_best],
+                "alignments": [],
+                "postproc_output": tokenizer.detokenize(n_best[0])
+            }
+
+    return inspect_details
+
 @celery.task(bind=True)
-def inspect_compare(self, user_id, engines, text):
+def inspect_compare(self, user_id, line, engines, is_admin):
     translations = []
     for engine_id in engines:
         engine = Engine.query.filter_by(id = engine_id).first()
@@ -408,7 +408,7 @@ def inspect_compare(self, user_id, engines, text):
             {
                 "id": engine_id,
                 "name": engine.name,
-                "text": translate_text(user_id, engine_id, [text])
+                "text": translate_text(user_id, engine_id, [line], is_admin)
             })
 
     return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
@@ -430,17 +430,18 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                 evaluators.append(evaluator())
 
     lexical_var = ttr.Ttr()
-    all_metrics = []
+    all_evals = []
     for mt_path in mt_paths:
-        metrics = []
+        evals = []
 
         for ht_path in ht_paths:
-            ht_metric = []
+            ht_eval = []
             for evaluator in evaluators:
                 try:
-                    ht_metric.append({
+                    ht_eval.append({
                         "name": evaluator.get_name(),
-                        "value": evaluator.get_value(mt_path, ht_path)
+                        "value": evaluator.get_value(mt_path, ht_path),
+                        "is_metric": True
                     })
                 except:
                     # If a metric throws an error because of things,
@@ -450,23 +451,24 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
             ## Lexical variety for original, MT translation and reference
             for path in [source_path, mt_path, ht_path]:
                 if path:
-                    ht_metric.append({
+                    ht_eval.append({
                         "name": "{} - {}".format(lexical_var.get_name(), "MT" if path == mt_path else "Human translation" if path == ht_path else "Source"),
-                        "value": lexical_var.compute(path)
+                        "value": lexical_var.compute(path),
+                        "is_metric": False
                     })
 
-            metrics.append(ht_metric)
+            evals.append(ht_eval)
 
-        all_metrics.append(metrics)
+        all_evals.append(evals)
 
     xlsx_file_paths = []
     ht_rows = []
-    for ht_path in ht_paths:
+    for ht_index, ht_path in enumerate(ht_paths):
         rows = []
         with open(ht_path, 'r') as ht_file:
             for i, line in enumerate(ht_file):
                 line = line.strip()
-                rows.append(["Reference", line, None, None, i + 1, []])
+                rows.append(["Reference {}".format(ht_index + 1), line, None, None, i + 1, []])
 
         for mt_path in mt_paths:
             scores = spl(mt_path, ht_path)
@@ -478,7 +480,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                 for i, line in enumerate(source_file):
                     rows[i].append(line.strip())
         
-        xlsx_file_paths.append(generate_xlsx(user_id, rows))
+        xlsx_file_paths.append(generate_xlsx(user_id, rows, ht_index))
 
         ht_rows.append(rows)
 
@@ -489,15 +491,13 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
             # It was the same file, we just pass
             pass
 
-    return { "result": 200, "metrics": all_metrics, "spl": ht_rows }, xlsx_file_paths
+    return { "result": 200, "evals": all_evals, "spl": ht_rows }, xlsx_file_paths
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
                         cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
     sacreBLEU.wait()
-
-    logger.info("bleu ready")
 
     rows = []
     with open('{}.bpl'.format(mt_path), 'r') as bl_file:
@@ -516,7 +516,7 @@ def spl(mt_path, ht_path):
 
     return rows
 
-def generate_xlsx(user_id, rows):
+def generate_xlsx(user_id, rows, ht_path_index):
     file_name = utils.normname(user_id, "evaluation") + ".xlsx"
     file_path = utils.tmpfile(file_name)
 
@@ -543,9 +543,9 @@ def generate_xlsx(user_id, rows):
 
     headers = ["Line"]
     if len(row) > 6:
-        headers = headers + ["Source sentence", "Reference sentence"]
+        headers = headers + ["Source sentence", "Reference {}".format(ht_path_index + 1)]
     else:
-        headers = headers + ["Reference sentence"]
+        headers = headers + ["Reference {}".format(ht_path_index + 1)]
 
 
     headers = headers + ["Machine translation {}".format(i + 1) for i in range(len(row[5]))]
@@ -568,10 +568,7 @@ def generate_xlsx(user_id, rows):
 # UPLOAD TASKS
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 @celery.task(bind=True)
-def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_lang, trg_lang, corpus_name, corpus_desc=""):
-    from celery.utils.log import get_task_logger
-    logger = get_task_logger(__name__)
-
+def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_lang, trg_lang, corpus_name, corpus_desc="", corpus_topic=None):
     type = "bitext" if bitext_path else "bilingual" if trg_path else "monolingual"
 
     def process_file(file, language, corpus, role):
@@ -629,7 +626,7 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
     target_db_file = None
     try:
         corpus = Corpus(name = corpus_name, type = "bilingual" if type == "bitext" else type, 
-                    owner_id = user_id, description = corpus_desc)
+                    owner_id = user_id, description = corpus_desc, topic_id = corpus_topic)
 
         if type == "bitext":
             with open(bitext_path, 'rb') as fbitext:

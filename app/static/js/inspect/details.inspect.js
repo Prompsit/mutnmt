@@ -12,7 +12,10 @@ $(document).ready(function() {
 
             $.ajax({
                 url: `details`,
-                data: { "line": $('.translate-text').val(), "engine_id": $('.engine-select option:selected').val() },
+                data: { 
+                    "line": $('.translate-text').val(),
+                    "engine_id": $('.engine-select option:selected').val()
+                },
                 method: "post"
             }).done(function(task_id) {
                 longpoll(1000, {

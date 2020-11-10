@@ -18,7 +18,7 @@ translators = TranslationUtils()
 def translate_index():
     engines = LibraryEngine.query.filter_by(user_id = user_utils.get_uid()) \
                 .join(Engine, LibraryEngine.engine) \
-                .filter(or_(Engine.status == "stopped", Engine.status == "finished")) \
+                .filter(or_(Engine.status == "stopped", Engine.status == "finished", Engine.status == "stopped_admin")) \
                 .order_by(Engine.uploaded.desc()) \
                 .all()
     return render_template('translate.html.jinja2', page_name='translate_text', page_title='Translate', engines = engines)
@@ -33,6 +33,7 @@ def translate_text():
     engine_id = request.form.get('engine_id')
     lines = request.form.getlist('text[]')
     detached = True
+    translators.set_admin(user_utils.is_admin())
     translation_task_id = translators.text(user_utils.get_uid(), engine_id, lines)
 
     return jsonify({ "result": 200, "task_id": translation_task_id })
@@ -56,6 +57,7 @@ def upload_file():
     user_file_path = os.path.join(this_upload, secure_filename(user_file.filename))
     user_file.save(user_file_path)
 
+    translators.set_admin(user_utils.is_admin())
     translation_task_id = translators.translate_file(user_utils.get_uid(), engine_id, user_file_path, as_tmx, tmx_mode)
 
     return jsonify({ "result": 200, "task_id": translation_task_id })
@@ -94,6 +96,7 @@ def as_tmx():
     chain_engine_id = chain_engine_id if chain_engine_id and chain_engine_id != "false" else None
     text = request.form.getlist('text[]')
 
+    translators.set_admin(user_utils.is_admin())
     translation_task_id = translators.generate_tmx(user_utils.get_uid(), engine_id, chain_engine_id, text)
     return jsonify({ "result": 200, "task_id": translation_task_id })
 
