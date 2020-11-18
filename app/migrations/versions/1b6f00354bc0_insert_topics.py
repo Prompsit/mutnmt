@@ -18,7 +18,8 @@ down_revision = 'ee1a8f76afb4'
 branch_labels = None
 depends_on = None
 
-TOPICS = ["Administrative", "Legal", "Technical"]
+TOPICS = ["General", "Technical", "Legal", "Financial", "Medical", "Religion",
+            "Politics", "Administrative", "Subtitles", "Patents", "News", "Books"]
 
 
 def upgrade():
