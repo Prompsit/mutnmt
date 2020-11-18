@@ -81,7 +81,8 @@ $(document).ready(function() {
             } else if (data.result == 200) {
                 if (data.lines) {
                     for (let line of data.lines) {
-                        let line_element = document.createTextNode(line + '\n');
+                        line_proc = line.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
+                        let line_element = document.createTextNode(line_proc + '\n');
                         $('.live-translate-target').append(line_element);
                     }
                 }
