@@ -105,7 +105,7 @@ $(document).ready(function() {
                     responsivePriority: 1,
                     className: "border-right-0 align-middle text-center",
                     render: function(data, type, row) {
-                        let corpus_data = row[7];
+                        let corpus_data = row[8];
                         let template = document.importNode(document.querySelector("#preview-button-template").content, true);
                         $(template).find(".file-item-preview").attr("href", corpus_data.file_preview);
                         let ghost = document.createElement('div');
@@ -118,7 +118,6 @@ $(document).ready(function() {
                     responsivePriority: 1,
                     className: "overflow",
                     render: function(data, type, row) {
-                        let corpus_data = row[7];
                         let template = document.importNode(document.querySelector("#corpus-entry-template").content, true);
                         $(template).find(".file-name").html(data);
 
