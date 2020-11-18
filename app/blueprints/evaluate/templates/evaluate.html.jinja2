@@ -49,7 +49,7 @@
             </div>
         </div>
         <div class="col-sm col-12 mt-4 mt-sm-0">
-            <h2 class="h6">Human translation</h2>
+            <h2 class="h6">Reference translation</h2>
 
             <div class="ht-file-container">
                 <div class="d-flex align-items-start">
@@ -117,21 +117,31 @@
 
     <div class="row mt-2">
         <div class="col-12 col-sm-6">
-            <label for="results-mt-select">Machine translation file</label>
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="results-mt-select">Machine translation file</label>
+                <div class="small">
+                    <span class="badge badge-secondary">TTR</span>
+                    <span class="mt-lexical-value"></span>
+                </div>
+            </div>
+
             <select class="results-select results-mt-select custom-select" id="results-mt-select"></select>
         </div>
 
         <div class="col-12 col-sm-6">
-            <label for="results-ht-select">Human translation file</label>
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="results-ht-select">Reference translation file</label>
+                <div class="small">
+                    <span class="badge badge-secondary">TTR</span>
+                    <span class="ht-lexical-value"></span>
+                </div>
+            </div>
+
             <select class="results-select results-ht-select custom-select" id="results-ht-select"></select>
         </div>
     </div>
 
     <div class="row mt-5 evaluate-results-row">
-    </div>
-
-    <h2 class="h5 mt-5">Information</h2>
-    <div class="row my-3 info-row">
     </div>
 
     <h2 class="h5 mt-5">Score map</h2>
@@ -232,13 +242,6 @@
         </div>
 
         <strong class="metric-name"></strong>
-    </div>
-</template>
-
-<template id="lexical-template">
-    <div class="col-12 col-sm-3 text-center">
-        <div class="h1 lexical-value"></div>
-        <strong class="bold mt-1 lexical-name"></strong>
     </div>
 </template>
 

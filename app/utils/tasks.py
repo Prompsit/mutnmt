@@ -449,10 +449,10 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
                     pass
 
             ## Lexical variety for original, MT translation and reference
-            for path in [source_path, mt_path, ht_path]:
+            for path in [mt_path, ht_path]:
                 if path:
                     ht_eval.append({
-                        "name": "{} - {}".format(lexical_var.get_name(), "MT" if path == mt_path else "Human translation" if path == ht_path else "Source"),
+                        "name": "{}".format("MT" if path == mt_path else "REF" if path == ht_path else ""),
                         "value": lexical_var.compute(path),
                         "is_metric": False
                     })
@@ -468,7 +468,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
         with open(ht_path, 'r') as ht_file:
             for i, line in enumerate(ht_file):
                 line = line.strip()
-                rows.append(["Reference {}".format(ht_index + 1), line, None, None, i + 1, []])
+                rows.append(["Ref {}".format(ht_index + 1), line, None, None, i + 1, []])
 
         for mt_path in mt_paths:
             scores = spl(mt_path, ht_path)
