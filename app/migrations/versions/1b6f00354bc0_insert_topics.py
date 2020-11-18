@@ -19,7 +19,7 @@ branch_labels = None
 depends_on = None
 
 TOPICS = ["General", "Technical", "Legal", "Financial", "Medical", "Religion",
-            "Politics", "Administrative", "Subtitles", "Patents", "News", "Books"]
+            "Politics", "Administrative", "Subtitles", "Patents", "News", "Books", "Other"]
 
 
 def upgrade():
