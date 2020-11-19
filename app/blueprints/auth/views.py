@@ -52,8 +52,9 @@ def google_logged_in(blueprint, token):
       user = query.one()
     except NoResultFound:
       if not app.config['ENABLE_NEW_LOGINS']:
-        flash(_('New user logging is temporary disabled'), "warning")
-        return False
+        if app.config['WHITELIST'] is None or email not in app.config['WHITELIST']:
+          flash(_('New user logging is temporary disabled'), "warning")
+          return False
       user = User(social_id = social_id, username = username, email = email, avatar_url = account_info_json['picture'])
       db.session.add(user)
       db.session.commit()

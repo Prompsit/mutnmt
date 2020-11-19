@@ -28,6 +28,7 @@ class Config(object):
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
     USER_LOGIN_ENABLED          = True
+    USER_WHITELIST_ENABLED      = False
     ENABLE_NEW_LOGINS           = True
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> require HTTPS
@@ -40,6 +41,15 @@ class Config(object):
             ADMINS = [line.strip() for line in admin_file if line.strip() != ""]
     except:
         ADMINS = []
+
+    if USER_WHITELIST_ENABLED:
+        try:
+            with open(os.path.join(LIST_FOLDER, 'white.list'), 'r') as whitelist_file:
+                WHITELIST = [line.strip() for line in whitelist_file if line.strip() != ""]
+        except:
+            WHITELIST = None
+    else:
+        WHITELIST = None
     
     # Celery
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
