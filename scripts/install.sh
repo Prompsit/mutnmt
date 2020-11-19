@@ -13,7 +13,7 @@ ldconfig -v
 cd /opt/mutnmt
 
 npm install npm@latest -g
-npm install postcss-cli autoprefixer sass -g
+npm install postcss-cli autoprefixer sass postcss -g
 
 virtualenv -p /usr/bin/python3 venv
 

@@ -97,7 +97,7 @@ class Corpus(db.Model):
     target = db.relationship("Language", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
 
     topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'))
-    topic = db.relationship("Topic", backref = db.backref("corpus_topic", cascade="all, delete-orphan"))
+    topic = db.relationship("Topic", backref = db.backref("corpus_topic"))
 
     def lines(self, human=False, abbr=False):
         if len(self.corpus_files) > 0:

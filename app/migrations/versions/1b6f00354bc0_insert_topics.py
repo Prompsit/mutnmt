@@ -32,5 +32,5 @@ def upgrade():
 def downgrade():
     for topic in TOPICS:
         topic_obj = Topic.query.filter_by(name=topic).first()
-        db.session.delete(topic_obj)
+        if topic_obj: db.session.delete(topic_obj)
     db.session.commit()

@@ -34,4 +34,5 @@ OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> requir
 GOOGLE_OAUTH_CLIENT_ID      = 'xxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com'
 GOOGLE_OAUTH_CLIENT_SECRET  = 'xxxxxxxxxxxxxxx'
 ```
-The admin accounts in ADMINS will allow you to use admin features as translator optimization or the remote Moses server. You can set as many as you want.
+
+To specify admin accounts, please create a file in `app/lists` called `admin.list`, containing one administrator email per line. The admin accounts will allow you to use admin features as translator optimization or the remote Moses server. You can set as many as you want.
