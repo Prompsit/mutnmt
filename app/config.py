@@ -35,9 +35,12 @@ class Config(object):
     GOOGLE_OAUTH_CLIENT_SECRET  = '__TyuCk8eD0kR594K18MitZw'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
 
-    with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
-        ADMINS = [line.strip() for line in admin_file if line.strip() != ""]
-
+    try:
+        with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
+            ADMINS = [line.strip() for line in admin_file if line.strip() != ""]
+    except:
+        ADMINS = []
+    
     # Celery
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
