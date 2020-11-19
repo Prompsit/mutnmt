@@ -14,11 +14,12 @@ from app.models import Topic
 
 # revision identifiers, used by Alembic.
 revision = '1b6f00354bc0'
-down_revision = 'dd1bcfc4cb0a'
+down_revision = 'ee1a8f76afb4'
 branch_labels = None
 depends_on = None
 
-TOPICS = ["Administrative", "Legal", "Technical"]
+TOPICS = ["General", "Technical", "Legal", "Financial", "Medical", "Religion",
+            "Politics", "Administrative", "Subtitles", "Patents", "News", "Books", "Other"]
 
 
 def upgrade():

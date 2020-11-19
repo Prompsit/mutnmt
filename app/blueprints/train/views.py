@@ -210,6 +210,7 @@ def train_stats():
     re_flags = re.IGNORECASE | re.UNICODE
 
     score = 0.0
+    ppl = "—"
     tps = []
     with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
         for line in log_file:
@@ -222,6 +223,7 @@ def train_stats():
                 if groups:
                     bleu_score = float(groups[6])
                     score = bleu_score if bleu_score > score else score
+                    ppl = float(groups[8])
 
     if len(tps) > 0:
         tps_value = reduce(lambda a, b: a + b, tps)
@@ -256,6 +258,7 @@ def train_stats():
             "time_elapsed": time_elapsed_format,
             "tps": tps_value,
             "score": score,
+            "ppl": ppl,
             "validation_freq": val_freq,
             "vocab_size": vocab_size
         }

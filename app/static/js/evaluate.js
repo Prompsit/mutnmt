@@ -109,7 +109,6 @@ $(document).ready(function() {
             $(".evaluate-results").addClass("d-none");
             $(".evaluate-results-row").empty();
             $(".chart-select").empty();
-            $(".info-row").empty();
 
             if (bpl_table) bpl_table.destroy();
 
@@ -142,11 +141,12 @@ $(document).ready(function() {
                     $(template).find(".metric-indicator").css({ "left": `calc(${norm_value}% - 8px)` })
                     $(".evaluate-results-row").append(template);
                 } else {
-                    let template = document.importNode(document.querySelector("#lexical-template").content, true);
                     let [min, value, max] = _eval.value;
-                    $(template).find(".lexical-value").html(value);
-                    $(template).find(".lexical-name").html(_eval.name);
-                    $(".info-row").append(template);
+                    if (_eval.name == "MT") {
+                        $(".mt-lexical-value").html(value);
+                    } else if (_eval.name == "REF") {
+                        $(".ht-lexical-value").html(value);
+                    }
                 }
             }
 

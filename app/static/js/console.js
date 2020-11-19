@@ -206,11 +206,14 @@ $(document).ready(function() {
                 method: 'post',
                 data: { id: engine_id }
             }).done(function(data) {
+                console.log(data);
+
                 $(".time-container").html(data.data.time_elapsed);
                 $(".score-container").html(data.data.score + " BLEU");
                 $(".tps-container").html(data.data.tps);
                 $(".vocabulary-size-container").html(data.data.vocab_size);
                 $(".validation-freq-container").html(data.data.validation_freq);
+                $(".ppl-container").html(data.data.ppl);
             })
 
             return false;
