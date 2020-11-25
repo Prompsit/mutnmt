@@ -1,6 +1,7 @@
 import redis
 import pynvml
 import time
+import sys
 
 class GPUManager(object):
     redis_conn = redis.Redis()
@@ -11,9 +12,8 @@ class GPUManager(object):
         devices = pynvml.nvmlDeviceGetCount()
         start = 0
 
-        if devices > 1:
-            if is_admin: devices = 1
-            else: start = 1
+        if devices > 1 and not is_admin:
+            start = 1
 
         for device_id in range(start, devices):
             if reset or not GPUManager.redis_conn.hexists("gpu_slot", device_id):
@@ -32,11 +32,12 @@ class GPUManager(object):
         return None
 
     @staticmethod
-    def wait_for_available_device(max_iter=None, is_admin=False):
+    def wait_for_available_device(max_iter=300, is_admin=False):
         i = 0
 
         gpu_id = GPUManager.get_available_device(is_admin=is_admin)
         while gpu_id is None and (max_iter is None or i < max_iter):
+            print("[{}] Wating for device...".format(i), file=sys.stderr)
             time.sleep(1)
             gpu_id = GPUManager.get_available_device()
             i += 1

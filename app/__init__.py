@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from flask_babel import Babel
 from flask_dropzone import Dropzone
 from flask_migrate import upgrade as _upgrade
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import os
 
@@ -14,6 +15,7 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 babel = Babel(app)

@@ -203,11 +203,13 @@ def train_engine(self, engine_id, is_admin):
     # Trains an engine by calling JoeyNMT and keeping
     # track of its progress
 
+    engine = Engine.query.filter_by(id=engine_id).first()
+    engine.status = "launching"
+    db.session.commit()
+
     gpu_id = GPUManager.wait_for_available_device(is_admin=is_admin)
 
     try:
-
-        engine = Engine.query.filter_by(id=engine_id).first()
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = "{}".format(gpu_id)
         running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
@@ -237,7 +239,9 @@ def train_engine(self, engine_id, is_admin):
         if running_joey.poll() is None:
             Trainer.stop(engine_id)
     finally:
+        engine.status = "stopped"
         GPUManager.free_device(gpu_id)
+        db.session.commit()
 
 @celery.task(bind=True)
 def monitor_training(self, engine_id):    
@@ -333,15 +337,20 @@ def translate_text(self, user_id, engine_id, lines, is_admin):
 
     # We translate
     translations = []
+
     for line in lines:
         if line.strip() != "":
             for sentence in sent_tokenize(line):
                 line_tok = tokenizer.tokenize(sentence)
                 translation = translator.translate(line_tok)
-                translations.append(tokenizer.detokenize(translation))
+                if translation is not None: 
+                    translations.append(tokenizer.detokenize(translation))
+                else:
+                    translations.append("")
         else:
             translations.append("")
 
+    del translator
     return translations
 
 @celery.task(bind=True)
