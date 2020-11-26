@@ -19,8 +19,6 @@ data_blueprint = Blueprint('data', __name__, template_folder='templates')
 @data_blueprint.route('/preview/<file_id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_preview(file_id):
-    if user_utils.is_normal(): return redirect(url_for('index'))
-
     file = File.query.filter_by(id=file_id).first()
     lines = []
     with open(file.path, 'r') as reader:
