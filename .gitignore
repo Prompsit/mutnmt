@@ -8,7 +8,12 @@ app/static/**/*.min.*
 !app/static/lib
 !app/static/lib/*.min.*
 app/static/css/bootstrap.css
-data/
+/data/
+app/base/transformer.yaml
+app/list
+id_rsa
+id_rsa.pub
+known_hosts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -30,9 +30,12 @@ DEBUG      = False
 ADMINS     = ['your.admin.account@gmail.com', 'your.second.admin.account@gmail.com']
 
 USER_LOGIN_ENABLED          = True
+USER_WHITELIST_ENABLED      = False
 OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> require HTTPS
 GOOGLE_OAUTH_CLIENT_ID      = 'xxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com'
 GOOGLE_OAUTH_CLIENT_SECRET  = 'xxxxxxxxxxxxxxx'
 ```
 
 To specify admin accounts, please create a file in `app/lists` called `admin.list`, containing one administrator email per line. The admin accounts will allow you to use admin features as translator optimization or the remote Moses server. You can set as many as you want.
+
+When user login is not enabled, a whitelist can be established to let the users in that list log in, but only them. This whitelist is only applied when `USER_LOGIN_ENABLED` is set to `False`. To specify a whitelist, create a file in `app/lists` called `white.list`, containing one user email per line.

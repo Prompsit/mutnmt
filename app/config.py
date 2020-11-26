@@ -29,17 +29,28 @@ class Config(object):
 
     USER_LOGIN_ENABLED          = True
     ENABLE_NEW_LOGINS           = False
-    WHITELIST	                = ['sjarmero@gmail.com', 'gramirez@gmail.com', 'sergio.ortiz@gmail.com', 'motagirl2@gmail.com', 'zarberj@gmail.com']
-    ENABLE_NEW_LOGINS           = True
+    USER_WHITELIST_ENABLED      = True
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = False # True also behind firewall,  False -> require HTTPS
     GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
     GOOGLE_OAUTH_CLIENT_SECRET  = 'dACUBYZhq4tEdR_wnbodWfGx'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
 
-    with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
-        ADMINS = [line.strip() for line in admin_file if line.strip() != ""]
+    try:
+        with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
+            ADMINS = [line.strip() for line in admin_file if line.strip() != ""]
+    except:
+        ADMINS = []
 
+    if USER_WHITELIST_ENABLED:
+        try:
+            with open(os.path.join(LIST_FOLDER, 'white.list'), 'r') as whitelist_file:
+                WHITELIST = [line.strip() for line in whitelist_file if line.strip() != ""]
+        except:
+            WHITELIST = None
+    else:
+        WHITELIST = None
+    
     # Celery
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
