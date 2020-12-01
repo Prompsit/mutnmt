@@ -57,18 +57,29 @@ $(document).ready(function() {
                 labels: {
                     formatter: (val) => {
                         if (val == 0) return 0
-                        if (val % parseInt(val) == 0) return parseInt(val)
-                        return val.toFixed(8)
+
+                        if (chart_data.id != "train_learning_rate") {
+                            if (val == 0) return 0
+                            if (val % parseInt(val) == 0) return parseInt(val)
+                            return val.toFixed(8)
+                        } else {
+                            return val.toExponential(2);
+                        }
                     },
 
                     minWidth: 40
                 },
                 min: (chart_data.id == "valid_score") ? 0 : undefined,
-                max: (chart_data.id == "valid_score") ? 100 : undefined
+                max: (chart_data.id == "valid_score") ? 60 : undefined
             },
             xaxis: {
                 title: {text : chart_data.x },
                 tickAmount: 10,
+                labels: {
+                    formatter: (val) => {
+                        return val > 100 ? parseInt(val / 100) * 100 : Math.ceil(val);
+                    }
+                }
             },
             tooltip: {
                 shared: true
@@ -81,14 +92,14 @@ $(document).ready(function() {
     const chart_metadata = {
         "train/train_batch_loss": { x: "Steps", y: "Batch loss", id: "train_batch_loss", last: 0 },
         "train/train_learning_rate": { x: "Steps", y: "Learning rate", id: "train_learning_rate", last: 0 },
-        "valid/valid_loss": { x: "Steps", y: "Batch loss", id: "valid_loss", last: 0 },
+        "valid/valid_ppl": { x: "Steps", y: "Batch loss", id: "valid_loss", last: 0 },
         "valid/valid_score": { x: "Steps", y: "Score", id: "valid_score", last: 0 }
     }
 
     let chart_series = {
         "train/train_batch_loss": [],
         "train/train_learning_rate": [],
-        "valid/valid_loss": [],
+        "valid/valid_ppl": [],
         "valid/valid_score": []
     }
 
@@ -206,8 +217,6 @@ $(document).ready(function() {
                 method: 'post',
                 data: { id: engine_id }
             }).done(function(data) {
-                console.log(data);
-
                 $(".time-container").html(data.data.time_elapsed);
                 $(".score-container").html(data.data.score + " BLEU");
                 $(".tps-container").html(data.data.tps);

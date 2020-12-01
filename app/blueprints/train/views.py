@@ -14,6 +14,7 @@ from werkzeug.datastructures import FileStorage
 from celery.result import AsyncResult
 from functools import reduce
 
+import traceback
 import hashlib
 import os
 import yaml
@@ -155,7 +156,7 @@ def train_graph():
         if data:
             stats[tag] = []
             data_len = len(data)
-            data_breakpoint = int(data_len/10) if data_len >= 100 else 10 if data_len > 10 else 1
+            data_breakpoint = 1000 if data_len >= 100 else 10 if data_len > 10 else 1
             for i, item in enumerate(data):
                 if item.step % data_breakpoint == 0 or (i + 1) == data_len:
                     stats[tag].append({ "time": item.wall_time, "step": item.step, "value": item.value })
@@ -212,6 +213,7 @@ def train_stats():
     score = 0.0
     ppl = "—"
     tps = []
+    
     with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
         for line in log_file:
             groups = re.search(training_regex, line, flags=re_flags)

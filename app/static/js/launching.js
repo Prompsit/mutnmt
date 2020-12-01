@@ -20,3 +20,7 @@ $(document).ready(function() {
         }
     });
 });
+
+$(window).on('beforeunload', () => {
+    return true;
+})
