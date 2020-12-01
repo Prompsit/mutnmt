@@ -81,8 +81,10 @@ class JoeyWrapper:
 
         if self.use_cuda:
             self.gpu_id = GPUManager.wait_for_available_device(is_admin=self.is_admin)
-            self.model.cuda(self.gpu_id)
-
+            if self.gpu_id:
+                self.model.cuda(self.gpu_id)
+            else:
+                return False
         return True
 
     def load_line_as_data(self, line, level, lowercase, src_vocab, trg_vocab):
@@ -107,7 +109,7 @@ class JoeyWrapper:
 
     def joey_translate(self, message_text, model, src_vocab, trg_vocab,
               logger, beam_size, beam_alpha, level, lowercase,
-              max_output_length, use_cuda, nbest):
+              max_output_length, use_cuda, nbest, cuda_device):
 
         sentence = message_text.strip()
         if lowercase:
@@ -123,7 +125,7 @@ class JoeyWrapper:
             model=model, data=test_data, batch_size=1, level=level,
             max_output_length=max_output_length, eval_metric=None,
             use_cuda=use_cuda, loss_function=None, beam_size=beam_size,
-            beam_alpha=beam_alpha, logger=logger, n_best=nbest)
+            beam_alpha=beam_alpha, logger=logger, n_best=nbest, cuda_device=cuda_device)
 
         return hypotheses[0] if nbest == 1 else hypotheses
 
@@ -141,6 +143,7 @@ class JoeyWrapper:
                             trg_vocab=self.trg_vocab,
                             use_cuda=self.use_cuda,
                             logger=self.logger,
-                            nbest=nbest)
+                            nbest=nbest,
+                            cuda_device=self.gpu_id)
         else:
             return None

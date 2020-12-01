@@ -21,16 +21,16 @@ $(document).ready(function() {
                         $(template).find(".delete-user").attr("href", `delete_user?id=${row[0]}`);
                         $(template).find(".delete-user").removeClass("d-none");
 
-                        $(".become-admin").attr("href", "become/admin/" + row[0]);
-                        $(".become-expert").attr("href", "become/expert/" + row[0]);
-                        $(".become-normal").attr("href", "become/normal/" + row[0]);
+                        $(template).find(".become-admin").attr("href", "become/admin/" + row[0]);
+                        $(template).find(".become-expert").attr("href", "become/expert/" + row[0]);
+                        $(template).find(".become-normal").attr("href", "become/normal/" + row[0]);
 
                         if (row[5]) { // is admin
-                            $(".become-admin").addClass("d-none");
+                            $(template).find(".become-admin").addClass("d-none");
                         } else if (row[6]) { // is expert
-                            $(".become-expert").addClass("d-none");
+                            $(template).find(".become-expert").addClass("d-none");
                         } else {
-                            $(".become-normal").addClass("d-none");
+                            $(template).find(".become-normal").addClass("d-none");
                         }
                         
                         let ghost = document.createElement('div');
