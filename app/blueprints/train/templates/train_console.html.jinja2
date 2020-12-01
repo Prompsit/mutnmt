@@ -41,24 +41,24 @@
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Training</div>
                 {% for corpus in corpora['train'] %}
-                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
-                        {{ corpus.name }}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
                     </a>
                 {% endfor %}
             </div>
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Dev</div>
                 {% for corpus in corpora['dev'] %}
-                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
-                        {{ corpus.name }}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
                     </a>
                 {% endfor %}
             </div>
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Test</div>
                 {% for corpus in corpora['test'] %}
-                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}">
-                        {{ corpus.name }}
+                    <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
                     </a>
                 {% endfor %}
             </div>
