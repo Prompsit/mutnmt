@@ -81,6 +81,16 @@
                     </div>
                 </div>
 
+                <div class="form-group col-12 col-sm-6">
+                    <label class="col-form-label h6">Validation frequency</label>
+                    <div class="input-group">
+                        <input type="number" name="validationFreq" class="form-control" value="1000" min="500" max="10000" />
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">steps</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group col-12 col-sm-6" id="vocabularySizeGroup">
                     <label class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
@@ -97,16 +107,6 @@
                         <input type="number" name="batchSizeTxt" class="form-control" value="6000" min="1" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">tokens</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group col-12 col-sm-6">
-                    <label class="col-form-label h6">Validation frequency</label>
-                    <div class="input-group">
-                        <input type="number" name="validationFreq" class="form-control" value="1000" min="500" max="10000" />
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">steps</div>
                         </div>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
                             <div class="area-info">
                                 <div class="area-name h6">
                                     {% if phase == "training" %}
-                                        Train
+                                        Training
                                     {% elif phase == "dev" %}
                                         Validation
                                     {% else %}
