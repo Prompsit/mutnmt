@@ -208,6 +208,8 @@ def train_engine(self, engine_id, is_admin):
     db.session.commit()
 
     gpu_id = GPUManager.wait_for_available_device(is_admin=is_admin)
+    engine.gid = gpu_id
+    db.session.commit()
 
     try:
         env = os.environ.copy()
