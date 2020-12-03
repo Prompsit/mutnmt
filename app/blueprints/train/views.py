@@ -129,9 +129,9 @@ def train_console(id):
     corpora = {}
     for corpus_entry in corpora_raw:
         if corpus_entry.phase in corpora:
-            corpora[corpus_entry.phase].append(corpus_entry.corpus)
+            corpora[corpus_entry.phase].append((corpus_entry.corpus, utils.format_number(corpus_entry.selected_size, abbr=True)))
         else:
-            corpora[corpus_entry.phase] = [corpus_entry.corpus]
+            corpora[corpus_entry.phase] = [(corpus_entry.corpus, utils.format_number(corpus_entry.selected_size, abbr=True))]
 
 
     return render_template("train_console.html.jinja2", page_name="train",
