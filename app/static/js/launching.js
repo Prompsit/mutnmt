@@ -1,3 +1,5 @@
+let force_quit = false;
+
 $(document).ready(function() {
     let task_id = $('#task_id').val();
 
@@ -12,6 +14,7 @@ $(document).ready(function() {
                 method: "POST",
                 data: { engine_id: task_status.engine_id }
             }).done(function(url) {
+                force_quit = true;
                 window.location.href = url;
                 return false;
             });
@@ -22,5 +25,5 @@ $(document).ready(function() {
 });
 
 $(window).on('beforeunload', () => {
-    return true;
+    return !force_quit;
 })
