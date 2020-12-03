@@ -213,8 +213,7 @@ def train_engine(self, engine_id, is_admin):
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = "{}".format(gpu_id)
         running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
-                                                os.path.join(engine.path, "config.yaml"), 
-                                                "--save_attention"], cwd=app.config['JOEYNMT_FOLDER'],
+                                                os.path.join(engine.path, "config.yaml")], cwd=app.config['JOEYNMT_FOLDER'],
                                                 env=env)
 
         engine.status = "training"

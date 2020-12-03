@@ -370,6 +370,7 @@ def train_resume(engine_id):
 
     config_file_path = os.path.join(engine.path, 'config.yaml')
 
+    config = None
     with open(config_file_path, 'r') as config_file:
         config = yaml.load(config_file, Loader=yaml.FullLoader)
         current_model = config["training"]["model_dir"]
@@ -380,16 +381,19 @@ def train_resume(engine_id):
             config["training"]["load_model"] = current_model_ckpt
     
     with open(config_file_path, 'w') as config_file:
-            yaml.dump(config, config_file)
+        yaml.dump(config, config_file)
 
     engine.model_path = new_model_path
     engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
     engine.finished = None
     db.session.commit()
 
-    task_id, _ = Trainer.launch(user_utils.get_uid(), engine_id)
-    while engine.has_stopped():
+    task_id, _ = Trainer.launch(engine_id, user_utils.is_admin())
+
+    i = 0
+    while engine.has_stopped() and i < 100:
         db.session.refresh(engine)
+        i += 1
 
     return redirect(url_for('train.train_console', id=engine_id))
 
