@@ -4,7 +4,7 @@ IMAGE=mutnmt:latest
 
 if [ $1 = "cuda" ]
 then
-	FLAGS="--gpus device=2"
+	FLAGS="--gpus all"
 	#IMAGE=mutnmt:latest
 fi
 
@@ -17,5 +17,4 @@ $FLAGS \
 -p 5000:5000 \
 -v $(pwd)/app:/opt/mutnmt/app \
 -v $(pwd)/data:/opt/mutnmt/data \
--e NVIDIA_VISIBLE_DEVICES=2 \
 $IMAGE
