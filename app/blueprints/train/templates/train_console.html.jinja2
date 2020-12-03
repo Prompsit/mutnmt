@@ -40,25 +40,25 @@
         <div class="row">
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Training</div>
-                {% for corpus in corpora['train'] %}
+                {% for corpus, selected_size in corpora['train'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
-                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ selected_size }})
                     </a>
                 {% endfor %}
             </div>
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Validation</div>
-                {% for corpus in corpora['dev'] %}
+                {% for corpus, selected_size in corpora['dev'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
-                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ selected_size }})
                     </a>
                 {% endfor %}
             </div>
             <div class="col-6 col-sm-4 col-md-3 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Test</div>
-                {% for corpus in corpora['test'] %}
+                {% for corpus, selected_size in corpora['test'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
-                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ corpus.lines(human=True, abbr=True)}})
+                        {{ corpus.name }} ({{ corpus.source.code }}-{{ corpus.target.code }}, {{ selected_size }})
                     </a>
                 {% endfor %}
             </div>
