@@ -2,6 +2,7 @@ from app.models import Engine
 from app import db, app
 from app.utils.power import PowerUtils
 from app.utils import tasks
+from app.utils.GPUManager import GPUManager
 from celery.task.control import revoke
 
 import datetime
@@ -23,14 +24,19 @@ class Trainer(object):
 
     @staticmethod
     def finish(engine):
-        if engine.bg_task_id:
+        if engine.bg_task_id is not None:
             revoke(engine.bg_task_id, terminate=True)
             engine.bg_task_id = None
         
-        if engine.pid:
+        if engine.pid is not None:
             executioner = subprocess.Popen("kill -9 {}".format(engine.pid), shell=True)
             engine.pid = None
-            db.session.commit()
+
+        if engine.gid is not None:
+            GPUManager.free_device(engine.gid)
+            engine.gid = None
+
+        db.session.commit()
 
     @staticmethod
     def stop(id, user_stop=False, admin_stop=False):
