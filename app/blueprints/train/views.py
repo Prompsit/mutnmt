@@ -140,8 +140,6 @@ def train_console(id):
 @train_blueprint.route('/graph_data', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_graph():
-    if user_utils.is_normal(): return jsonify([])
-
     tags = request.form.getlist('tags[]')
     id = request.form.get('id')
 
@@ -170,8 +168,6 @@ def train_graph():
 @train_blueprint.route('/train_status', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_status():
-    if user_utils.is_normal(): return jsonify([])
-
     id = request.form.get('id')
 
     engine = Engine.query.filter_by(id = id).first()
