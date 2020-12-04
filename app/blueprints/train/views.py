@@ -108,9 +108,7 @@ def train_launch():
 
 @train_blueprint.route('/console/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
-def train_console(id):
-    if user_utils.is_normal(): return redirect(url_for('index'))
-    
+def train_console(id):    
     engine = Engine.query.filter_by(id = id).first()
     config_file_path = os.path.join(os.path.realpath(os.path.join(app.config['PRELOADED_ENGINES_FOLDER'], engine.path)), 'config.yaml')
     config = None
