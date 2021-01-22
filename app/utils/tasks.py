@@ -428,6 +428,20 @@ def inspect_compare(self, user_id, line, engines, is_admin):
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 @celery.task(bind=True)
 def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
+    # Transform utf-8 with BOM (if it is) to utf-8
+    for path in (mt_paths + ht_paths + [source_path]):
+        if path:
+            noBOM = subprocess.Popen("sed -i '1s/^\xEF\xBB\xBF//' {}".format(path), 
+                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
+            noBOM.wait()
+
+            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
+                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
+            noBlankLines.wait()
+
+            fixNewlines = subprocess.Popen("cat {path} | tr '\r\n' '\n' > {path}.fix && mv {path}.fix {path}".format(path=path),
+                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
+            fixNewlines.wait()
 
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
@@ -505,6 +519,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
 
 def spl(mt_path, ht_path):
     # Scores per line (bleu and ter)
+    logger.info([mt_path, ht_path])
     sacreBLEU = subprocess.Popen("cat {} | sacrebleu -sl -b {} > {}.bpl".format(mt_path, ht_path, mt_path), 
                         cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
     sacreBLEU.wait()
