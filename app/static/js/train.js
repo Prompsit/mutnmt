@@ -270,31 +270,4 @@ $(document).ready(function() {
             $('.source_lang, .target_lang').trigger('change');
         }, 10);
     });
-
-    /* Tour */
-    Tour.get('train', (response) => {
-        let { tour } = response;
-        let { tour_title, popovers } = tour;
-        let steps = []
-        for (let element_id in popovers) {
-            steps.push({
-                element: `#${element_id}`,
-                popover: {
-                    title: popovers[element_id]['title'],
-                    description: popovers[element_id]['description']
-                }
-            });
-        }
-
-        const driver = new Driver();
-        driver.defineSteps(steps);
-
-        $('.tour-guide-bubble').html(tour_title);
-
-        $('.btn-begin-tour').on('click', function() {
-            setTimeout(() => {
-                driver.start();
-            }, 250);
-        });
-    });
 });
