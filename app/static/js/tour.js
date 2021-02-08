@@ -27,7 +27,7 @@
 $(document).ready(function() {
     /* Activate Tour */
     const tour_id = window.location.href.split("/").length > 3 ? 
-        window.location.href.split("/").slice(3).reduce((acc, v) => { acc = v ? acc + "/" + v : acc; return acc; }, "").substr(1) : null;
+        window.location.href.split("/").slice(3).reduce((acc, v) => { acc = v ? acc + "/" + v.replace('#', '') : acc; return acc; }, "").substr(1) : null;
 
     if (tour_id) {
         Tour.get(tour_id, (response) => {
