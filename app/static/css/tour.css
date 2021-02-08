@@ -3,9 +3,8 @@
     left: 0px;
     bottom: 0px;
     max-width: 400px;
-    height: 150px;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     background-color: white;
     transition: bottom 0.2s linear;
 }
@@ -27,7 +26,7 @@
         background-repeat: no-repeat;
         background-size: 100% 100%;
         width: 150px;
-        height: 100%;
+        height: 150px;
     }
 
     .tour-guide .tour-guide-bubble {
@@ -56,4 +55,5 @@
     .tour-guide .tour-guide-controls {
         margin-top: 1rem;
         margin-left: 0.5rem;
+        margin-bottom: 0.5rem;
     }

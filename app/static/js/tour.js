@@ -25,8 +25,47 @@
 })(window);
 
 $(document).ready(function() {
-    $('.btn-hide-tour').on('click', function() {
-        Cookies.set('hide-tour', true, { expires: 365 });
-        $('.tour-guide').addClass('hidden');
-    });
+    /* Activate Tour */
+    const tour_id = window.location.href.split("/").length > 3 ? 
+        window.location.href.split("/").slice(3).reduce((acc, v) => { acc = v ? acc + "/" + v : acc; return acc; }, "").substr(1) : null;
+
+    if (tour_id) {
+        Tour.get(tour_id, (response) => {
+            let { tour } = response;
+            let { tour_title, popovers } = tour;
+
+            console.log(popovers);
+
+            let steps = []
+            if (popovers?.length > 0) {
+                for (let popover of popovers) {
+                    steps.push({
+                        element: `#${popover['element']}`,
+                        popover: {
+                            title: popover['title'],
+                            description: popover['description']
+                        }
+                    });
+                }
+            } else {
+                $('.btn-begin-tour').addClass('d-none');
+            }
+
+            const driver = new Driver();
+            driver.defineSteps(steps);
+
+            $('.tour-guide-bubble').html(tour_title);
+
+            $('.btn-begin-tour').on('click', function() {
+                setTimeout(() => {
+                    driver.start();
+                }, 250);
+            });
+
+            $('.btn-hide-tour').on('click', function() {
+                Cookies.set('hide-tour', true, { expires: 365 });
+                $('.tour-guide').addClass('hidden');
+            });
+        });
+    }
 });

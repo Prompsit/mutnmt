@@ -64,7 +64,7 @@
                 <div class="form-group col-12 col-sm-6">
                     <label class="col-form-label h6">Duration</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" name="epochsText" value="10" min="1" max="64" />
+                        <input type="number" class="form-control" name="epochsText" id="epochsText" value="10" min="1" max="64" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">epochs</div>
                         </div>
@@ -104,7 +104,7 @@
                 <div class="form-group col-12 col-sm-6">
                     <label class="col-form-label h6">Batch size</label>
                     <div class="input-group">
-                        <input type="number" name="batchSizeTxt" class="form-control" value="6000" min="1" />
+                        <input type="number" name="batchSizeTxt" id="batchSizeTxt" class="form-control" value="6000" min="1" />
                         <div class="input-group-prepend">
                             <div class="input-group-text">tokens</div>
                         </div>
@@ -112,7 +112,7 @@
                 </div>
             </div>
 
-            <div class="row mt-3 corpus-selector">
+            <div class="row mt-3 corpus-selector" id="corpus-selector">
                 {% for phase in ["training", "dev", "test"] %}
                     <div class="col-12 col-sm-4 mb-3">
                         <div class="area-zone {{ phase }}-zone">
