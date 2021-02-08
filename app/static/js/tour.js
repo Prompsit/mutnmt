@@ -34,8 +34,6 @@ $(document).ready(function() {
             let { tour } = response;
             let { tour_title, popovers } = tour;
 
-            console.log(popovers);
-
             let steps = []
             if (popovers?.length > 0) {
                 for (let popover of popovers) {
