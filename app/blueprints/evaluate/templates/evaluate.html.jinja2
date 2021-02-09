@@ -67,6 +67,12 @@
     </div>
 
     <div class="row mt-4">
+        <div class="col-12">
+            <i class="fas fa-exclamation-triangle"></i> Only the first 500 sentences will be evaluated
+        </div>
+    </div>
+
+    <div class="row mt-4">
         <div class="col-12 sides-decoration text-center">
             <div class="bg-white px-2 d-inline-block">
                 <input type=submit class="btn btn-primary" value="Evaluate" />
@@ -99,18 +105,12 @@
 
 <div class="evaluate-results d-none">
     <div class="row mt-4">
-        <div class="col-12">
-            <i class="fas fa-exclamation-triangle"></i> Only the first 500 sentences have been evaluated
-        </div>
-    </div>
-
-    <div class="row mt-4">
         <div class="col-6">
             <h2 class="h5">Metrics</h2>
         </div>
         <div class="col-6 text-right">
             <a class="btn-xlsx-download" href="#">
-                <i class="fas fa-file-excel"></i> Download XLSX
+                <i class="fas fa-file-excel"></i> Download spreadsheet
             </a>
         </div>
     </div>
@@ -119,7 +119,7 @@
         <div class="col-12 col-sm-6">
             <div class="d-flex justify-content-between align-items-center">
                 <label for="results-mt-select">Machine translation file</label>
-                <div class="small">
+                <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
                     <span class="badge badge-secondary">TTR</span>
                     <span class="mt-lexical-value"></span>
                 </div>
@@ -131,7 +131,7 @@
         <div class="col-12 col-sm-6">
             <div class="d-flex justify-content-between align-items-center">
                 <label for="results-ht-select">Reference translation file</label>
-                <div class="small">
+                <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
                     <span class="badge badge-secondary">TTR</span>
                     <span class="ht-lexical-value"></span>
                 </div>
