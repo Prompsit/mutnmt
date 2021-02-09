@@ -15,12 +15,14 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 app.config.from_object(Config)
 db = SQLAlchemy(app)
-app.wsgi_app = ProxyFix(app.wsgi_app)
 migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 babel = Babel(app)
 dropzone = Dropzone(app)
 migrate = Migrate(app, db)
+
+if app.config['USE_PROXY_FIX']:
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
 # Blueprints
 from .blueprints.auth.views import auth_blueprint
