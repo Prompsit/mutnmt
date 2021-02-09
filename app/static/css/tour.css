@@ -10,7 +10,7 @@
 }
 
 .tour-guide.hidden {
-    bottom: -150px;
+    bottom: -100%;
 }
 
 @media screen and (max-width: 576px) {

@@ -550,13 +550,15 @@ def generate_xlsx(user_id, rows, ht_path_index):
 
     x_rows = []
     for i, row in enumerate(rows):
-        x_row = [i + 1, row[1]]
+        x_row = [i + 1]
 
         if len(row) > 6:
-            x_row = [i + 1, row[6], row[1]]
+            x_row = [i + 1, row[6]]
         
         for mt_data in row[5]:
             x_row.append(mt_data['text'])
+
+        x_row.append(row[1])
 
         for mt_data in row[5]:
             x_row.append(mt_data['bleu'])
@@ -567,13 +569,10 @@ def generate_xlsx(user_id, rows, ht_path_index):
         x_rows.append(x_row)
 
     headers = ["Line"]
-    if len(row) > 6:
-        headers = headers + ["Source sentence", "Reference {}".format(ht_path_index + 1)]
-    else:
-        headers = headers + ["Reference {}".format(ht_path_index + 1)]
-
-
+    headers = headers + (["Source sentence"] if len(row) > 6 else [])
     headers = headers + ["Machine translation {}".format(i + 1) for i in range(len(row[5]))]
+    headers = headers + ["Reference {}".format(ht_path_index + 1)]
+
     headers = headers + ["Bleu MT{}".format(i + 1) for i in range(len(row[5]))]
     headers = headers + ["TER MT{}".format(i + 1) for i in range(len(row[5]))]
 

@@ -170,9 +170,10 @@
                                             </td>
                                             <td class="text-center border-0 p-0 py-2 align-middle" data-sort="{{ corpus.lines() }}" data-search="{{ corpus.lines() }}">
                                                 <div class="input-group">
-                                                    <input type=number class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
+                                                    <input type=number title="Parallel sentences" class="form-control corpus-selector-lines" min="1" max="{{ corpus.lines() }}" value="{{ corpus.lines() }}" />
                                                     <div class="input-group-append">
                                                         <button class="btn btn-outline-primary corpus-selector-add"
+                                                            title="Add parallel sentences"
                                                             data-corpus="{{ phase }}"
                                                             data-corpus-id="{{ corpus.id }}"
                                                             data-corpus-name="{{ corpus.name }}"
