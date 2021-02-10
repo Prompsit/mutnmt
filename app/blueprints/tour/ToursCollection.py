@@ -4,7 +4,7 @@ class ToursCollection(object):
             'tour_title': 'Welcome to MutNMT. Let\'s get started by grabbing a public corpus or uploading a new one. Corpora will be used to train NMT engines.'
         },
         'library/engines': {
-            'tour_title': 'You are in the Engines section now. Here, you can grab public engines or see your own, once you complete a training. Engines in your list will be used in Translate, Inspect and Compare sections.'
+            'tour_title': 'You are in the Engines section now. Here, you can grab public engines or see your own, once you complete a training. Engines in your list will be used in Translate and Inspect sections.'
         },
         'train': {
             'tour_title': 'It looks like you want to train an engine. Do you want help?',
