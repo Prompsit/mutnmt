@@ -35,7 +35,7 @@ class Config(object):
     GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
     GOOGLE_OAUTH_CLIENT_SECRET  = 'dACUBYZhq4tEdR_wnbodWfGx'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
-    USE_PROXY_FIX = False
+    USE_PROXY_FIX = True
 
     try:
         with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
