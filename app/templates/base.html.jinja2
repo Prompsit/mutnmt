@@ -98,6 +98,16 @@
 
                         <hr />
 
+                        <a href="#" class="nile-resurrect-btn text-reset text-decoration-none">
+                            <img alt="" class="img-fluid" style="width: 48px;" src="{{ url_for('static', filename='img/nile-resurrect.svg') }}" />
+
+                            <span class="ml-2">
+                                Nile, please help!
+                            </span>
+                        </a>
+
+                        <hr />
+
                         {% if current_user.is_authenticated %}
                         <div class="d-flex align-items-center">
                             <img alt="" src="{{ current_user.avatar_url }}" class="img-avatar" />
