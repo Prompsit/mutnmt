@@ -182,6 +182,7 @@ def launch_training(self, user_id, engine_path, params):
         config["training"]["patience"] = int(params['patienceTxt'])
         config["training"]["batch_size"] = int(params['batchSizeTxt'])
         config["training"]["validation_freq"] = int(params['validationFreq'])
+        config["testing"]["beam_size"] = int(params['beamSizeTxt'])
 
         with open(config_file_path, 'w') as config_file:
             yaml.dump(config, config_file)

@@ -1,10 +1,10 @@
 class ToursCollection(object):
     tours = {
         'library/corpora': {
-            'tour_title': 'Welcome to MuNMT. This section is all about Data. You should start by grabbing a corpus from Public data or uploading a new one. Corpora will be used to train engines.'
+            'tour_title': 'Welcome to MutNMT. Let\'s get started by grabbing a public corpus or uploading a new one. Corpora will be used to train NMT engines.'
         },
         'library/engines': {
-            'tour_title': 'You are in the Engines section now. You should start by grabbing a public engine or training a new one in the Train section to be able to Translate, Inspect and Compare NMT systems.'
+            'tour_title': 'You are in the Engines section now. Here, you can grab public engines or see your own, once you complete a training. Engines in your list will be used in Translate, Inspect and Compare sections.'
         },
         'train': {
             'tour_title': 'It looks like you want to train an engine. Do you want help?',
@@ -26,22 +26,32 @@ class ToursCollection(object):
                 {
                     'element': 'epochsText',
                     'title': 'Duration',
-                    'description': 'The amount of epochs allowed in the training process. An epoch is a full training pass over the whole amount of sentences in the training set. An epoch comprises the necessary number of training steps using the batch size to see all the data once.  Around (7) to (10) epochs should produce good results with MutNMT.'
+                    'description': 'This is the amount of epochs allowed in the training process. An epoch is a full training pass over the whole amount of sentences in the training set. Set it between 7 and 10 epochs in MutNMT.'
                 },
                 {
                     'element': 'patienceGroup',
-                    'title': 'Stopping the engine',
-                    'description': 'Your engine will stop if it does not improve after this amount of validations. You can also stop the engine manually at any time.'
+                    'title': 'Stopping condition',
+                    'description': 'Your engine will stop if it does not improve after a set amount of validations. Our tip for MutNMT is to set it between 3 and 5. You can also stop the engine manually at any time.'
+                },
+                {
+                    'element': 'validationFreq',
+                    'title': 'Validation frequency',
+                    'description': 'The amount of steps included before an evaluation of the status of the training takes place. Validation cycles happen many times inside an epoch. A validation every 3000 and 9000 steps is what we recommend for MutNMT.'
                 },
                 {
                     'element': 'vocabularySizeGroup',
                     'title': 'Vocabulary size',
-                    'description': 'The amount of words in the vocabulary is known as the vocabulary size. Using around 16K and 32K words in the vocabulary should produce good results.'
+                    'description': 'The amount of words in the vocabulary is known as the vocabulary size. Set it between 16000 and 32000 (sub-)words in MutNMT.'
                 },
                 {
                     'element': 'batchSizeTxt',
                     'title': 'Batch size',
-                    'description': 'The amount of tokens processed in each step is known as the batch size. This is needed because it is not possible to give the full amount of data in the training set to the neural network at once. It produces good results with, say between 6,000 and 12,0000 tokens.'
+                    'description': 'The amount of tokens processed in each step is known as the batch size. This is needed because it is not possible to give the full amount of data in the training set to the neural network at once. Try with batch sizes between 6000 and 9000 tokens with MutNMT.'
+                },
+                {
+                    'element': 'beamSizeTxt',
+                    'title': 'Beam size',
+                    'description': 'Number of translation hypothesis taken into account when translating a word. Set it between 6 to 8 in MutNMT.'
                 },
                 {
                     'element': 'corpus-selector',
@@ -51,10 +61,10 @@ class ToursCollection(object):
             ]
         },
         'translate': {
-            'tour_title': 'You can now translate with the neural engine you have trained, with one you have grabbed from “Public engines”, or even with two at the same time. Take a bunch of sentences, translate them and take a look at the resulting translation! Is this result up to your expectations?'
+            'tour_title': 'Time to see your engines at work: translate using your own engine, a public one or the two at the same time. Take a  bunch of sentences, translate them and see the translation! Is this result up to your expectations?'
         },
         'inspect/details': {
-            'tour_title': 'In this section, you can inspect a neural engine to know how to improve it.',
+            'tour_title': 'In this section, you can see how a neural engine works and compare it to others. Ideas on how to improve the results?',
             'popovers': [
                 {
                     'element': 'detailsBtn',
@@ -63,7 +73,7 @@ class ToursCollection(object):
                 },
                 {
                     'element': 'compareBtn',
-                    'title': 'Details',
+                    'title': 'Compare',
                     'description': 'Write a sentence, choose a neural engine and compare the resulting translation with another neural engine. Both engines must have the same source and target languages.'
                 },
                 {
@@ -74,7 +84,7 @@ class ToursCollection(object):
             ]
         },
         'evaluate': {
-            'tour_title': 'You are in the Evaluate section. As the name suggests, here you can evaluate the translation made by the neural engine.',
+            'tour_title': 'As the name suggests, here you can evaluate translations made by machine translation engines against professional translations. You will also get familiar with automatic metrics!',
             'popovers': [
                 {
                     'element': 'source_file',
