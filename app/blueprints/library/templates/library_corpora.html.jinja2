@@ -88,6 +88,14 @@
                                     {% with file_dnd_id = "source_file", file_dnd_small = True %}
                                         {% include "file-dnd.html.jinja2" %}
                                     {% endwith %}
+
+                                    <div class="mt-1">
+                                        <small>
+                                            <a download href="{{ url_for('static', filename='file_templates/en.src.txt') }}">
+                                                <i class="far fa-arrow-alt-circle-down"></i> Get source text template
+                                            </a>
+                                        </small>
+                                    </div>
                                 </div>
 
                                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
@@ -96,6 +104,14 @@
                                     {% with file_dnd_id = "target_file", file_dnd_small = True %}
                                         {% include "file-dnd.html.jinja2" %}
                                     {% endwith %}
+
+                                    <div class="mt-1">
+                                        <small>
+                                            <a download href="{{ url_for('static', filename='file_templates/es.trg.txt') }}">
+                                                <i class="far fa-arrow-alt-circle-down"></i> Get target text template
+                                            </a>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -113,6 +129,22 @@
                             {% with file_dnd_id = "bitext_file", file_dnd_small = True %}
                                 {% include "file-dnd.html.jinja2" %}
                             {% endwith %}
+
+                            <div class="mt-1">
+                                <small>
+                                    <i class="far fa-arrow-alt-circle-down"></i>
+
+                                    Get
+
+                                    <a download href="{{ url_for('static', filename='file_templates/en-es.tsv') }}">TSV</a>
+
+                                    /
+
+                                    <a download href="{{ url_for('static', filename='file_templates/en-es.tmx') }}">TMX</a>
+
+                                    template
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
