@@ -61,7 +61,7 @@ class ToursCollection(object):
             ]
         },
         'translate': {
-            'tour_title': 'Time to see your engines at work: translate using your own engine, a public one or the two at the same time. Take a  bunch of sentences, translate them and see the translation! Is this result up to your expectations?'
+            'tour_title': 'Time to see NMT engines at work: translate using one of your available engines or two concatenated (see + button). You can translate a bunch of sentences or a document. Is the result up to your expectations?'
         },
         'inspect/details': {
             'tour_title': 'In this section, you can see how a neural engine works and compare it to others. Ideas on how to improve the results?',
