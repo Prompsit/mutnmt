@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tmx version="1.4">
+<header creationtool="mutnmt" creationtoolversion="1.0" datatype="xml" segtype="sentence" creationid="anonymous">
+</header>
+<body>
+    <tu tuid="1" datatype="Text">
+        <tuv xml:lang="en">
+            <seg>The Board of Directors shall consist of twenty-eight directors and eighteen alternate directors.</seg>
+        </tuv>
+        <tuv xml:lang="es">
+            <seg>El Consejo de Administración estará compuesto por veintiocho administradores y dieciocho administradores suplentes.</seg>
+        </tuv>
+    </tu>
+    <tu tuid="2" datatype="Text">
+        <tuv xml:lang="en">
+            <seg>The directors shall be appointed by the Board of Governors for five years, one nominated by each Member State.</seg>
+        </tuv>
+        <tuv xml:lang="es">
+            <seg>Los administradores serán nombrados por el Consejo de Gobernadores para un período de cinco años.</seg>
+        </tuv>
+    </tu>
+    <tu tuid="3" datatype="Text">
+        <tuv xml:lang="en">
+            <seg>One shall also be nominated by the Commission.</seg>
+        </tuv>
+        <tuv xml:lang="es">
+            <seg>Cada Estado miembro designará a uno y la Comisión también designará a uno.</seg>
+        </tuv>
+    </tu>
+</body>
+</tmx>
