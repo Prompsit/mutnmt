@@ -30,6 +30,14 @@
                 <input type="file" class="custom-file-input" id="source_file" name="source_file">
                 <label class="custom-file-label" for="source_file">Choose file</label>
             </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/en.src.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get source text template
+                    </a>
+                </small>
+            </div>
         </div>
 
         <div class="col-sm col-12 mt-4 mt-sm-0">
@@ -47,6 +55,14 @@
                     </a>
                 </div>
             </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/es.mt.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get MT text template
+                    </a>
+                </small>
+            </div>
         </div>
         <div class="col-sm col-12 mt-4 mt-sm-0">
             <h2 class="h6">Reference translation</h2>
@@ -62,6 +78,14 @@
                         <i class="fas fa-plus"></i>
                     </a>
                 </div>
+            </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/es.ref.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get reference text template
+                    </a>
+                </small>
             </div>
         </div>
     </div>
