@@ -3,13 +3,19 @@
 {% block library_content %}
 
 {% if not is_normal() %}
-<a href="#" class="text-reset text-decoration-none upload-header">
-    <h2 class="h5">
-        <span class="mr-2">Upload corpora</span>
-        <i class="fas fa-caret-up header-collapse-icon"></i>
-        <i class="fas fa-caret-down header-collapsed-icon d-none"></i>
-    </h2>
-</a>
+<div class="d-flex justify-content-between">
+    <a href="#" class="text-reset text-decoration-none upload-header">
+        <h2 class="h5">
+            <span class="mr-2">Upload corpora</span>
+            <i class="fas fa-caret-up header-collapse-icon"></i>
+            <i class="fas fa-caret-down header-collapsed-icon d-none"></i>
+        </h2>
+    </a>
+
+    <a href="#your_corpora">
+        <i class="fas fa-folder"></i> Your corpora
+    </a>
+</div>
 
 <form class="data-upload-form mb-4 " action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
     <fieldset>
