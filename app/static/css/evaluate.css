@@ -1,3 +1,7 @@
+.evaluate-hint {
+    opacity: .7;
+}
+
 .sides-decoration::before {
     content: "";
     display: block;
