@@ -34,11 +34,50 @@
             <span class="badge badge-warning">Training</span>
         {% endif %}
         <p>
-            <strong class="nn-name">{{ engine.name }}</strong>
+            <strong class="nn-name h4">{{ engine.name }}</strong>
         </p>
 
-        <div class="row">
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+        <div class="row mt-3">
+            <div class="col-12 mb-3">
+                <strong><i class="fas fa-sliders-h"></i> Engine settings</strong>
+            </div>
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Vocabulary size</div>
+                <div class="vocabulary-size-container">—</div>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Beam size</div>
+                <div class="beam-size-container">—</div>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Batch size</div>
+                <div class="batch-size-container">—</div>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Validation freq.</div>
+                <div class="validation-freq-container">—</div>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Stopping condition</div>
+                <div class="patience-container">—</div>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
+                <div class="h6">Duration</div>
+                <div class="epochs-container">—</div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12 mb-3">
+                <strong><i class="fas fa-file"></i> Engine corpora</strong>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Training</div>
                 {% for corpus, selected_size in corpora['train'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
@@ -46,7 +85,7 @@
                     </a>
                 {% endfor %}
             </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Validation</div>
                 {% for corpus, selected_size in corpora['dev'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
@@ -54,7 +93,7 @@
                     </a>
                 {% endfor %}
             </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-file-alt"></i> Test</div>
                 {% for corpus, selected_size in corpora['test'] %}
                     <a href="{{ url_for('library.corpora_preview', id=corpus.id) }}" title="{{ corpus.name }} ({{ corpus.source.name }} - {{ corpus.target.name }}, {{ corpus.lines(human=True, abbr=False)}} lines)">
@@ -62,28 +101,26 @@
                     </a>
                 {% endfor %}
             </div>
+        </div>
 
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+        <div class="row mt-3">
+            <div class="col-12 mb-3">
+                <strong><i class="far fa-chart-bar"></i> Engine stats</strong>
+            </div>
+
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-stopwatch"></i> Time to train</div>
                 <div class="time-container">—</div>
             </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-tachometer-alt"></i> Tokens per second</div>
                 <div class="tps-container">—</div>
             </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-trophy"></i> Score</div>
                 <div class="score-container">—</div>
             </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
-                <div class="h6"><i class="fas fa-check-double"></i> Validation freq.</div>
-                <div class="validation-freq-container">—</div>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
-                <div class="h6"><i class="fas fa-book"></i> Vocabulary size</div>
-                <div class="vocabulary-size-container">—</div>
-            </div>
-            <div class="col-6 col-sm-4 col-md-3 mb-4">
+            <div class="col-6 col-sm-4 mb-4">
                 <div class="h6"><i class="fas fa-book"></i> Perplexity</div>
                 <div class="ppl-container">—</div>
             </div>

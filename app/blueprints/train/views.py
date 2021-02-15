@@ -236,24 +236,27 @@ def train_stats():
     else:
         time_elapsed_format = "—"
 
-    val_freq = None
+    data = {
+        "time_elapsed": time_elapsed_format,
+        "tps": tps_value,
+        "score": score,
+        "ppl": ppl,
+    }
+
     config_file_path = os.path.join(engine.path, 'config.yaml')
     with open(config_file_path, 'r') as config_file:
         config = yaml.load(config_file, Loader=yaml.FullLoader)
-        val_freq = config["training"]["validation_freq"]
+        data["val_freq"] = config["training"]["validation_freq"] if "validation_freq" in config["training"] else None
+        data["epochs"] = config["training"]["epochs"] if "epochs" in config["training"] else None
+        data["patience"] = config["training"]["patience"] if "patience" in config["training"] else None 
+        data["batch_size"] = config["training"]["batch_size"] if "batch_size" in config["training"] else None 
+        data["beam_size"] = config["testing"]["beam_size"] if "beam_size" in config["testing"] else None
 
-    vocab_size = utils.file_length(os.path.join(engine.path, 'train.vocab'))
+    data["vocab_size"] = utils.file_length(os.path.join(engine.path, 'train.vocab'))
 
     return jsonify({
         "result": 200, 
-        "data": {
-            "time_elapsed": time_elapsed_format,
-            "tps": tps_value,
-            "score": score,
-            "ppl": ppl,
-            "validation_freq": val_freq,
-            "vocab_size": vocab_size
-        }
+        "data": data
     })
 
 @train_blueprint.route('/log', methods=["POST"])
