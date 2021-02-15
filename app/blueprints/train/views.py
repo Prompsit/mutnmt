@@ -1,7 +1,7 @@
 from app import app, db
 from app.flash import Flash
 from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File, Language
-from app.utils import user_utils, utils, data_utils, tensor_utils, tasks
+from app.utils import user_utils, utils, data_utils, tensor_utils, tasks, training_log
 from app.utils.trainer import Trainer
 from app.utils.power import PowerUtils
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
@@ -200,22 +200,18 @@ def train_stats():
     engine_id = request.form.get('id')
     engine = Engine.query.filter_by(id=engine_id).first()
 
-    training_regex = r'^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}),\d+\s+Epoch\s+(\d+)\sStep:\s+(\d+)\s+Batch Loss:\s+(\d+.\d+)\s+Tokens per Sec:\s+(\d+),\s+Lr:\s+(\d+.\d+)$'
-    validation_regex = r'^(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2}:\d{2},\d+)\s(\w|\s|\(|\))+(\d+),\s+step\s*(\d+):\s+bleu:\s+(\d+\.\d+),\s+loss:\s+(\d+\.\d+),\s+ppl:\s+(\d+\.\d+),\s+duration:\s+(\d+.\d+)s$'
-    re_flags = re.IGNORECASE | re.UNICODE
-
     score = 0.0
     ppl = "—"
     tps = []
     
     with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
         for line in log_file:
-            groups = re.search(training_regex, line, flags=re_flags)
+            groups = re.search(training_log.training_regex, line, flags=training_log.re_flags)
             if groups:
                 tps.append(float(groups[6]))
             else:
                 # It was not a training line, could be validation
-                groups = re.search(validation_regex, line, flags=re_flags)
+                groups = re.search(training_log.validation_regex, line, flags=training_log.re_flags)
                 if groups:
                     bleu_score = float(groups[6])
                     score = bleu_score if bleu_score > score else score

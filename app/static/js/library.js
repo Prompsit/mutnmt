@@ -163,7 +163,7 @@ $(document).ready(function() {
                     sortable: false,
                     class: "text-center border-right-0",
                     render: function(data, type, row) {
-                        let engine_data = row[7];
+                        let engine_data = row[8];
                         let template = document.importNode(document.querySelector("#engines-icon-template").content, true);
 
                         if (engine_data.engine_owner) {
@@ -183,17 +183,23 @@ $(document).ready(function() {
                     }
                 },
                 {
-                    targets: [1, 2, 3, 4, 5],
+                    targets: [1, 2, 3, 4, 5, 6],
                     className: "overflow"
                 },
-                { 
+                {
                     targets: 6,
+                    render: function(data, type, row) {
+                        return data !== null ? data : "—"
+                    }
+                },
+                { 
+                    targets: 7,
                     responsivePriority: 1,
                     className: "actions",
                     searchable: false,
                     sortable: false,
                     render: function(data, type, row) {
-                        let engine_data = row[7];
+                        let engine_data = row[8];
                         let template = document.importNode(document.querySelector("#engines-options-template").content, true);
 
                         $(template).find(".export-btn").attr("href", engine_data.engine_export);

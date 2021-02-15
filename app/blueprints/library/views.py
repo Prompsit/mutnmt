@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine, Topic
-from app.utils import user_utils, utils, datatables, tensor_utils
+from app.utils import user_utils, utils, datatables, tensor_utils, training_log
 from app.utils.power import PowerUtils
 from app.flash import Flash
 from flask_login import login_required
@@ -152,9 +152,21 @@ def library_engines_feed():
 
     engine_data = []
     for engine in (rows_filtered if search else rows):
+        # We try to get BLEU score for this engine
+        score = None
+        try:
+            with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
+                for line in log_file:
+                    groups = re.search(training_log.validation_regex, line, flags=training_log.re_flags)
+                    if groups:
+                        bleu_score = float(groups[6])
+                        score = bleu_score if score is None or bleu_score > score else score
+        except IOError:
+            pass
+
         uploaded_date = datetime.fromtimestamp(datetime.timestamp(engine.uploaded)).strftime("%d/%m/%Y")
         engine_data.append([engine.id, engine.name, engine.description, "{} — {}".format(engine.source.name, engine.target.name),
-                            uploaded_date, engine.uploader.username if engine.uploader else "MutNMT", "",
+                            uploaded_date, engine.uploader.username if engine.uploader else "MutNMT", score, "",
                             {
                                 "engine_owner": engine.uploader.id == user_utils.get_uid() if engine.uploader else False,
                                 "engine_public": engine.public,
