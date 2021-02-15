@@ -61,7 +61,7 @@ class ToursCollection(object):
             ]
         },
         'translate': {
-            'tour_title': 'Time to see your engines at work: translate using your own engine, a public one or the two at the same time. Take a  bunch of sentences, translate them and see the translation! Is this result up to your expectations?'
+            'tour_title': 'Time to see NMT engines at work: translate using one of your available engines or two concatenated (see + button). You can translate a bunch of sentences or a document. Is the result up to your expectations?'
         },
         'inspect/details': {
             'tour_title': 'In this section, you can see how a neural engine works and compare it to others. Ideas on how to improve the results?',
@@ -100,6 +100,26 @@ class ToursCollection(object):
                     'element': 'ht_file',
                     'title': 'Reference translation',
                     'description': 'Translation performed by a professional. It should be plain text or TMX.'
+                },
+                {
+                    'element': 'ttr-badge',
+                    'title': 'TTR',
+                    'description': 'Type Token Ratio indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text.'
+                },
+                {
+                    'element': 'sample-bleu',
+                    'title': 'BLEU',
+                    'description': '% of word n-grams of the reference file present in the MT file.'
+                },
+                {
+                    'element': 'sample-chrf3',
+                    'title': 'chrF3',
+                    'description': '% of characters n-grams of the reference file present in the MT file.'
+                },
+                {
+                    'element': 'sample-ter',
+                    'title': 'TER',
+                    'description': '% of characters needing modification in the MT file in order to match the reference file.'
                 }
             ]
         }

@@ -127,6 +127,106 @@
     </div>
 </div>
 
+<div class="evaluate-hint row mt-4 bg-gray">
+    <div class="col-12 mb-3">
+        <div class="h5">Sample evaluation</div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <label for="results-mt-select">Machine translation file</label>
+            <div class="small" id="ttr-badge" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                <span class="badge badge-secondary">TTR</span>
+                <span class="mt-lexical-value">15.1</span>
+            </div>
+        </div>
+
+        <select disabled class="results-select results-mt-select custom-select" id="results-mt-select"></select>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <label for="results-ht-select">Reference translation file</label>
+            <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                <span class="badge badge-secondary">TTR</span>
+                <span class="ht-lexical-value">16.2</span>
+            </div>
+        </div>
+
+        <select disabled class="results-select results-ht-select custom-select" id="results-ht-select"></select>
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="row">
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-bleu">
+                <strong class="h1 bold metric-value">25.5</strong>
+
+                <div class="metric-hint my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 25%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">BLEU</strong>
+            </div>
+
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-chrf3">
+                <strong class="h1 bold metric-value">37.0</strong>
+
+                <div class="metric-hint my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 35%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">chrF3</strong>
+            </div>
+
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-ter">
+                <strong class="h1 bold metric-value">80.2</strong>
+
+                <div class="metric-hint reversed my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 85%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">TER</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="evaluate-results d-none">
     <div class="row mt-4">
         <div class="col-6">

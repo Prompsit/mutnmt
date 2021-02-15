@@ -26,7 +26,7 @@ $(document).ready(function() {
     let onsubmit = (e) => {
         $('.inspect-row').addClass("d-none");
         $(".inspect-compare-content").addClass("d-none");
-        $('.inspect-content').html("");
+        $('.inspect-compare-content').html("");
 
         if ($('.translate-form').attr('data-status') != 'launching') {
             $('.translate-form').attr('data-status', 'launching');

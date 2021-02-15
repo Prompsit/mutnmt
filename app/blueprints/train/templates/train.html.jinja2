@@ -61,42 +61,22 @@
                     </div>
                 </div>
 
-                <div class="form-group col-12 col-sm-6">
-                    <label class="col-form-label h6">Duration</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" name="epochsText" id="epochsText" value="7" min="7" max="10" step="1" />
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">epochs</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group col-12 col-sm-6">
-                    <label class="col-form-label h6">Stopping condition</label>
-                    <div class="input-group" id="patienceGroup">
-                        <input type="number" name="patienceTxt" class="form-control" value="3" min="3" max="5" step="1" />
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">validations</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group col-12 col-sm-6">
-                    <label class="col-form-label h6">Validation frequency</label>
-                    <div class="input-group">
-                        <input type="number" name="validationFreq" id="validationFreq" class="form-control" value="3000" min="3000" max="9000" step="1000" />
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">steps</div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="form-group col-12 col-sm-6" id="vocabularySizeGroup">
                     <label class="col-form-label h6">Vocabulary size</label>
                     <div class="input-group">
                         <input type="number" name="vocabularySize" class="form-control" value="16000" min="16000" max="32000" step="8000" />
                         <div class="input-group-prepend">
-                            <div class="input-group-text">words</div>
+                            <div class="input-group-text">sub-words</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-6">
+                    <label class="col-form-label h6">Beam size</label>
+                    <div class="input-group">
+                        <input type="number" name="beamSizeTxt" id="beamSizeTxt" class="form-control" value="6" min="6" max="8" step="1" />
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">hypothesis</div>
                         </div>
                     </div>
                 </div>
@@ -112,11 +92,31 @@
                 </div>
 
                 <div class="form-group col-12 col-sm-6">
-                    <label class="col-form-label h6">Beam size</label>
+                    <label class="col-form-label h6">Validation frequency</label>
                     <div class="input-group">
-                        <input type="number" name="beamSizeTxt" id="beamSizeTxt" class="form-control" value="6" min="6" max="8" step="1" />
+                        <input type="number" name="validationFreq" id="validationFreq" class="form-control" value="3000" min="3000" max="9000" step="1000" />
                         <div class="input-group-prepend">
-                            <div class="input-group-text">hypothesis</div>
+                            <div class="input-group-text">steps</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-6">
+                    <label class="col-form-label h6">Stopping condition</label>
+                    <div class="input-group" id="patienceGroup">
+                        <input type="number" name="patienceTxt" class="form-control" value="3" min="3" max="5" step="1" />
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">validations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group col-12 col-sm-6">
+                    <label class="col-form-label h6">Duration</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" name="epochsText" id="epochsText" value="7" min="7" max="10" step="1" />
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">epochs</div>
                         </div>
                     </div>
                 </div>
