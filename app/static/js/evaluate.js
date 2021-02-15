@@ -75,6 +75,8 @@ $(document).ready(function() {
 
     let bpl_table;
     $('.evaluate-form').on('submit', function() {
+        $(".evaluate-hint").addClass("d-none");
+        
         // Clean previous
         $(".evaluate-results").addClass("d-none");
         $(".evaluate-results-row").empty();
@@ -104,7 +106,7 @@ $(document).ready(function() {
 
         $('.evaluate-status').attr('data-status', 'pending');
 
-        let show_results = (evaluation, task_id, mt_ix, ht_ix) => {
+        let show_results = (evaluation, task_id, mt_ix, ht_ix) => {            
             // Clean previous
             $(".evaluate-results").addClass("d-none");
             $(".evaluate-results-row").empty();
