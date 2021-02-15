@@ -99,7 +99,6 @@ def library_corpora_feed():
                 file.language.name,
                 utils.format_number(file.lines), 
                 utils.format_number(file.words), 
-                utils.format_number(file.chars),
                 corpus.topic.name if corpus.topic else "",
                 uploaded_date,
                 {

@@ -38,7 +38,7 @@ $(document).ready(function() {
                 let last_group = -1;
                 rows.each(function(row, i) {
                     let data = row_data[i];
-                    let corpus_data = data[8];
+                    let corpus_data = data[7];
                     
                     if (corpus_data.corpus_id != last_group) {
                         let template = document.importNode(document.querySelector("#corpus-header-template").content, true);
@@ -105,7 +105,7 @@ $(document).ready(function() {
                     responsivePriority: 1,
                     className: "border-right-0 align-middle text-center",
                     render: function(data, type, row) {
-                        let corpus_data = row[8];
+                        let corpus_data = row[7];
                         let template = document.importNode(document.querySelector("#preview-button-template").content, true);
                         $(template).find(".file-item-preview").attr("href", corpus_data.file_preview);
                         let ghost = document.createElement('div');
