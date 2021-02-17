@@ -210,27 +210,24 @@ $(document).ready(function() {
         }
 
         // We don't keep longpolling if training is done
-        engine_stopped = data.stopped
-        if (data.stopped) {
-            $.ajax({
-                url: '../train_stats',
-                method: 'post',
-                data: { id: engine_id }
-            }).done(function(data) {
-                $(".time-container").html(data.data.time_elapsed);
-                $(".score-container").html(data.data.score + " BLEU");
-                $(".tps-container").html(data.data.tps);
-                $(".ppl-container").html(data.data.ppl);
-                $(".vocabulary-size-container").html(data.data.vocab_size);
-                $(".beam-size-container").html(data.data.beam_size);
-                $(".batch-size-container").html(data.data.batch_size);
-                $(".validation-freq-container").html(data.data.val_freq);
-                $(".patience-container").html(data.data.patience);
-                $(".epochs-container").html(data.data.epochs);
-            })
+        $.ajax({
+            url: '../train_stats',
+            method: 'post',
+            data: { id: engine_id }
+        }).done(function(data) {
+            $(".time-container").html(data.data.time_elapsed);
+            $(".score-container").html(data.data.score + " BLEU");
+            $(".tps-container").html(data.data.tps);
+            $(".ppl-container").html(data.data.ppl);
+            $(".vocabulary-size-container").html(data.data.vocab_size);
+            $(".beam-size-container").html(data.data.beam_size);
+            $(".batch-size-container").html(data.data.batch_size);
+            $(".validation-freq-container").html(data.data.val_freq);
+            $(".patience-container").html(data.data.patience);
+            $(".epochs-container").html(data.data.epochs);
+        })
 
-            return false;
-        }
+        return data.stopped ? false : true;
     }, true);
 
     /* Train log */
