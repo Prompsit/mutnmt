@@ -204,18 +204,21 @@ def train_stats():
     ppl = "—"
     tps = []
     
-    with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
-        for line in log_file:
-            groups = re.search(training_log.training_regex, line, flags=training_log.re_flags)
-            if groups:
-                tps.append(float(groups[6]))
-            else:
-                # It was not a training line, could be validation
-                groups = re.search(training_log.validation_regex, line, flags=training_log.re_flags)
+    try:
+        with open(os.path.join(engine.path, "model/train.log"), 'r') as log_file:
+            for line in log_file:
+                groups = re.search(training_log.training_regex, line, flags=training_log.re_flags)
                 if groups:
-                    bleu_score = float(groups[6])
-                    score = bleu_score if bleu_score > score else score
-                    ppl = float(groups[8])
+                    tps.append(float(groups[6]))
+                else:
+                    # It was not a training line, could be validation
+                    groups = re.search(training_log.validation_regex, line, flags=training_log.re_flags)
+                    if groups:
+                        bleu_score = float(groups[6])
+                        score = bleu_score if bleu_score > score else score
+                        ppl = float(groups[8])
+    except FileNotFoundError:
+        pass
 
     if len(tps) > 0:
         tps_value = reduce(lambda a, b: a + b, tps)
@@ -291,7 +294,7 @@ def train_log():
 
                     # date = datetime.datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
                     rows.append([time_string, epoch, step, batch_loss, tps, lr])
-    except:
+    except FileNotFoundError:
         pass
 
     if order is not None:
