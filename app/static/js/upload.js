@@ -6,6 +6,7 @@ $(document).ready(function() {
     let bitext_file = null;
 
     let drag_callback = (e, file) => {
+        console.log('callback', e, file);
         if ($(e).hasClass("source_file")) {
             file_source = file
         } else if ($(e).hasClass("target_file")) {
@@ -16,14 +17,27 @@ $(document).ready(function() {
     }
 
     FileDnD(".source_file", function(file) {
+        bitext_file = null;
+        $(".bitext_file").removeClass("dragged");
+        $(".bitext_file input").val('');
+
         drag_callback($(".source_file"), file)
     });
 
     FileDnD(".target_file", function(file) {
+        bitext_file = null;
+        $(".bitext_file").removeClass("dragged");
+        $(".bitext_file input").val('');
+
         drag_callback($(".target_file"), file)
     });
 
     FileDnD(".bitext_file", function(file) {
+        file_source = null;
+        file_target = null;
+        $(".source_file, .target_file").removeClass("dragged");
+        $(".source_file input, .target_file input").val('');
+        
         drag_callback($(".bitext_file"), file)
     });
 
@@ -53,12 +67,6 @@ $(document).ready(function() {
     });
 
     adjust_languages($('.source_lang'));
-
-    $(".bitext_file").on('click', function() {
-        file_source = null;
-        file_target = null;
-        $(".source_file, .target_file").removeClass("dragged");
-    });
 
     $(".data-upload-form").on("submit", function(e) {
         e.preventDefault();
