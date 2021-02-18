@@ -19,12 +19,12 @@ class GPUManager(object):
             if reset or not GPUManager.redis_conn.hexists("gpu_slot", device_id):
                 GPUManager.free_device(device_id)
 
-        return devices
+        return start, devices
 
     @staticmethod
     def get_available_device(mark_as_used=True, is_admin=False):
-        devices = GPUManager.scan_devices(is_admin=is_admin)
-        for device_id in range(devices):
+        start, devices = GPUManager.scan_devices(is_admin=is_admin)
+        for device_id in range(start, devices):
             if int(GPUManager.redis_conn.hget("gpu_slot", device_id)) == 0:
                 if mark_as_used: GPUManager.use_device(device_id)
                 return device_id
@@ -37,7 +37,6 @@ class GPUManager(object):
 
         gpu_id = GPUManager.get_available_device(is_admin=is_admin)
         while gpu_id is None and (max_iter is None or i < max_iter):
-            print("[{}] Wating for device...".format(i), file=sys.stderr)
             time.sleep(1)
             gpu_id = GPUManager.get_available_device()
             i += 1
