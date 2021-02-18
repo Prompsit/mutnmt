@@ -81,7 +81,7 @@ class JoeyWrapper:
 
         if self.use_cuda:
             self.gpu_id = GPUManager.wait_for_available_device(is_admin=self.is_admin)
-            if self.gpu_id:
+            if self.gpu_id is not None:
                 self.model.cuda(self.gpu_id)
             else:
                 return False
