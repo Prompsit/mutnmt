@@ -66,4 +66,4 @@ for folder in folders:
         os.mkdir(app.config[folder])
 
 from app.utils.GPUManager import GPUManager
-GPUManager.scan_devices(reset=True)
+GPUManager.scan_devices(reset=True, is_admin=True)
