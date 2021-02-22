@@ -59,7 +59,7 @@ def user_datatables_feed():
     user_data = []
     for user in (rows_filtered if search else rows):
         user_data.append([user.id, user.username, user.email,
-                        "Admin" if user.admin else "Expert" if user.expert else "Normal", 
+                        "Admin" if user.admin else "Expert" if user.expert else "Beginner", 
                         "", user.admin, user.expert])
 
     return dt.response(rows, rows_filtered, user_data)
