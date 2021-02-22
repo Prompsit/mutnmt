@@ -115,10 +115,13 @@ $(document).ready(function() {
             });
         }
 
+        $('.custom-textarea').addClass("filled");
+
         // We capture each line of text and we send it to the server
         // If there is no text, we do nothing
         if ($('.live-translate-source').val() == "") {
             $('.live-translate-target').html("");
+            $('.custom-textarea').removeClass("filled");
             return;
         }
 
@@ -160,12 +163,6 @@ $(document).ready(function() {
     });
 
     $('.live-translate-source').on('keyup', function() {
-        if ($(this).val() != "") {
-            $('.custom-textarea').addClass("filled");
-        } else {
-            $('.custom-textarea').removeClass("filled");
-        }
-
         // Trick to make it shrink
         $(".live-translate-source, .live-translate-target").css({
             height: 'auto'
