@@ -159,25 +159,7 @@ $(document).ready(function() {
         }
     });
 
-    // Translation is performed when the user types. We skip some
-    // of the calls for performace sake. Anyway, when the user stops
-    // typing, we translate the whole text (that's what the watcher is for)
-    let watcher;
-    let count = 0;
-
     $('.live-translate-source').on('keyup', function() {
-        if (watcher) clearTimeout(watcher);
-        watcher = setTimeout(() => {
-            translate()
-        }, 800);
-
-        /*if (count > 5) {
-            translate();
-            count = 0;
-        }*/
-
-        count++;
-
         if ($(this).val() != "") {
             $('.custom-textarea').addClass("filled");
         } else {
@@ -193,6 +175,11 @@ $(document).ready(function() {
             height: `${$(this)[0].scrollHeight}px`
         })
     });
+
+    $('.translate-btn').on('click', function(e) {
+        e.preventDefault();
+        translate();
+    })
 
     // Some functionality for links and textareas
     $('.engine-relaunch-btn').on('click', function(e) {

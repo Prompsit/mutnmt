@@ -131,7 +131,6 @@ def train_console(id):
         else:
             corpora[corpus_entry.phase] = [(corpus_entry.corpus, utils.format_number(corpus_entry.selected_size, abbr=True))]
 
-
     return render_template("train_console.html.jinja2", page_name="train",
             engine=engine, config=config,
             launched = launched, finished = finished,
@@ -227,10 +226,8 @@ def train_stats():
         tps_value = "—"
     
     time_elapsed = None
-    if engine.launched and engine.finished:
-        launched = datetime.datetime.timestamp(engine.launched)
-        finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
-        time_elapsed = (finished - launched) if engine.finished else None # seconds
+    if engine.runtime:
+        time_elapsed = engine.runtime
 
         if time_elapsed:
             time_elapsed_format = utils.seconds_to_timestring(time_elapsed)

@@ -184,15 +184,30 @@
 <h2 class="h5 sr-only">Your corpora</h2>
 <ul class="nav nav-tabs corpora-nav-tabs" id="your_corpora">
     <li class="nav-item">
-        <a class="nav-link active private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
+        <a class="nav-link active public-nav-tab" data-toggle="tab" href="#public-corpora">Public corpora</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link public-nav-tab" data-toggle="tab" href="#public-corpora">Public corpora</a>
+        <a class="nav-link private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
     </li>
 </ul>
 
 <div class="tab-content corpora-tab">
-    <div class="tab-pane fade show active pt-4" id="private-corpora">
+    <div class="tab-pane fade show active pt-4" id="public-corpora">
+        <div class="table-responsive">
+            <table class="table table-bordered corpora-table w-100" data-public="true">
+                <thead class="d-none">
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Sentences</th>
+                    <th>Words</th>
+                    <th>Domain</th>
+                    <th>Date</th>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade pt-4" id="private-corpora">
         {% if user_library > 0 %}
         <div class="table-responsive">
             <table class="table table-bordered corpora-table w-100">
@@ -214,21 +229,6 @@
             </p>
         </div>
         {% endif %}
-    </div>
-    <div class="tab-pane fade pt-4" id="public-corpora">
-        <div class="table-responsive">
-            <table class="table table-bordered corpora-table w-100" data-public="true">
-                <thead class="d-none">
-                    <th></th>
-                    <th>File name</th>
-                    <th>Language</th>
-                    <th>Sentences</th>
-                    <th>Words</th>
-                    <th>Domain</th>
-                    <th>Date</th>
-                </thead>
-            </table>
-        </div>
     </div>
 </div>
 
