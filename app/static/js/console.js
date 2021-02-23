@@ -227,6 +227,7 @@ $(document).ready(function() {
             $(".epochs-container").html(data.data.epochs);
         })
 
+        engine_stopped = data.stopped
         return data.stopped ? false : true;
     }, true);
 
