@@ -28,14 +28,14 @@ class Config(object):
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
     USER_LOGIN_ENABLED          = True
-    USER_WHITELIST_ENABLED      = False
-    ENABLE_NEW_LOGINS           = False
+    ENABLE_NEW_LOGINS           = True
+    USER_WHITELIST_ENABLED      = True
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = False # True also behind firewall,  False -> require HTTPS
     GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
     GOOGLE_OAUTH_CLIENT_SECRET  = 'dACUBYZhq4tEdR_wnbodWfGx'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
-    USE_PROXY_FIX = False
+    USE_PROXY_FIX = True
 
     try:
         with open(os.path.join(LIST_FOLDER, 'admin.list'), 'r') as admin_file:
