@@ -181,10 +181,10 @@ def train_status():
                 epoch_no = data.value
         stats["epoch"] = epoch_no
 
-        launched = datetime.datetime.timestamp(engine.launched)
-        finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
-        now = datetime.datetime.timestamp(datetime.datetime.now())
-        elapsed = now - launched if not engine.has_stopped() else finished - launched
+        launched = engine.launched
+        finished = engine.finished if engine.finished else None
+        now = datetime.datetime.utcnow().replace(tzinfo=None)
+        elapsed = (now - launched).total_seconds() if not engine.has_stopped() else (finished - launched).total_seconds()
         power = engine.power if engine.power else 0
         power_reference = PowerUtils.get_reference_text(power, elapsed)
         power_wh = power * (elapsed / 3600)

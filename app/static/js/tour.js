@@ -31,6 +31,8 @@ $(document).ready(function() {
 
     if (tour_id) {
         Tour.get(tour_id, (response) => {
+            $('.nile-resurrect').removeClass('d-none');
+
             let { tour } = response;
             let { tour_title, popovers, tooltips } = tour;
 
