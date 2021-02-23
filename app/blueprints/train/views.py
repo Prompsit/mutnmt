@@ -182,10 +182,12 @@ def train_status():
         stats["epoch"] = epoch_no
 
         launched = datetime.datetime.timestamp(engine.launched)
+        finished = datetime.datetime.timestamp(engine.finished) if engine.finished else None
         now = datetime.datetime.timestamp(datetime.datetime.now())
+        elapsed = now - launched if not engine.has_stopped() else finished - launched
         power = engine.power if engine.power else 0
-        power_reference = PowerUtils.get_reference_text(power, now - launched)
-        power_wh = power * ((now - launched) / 3600)
+        power_reference = PowerUtils.get_reference_text(power, elapsed)
+        power_wh = power * (elapsed / 3600)
 
         return jsonify({ "stopped": engine.has_stopped(), "stats": stats, "done": engine.bg_task_id is None,
                             "power": int(power_wh), "power_reference": power_reference, 

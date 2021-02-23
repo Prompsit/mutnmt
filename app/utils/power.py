@@ -10,16 +10,22 @@ class PowerUtils(object):
     }
 
     @classmethod
-    def get_mean_power(cls):
+    def get_mean_power(cls, engine_id=None):
         # Returns mean power used by all the GPUs
         # at the moment the function is called
         # Units are Watts
         power = 0
         pynvml.nvmlInit()
-        for i in range(0, pynvml.nvmlDeviceGetCount()):
-            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-            power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
-        power = round(power / pynvml.nvmlDeviceGetCount())
+
+        if engine_id:
+            handle = pynvml.nvmlDeviceGetHandleByIndex(engine_id)
+            power = (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
+        else:
+            for i in range(0, pynvml.nvmlDeviceGetCount()):
+                handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+                power = power + (pynvml.nvmlDeviceGetPowerUsage(handle) / 1000)
+            power = round(power / pynvml.nvmlDeviceGetCount())
+
         return power
 
     @classmethod

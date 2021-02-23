@@ -253,11 +253,11 @@ def monitor_training(self, engine_id):
         engine = Engine.query.filter_by(id=engine_id).first()
         if engine:
             if not engine.has_stopped():
-                current_power = int(PowerUtils.get_mean_power())
+                current_power = int(PowerUtils.get_mean_power(engine.gid))
                 power = redis_conn.hget("power_value", engine_id)
                 updates = redis_conn.hget("power_update", engine_id)
 
-                power = int(power) if power else current_power
+                power = int(power) if power else 0
                 updates = int(updates) + 1 if updates else 1
 
                 redis_conn.hset("power_value", engine_id, power + current_power)
