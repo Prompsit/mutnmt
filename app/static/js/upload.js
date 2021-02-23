@@ -129,13 +129,13 @@ $(document).ready(function() {
                         data: { task_id: data.task_id }
                     }, function(data) {
                         if (data.result == 200) {
-                            window.location.href = window.location.href;
+                            window.location.reload();
                         } else if (data.result == -2) {
-                            window.location.href = window.location.href;
+                            window.location.reload();
                         }
                     });
                 } else {
-                    window.location.href = window.location.href;
+                    window.location.reload();
                 }
             }
         });

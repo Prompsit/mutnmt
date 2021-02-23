@@ -410,10 +410,10 @@ def train_test_status():
     if user_utils.is_normal(): return redirect(url_for('index'))
 
     task_id = request.form.get('task_id')
-    task_result = utils.get_task_result(tasks.test_training, task_id)
-    if task_result:
-        if task_result == -1:
+    task_success, task_value = utils.get_task_result(tasks.test_training, task_id)
+    if task_success is not None:
+        if not task_success:
             return jsonify({ "result": -2 })
-        return jsonify({ "result": 200, "test": task_result })
+        return jsonify({ "result": 200, "test": task_value })
     else:
         return jsonify({ "result": -1 })

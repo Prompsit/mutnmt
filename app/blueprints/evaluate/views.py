@@ -23,10 +23,10 @@ def evaluate_index():
 
 @evaluate_blueprint.route('/download/<id>/<index>')
 def evaluate_download(id, index):
-    task_result = utils.get_task_result(tasks.evaluate_files, id)
+    task_success, task_value = utils.get_task_result(tasks.evaluate_files, id)
     index = int(index)
-    if task_result:
-        file_paths = task_result[1]
+    if task_success:
+        file_paths = task_value[1]
         return send_file(file_paths[index], as_attachment=True)
     return "Error"
 
@@ -83,9 +83,9 @@ def evaluate_files():
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def get_evaluation():
     task_id = request.form.get('task_id')
-    task_result = utils.get_task_result(tasks.evaluate_files, task_id)
-    if task_result:
-        evaluation_result = task_result[0]
+    task_success, task_value = utils.get_task_result(tasks.evaluate_files, task_id)
+    if task_success:
+        evaluation_result = task_value[0]
         return jsonify({ "result": 200, "task_id": task_id, "evaluation": evaluation_result })
     else:
         return jsonify({ "result": -1 })

@@ -43,11 +43,9 @@ def data_upload_perform():
 
             return jsonify({ "result": 200, "task_id": task_id })
         else:
-            raise Exception("Sorry, but we couldn't handle your request")
+            raise Exception("Sorry, but we couldn't handle your request.")
     except Exception as e:
         Flash.issue(e, Flash.ERROR)
-    else:
-        Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.", Flash.SUCCESS, markup=True)
 
     return jsonify({ "result": -1 })
 
@@ -55,13 +53,15 @@ def data_upload_perform():
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def data_upload_status():
     task_id = request.form.get('task_id')
-    task_result = utils.get_task_result(tasks.process_upload_request, task_id)
-    if task_result:
-        if task_result == -1:
-            Flash.issue("Something went wrong", Flash.ERROR)
+    task_success, task_value = utils.get_task_result(tasks.process_upload_request, task_id)
+    if task_success is not None:
+        if not task_success:
+            exception_text = task_value if type(task_value) is Exception else None
+            Flash.issue("Something went wrong" if exception_text is None else "Something went wrong: {}".format(exception_text), Flash.ERROR)
             return jsonify({ "result": -2 })
-        
-        Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.", Flash.SUCCESS, markup=True)
+
+        Flash.issue("Corpus successfully uploaded and added to <a href='#your_corpora'>your corpora</a>.",
+                    Flash.SUCCESS, markup=True)
         return jsonify({ "result": 200 })
     else:
         return jsonify({ "result": -1 })

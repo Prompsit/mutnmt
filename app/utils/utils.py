@@ -101,8 +101,11 @@ def seconds_to_timestring(total_seconds):
 def get_task_result(task, task_id):
     result = task.AsyncResult(task_id)
     if result and result.status == "SUCCESS":
-        return result.get()
+        return True, result.get()
     elif result and result.status == "FAILURE":
-        return -1
+        try:
+            return False, result.get()
+        except Exception as e:
+            return False, e
     else:
-        return None
+        return None, None
