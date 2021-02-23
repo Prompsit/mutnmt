@@ -124,8 +124,8 @@ class JoeyWrapper:
         hypotheses_raw, attention_scores = validate_on_data(
             model=model, data=test_data, batch_size=1, level=level,
             max_output_length=max_output_length, eval_metric=None,
-            use_cuda=use_cuda, loss_function=None, beam_size=beam_size,
-            beam_alpha=beam_alpha, logger=logger, n_best=nbest, cuda_device=cuda_device)
+            use_cuda=use_cuda, beam_size=beam_size,
+            beam_alpha=beam_alpha, n_best=nbest, cuda_device=cuda_device, n_gpu=1)
 
         return hypotheses[0] if nbest == 1 else hypotheses
 
