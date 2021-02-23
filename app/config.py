@@ -28,7 +28,7 @@ class Config(object):
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
     USER_LOGIN_ENABLED          = True
-    ENABLE_NEW_LOGINS           = False
+    ENABLE_NEW_LOGINS           = True
     USER_WHITELIST_ENABLED      = True
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = False # True also behind firewall,  False -> require HTTPS
