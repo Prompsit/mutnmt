@@ -32,7 +32,7 @@ $(document).ready(function() {
     if (tour_id) {
         Tour.get(tour_id, (response) => {
             let { tour } = response;
-            let { tour_title, popovers } = tour;
+            let { tour_title, popovers, tooltips } = tour;
 
             let steps = []
             if (popovers?.length > 0) {
@@ -44,6 +44,10 @@ $(document).ready(function() {
                             description: popover['description']
                         }
                     });
+
+                    if (tooltips && popover['description']) {
+                        document.getElementById(popover.element).setAttribute('title', popover['description']);
+                    }
                 }
             } else {
                 $('.btn-begin-tour').addClass('d-none');

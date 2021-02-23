@@ -8,6 +8,7 @@ class ToursCollection(object):
         },
         'train': {
             'tour_title': 'It looks like you want to train an engine. Do you want help?',
+            'tooltips': True,
             'popovers': [
                 {
                     'element': 'nameText',
@@ -85,6 +86,7 @@ class ToursCollection(object):
         },
         'evaluate': {
             'tour_title': 'As the name suggests, here you can evaluate translations made by machine translation engines against professional translations. You will also get familiar with automatic metrics!',
+            'tooltips': True,
             'popovers': [
                 {
                     'element': 'source_file',
