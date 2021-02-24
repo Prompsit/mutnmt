@@ -3,7 +3,6 @@
 <head>
     <title>MutNMT</title>
     <meta charset="utf-8" />
-
     {% include "head.html.jinja2" %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}" />
@@ -65,13 +64,19 @@
         </div>
 
         <div class="row my-5 align-items-center">
-            <div class="col-12 col-sm-6">
+            <div class="col-12 col-sm-2">
                 <h2 class="h5 text-primary">Find us on</h2>
                 <a href="https://github.com/Prompsit/mutnmt" class="h1 text-dark">
                     <i class="fab fa-github-square"></i>
                 </a>
             </div>
-            <div class="col-12 col-sm-6 text-sm-right mt-4 mt-sm-0">
+            <div class="col-12 col-sm-2">
+                <h2 class="h5 text-primary">Powered by</h2>
+                <a href="https://github.com/joeynmt/joeynmt" class="h1 text-dark">
+                    <img alt="JoeyNMT" src="{{ url_for('static', filename='img/joey-small.png') }}" style="height: 40px;" />
+                </a>
+            </div>
+            <div class="col-12 col-sm-8 text-sm-right mt-4 mt-sm-0">
                 <img alt="" src="{{ url_for('static', filename='img/multitrain_logo.svg') }}" style="width: 130px;" />
             </div>
         </div>
