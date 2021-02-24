@@ -143,7 +143,7 @@ def library_corpora_feed():
 @library_blueprint.route('/engines_feed', methods=["POST"])
 def library_engines_feed():
     public = request.form.get('public') == "true"
-    columns = [Engine.id, Engine.name, Engine.description, Engine.source_id, Engine.uploaded, Engine.uploader_id]
+    columns = [Engine.id, Engine.name, Engine.description, Engine.source_id, Engine.uploaded, Engine.uploader_id, None]
     dt = datatables.Datatables()
 
     rows, rows_filtered, search = dt.parse(Engine, columns, request, 
@@ -178,6 +178,13 @@ def library_engines_feed():
                                 "engine_export": url_for('library.library_export', id = engine.id, type = "library_engines"),
                                 "engine_corpora_export": url_for('library.library_corpora_export', id = engine.id)
                             }])
+
+        order = int(request.form.get('order[0][column]'))
+        direction = request.form.get('order[0][dir]')
+        if order == 6:
+            # Order by bleu
+            engine_data.sort(key=lambda c: c[order] if c[order] else 0, reverse=(direction == 'asc'))
+
 
     return dt.response(rows, rows_filtered, engine_data)
 
