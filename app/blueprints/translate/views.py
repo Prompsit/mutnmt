@@ -65,11 +65,13 @@ def upload_file():
 @translate_blueprint.route('/get', methods=["POST"])
 def get_translation():
     task_id = request.form.get('task_id')
-    result = tasks.translate_text.AsyncResult(task_id)
-    if result and result.status == "SUCCESS":
-        return { "result": 200, "lines": result.get() }
+    task_success, task_value = utils.get_task_result(tasks.translate_text, task_id)
+    if task_success:
+        return {"result": 200, "lines": task_value}
+    elif task_success is None:
+        return {"result": -1}
     else:
-        return { "result": -1 }
+        return {"result": -2}
 
 @translate_blueprint.route('/get_file', methods=["POST"])
 def get_file_translation():
