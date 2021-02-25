@@ -4,8 +4,8 @@
 {% endblock %}
 
 {% block resources %}
-<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
-<script src="{{ url_for('static', filename='js/launching.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/launching' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block content %}

@@ -1,15 +1,15 @@
 {% extends "base.html.jinja2" %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/translate.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/translate' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status' + infix + '.css') }}" />
 {% endblock %}
 
 {% block resources %}
-<script src="{{ url_for('static', filename='js/file-dnd.js') }}"></script>
-<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
-<script src="{{ url_for('static', filename='js/translate.js') }}"></script>
+<script src="{{ url_for('static', filename='js/file-dnd' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/translate' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block content %}

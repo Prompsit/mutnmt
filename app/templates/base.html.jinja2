@@ -7,8 +7,8 @@
 
     {% include "head.html.jinja2" %}
 
-    <link rel="stylesheet" href="/css/base.css" />
-    <link rel="stylesheet" href="/css/tour.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base' + infix + '.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tour' + infix + '.css') }}" />
 
     {% block head %}{% endblock %}
 </head>
@@ -160,8 +160,8 @@
     <script src="https://unpkg.com/driver.js/dist/driver.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-    <script src="{{ url_for('static', filename='js/tour.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tour' + infix + '.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/base' + infix + '.js') }}"></script>
     {% block resources %}{% endblock %}
 
     {% include "tour.html.jinja2" %}
