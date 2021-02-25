@@ -215,7 +215,7 @@ def train_engine(self, engine_id, is_admin):
     try:
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = "{}".format(gpu_id)
-        running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", 
+        running_joey = subprocess.Popen(["python3", "-m", "joeynmt", "train", "-t",
                                                 os.path.join(engine.path, "config.yaml")], cwd=app.config['JOEYNMT_FOLDER'],
                                                 env=env)
 

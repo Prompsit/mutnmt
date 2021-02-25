@@ -76,9 +76,7 @@ $(document).ready(function() {
     // the translation in a textarea
     let translate = () => {
         let show_translation = (data) => {
-            if (data.result == -2) {
-                $('.live-translate-form').attr('data-status', 'error')
-            } else if (data.result == 200) {
+            if (data.result == 200) {
                 if (data.lines) {
                     for (let line of data.lines) {
                         line_proc = line.replaceAll('&lt;', '<').replaceAll('&gt;', '>');
@@ -89,6 +87,9 @@ $(document).ready(function() {
 
                 $('.live-translate-form').attr('data-status', 'none');
 
+                return false;
+            } else if (data.result == -2) {
+                $('.live-translate-form').attr('data-status', 'error')
                 return false;
             }
         }
@@ -145,6 +146,9 @@ $(document).ready(function() {
                     } else {
                         return show_translation(data)
                     }
+                } else if (data.result == -2) {
+                    $('.live-translate-form').attr('data-status', 'error')
+                    return false;
                 }
             });
         }
