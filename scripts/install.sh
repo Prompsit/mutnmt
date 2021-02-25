@@ -12,6 +12,8 @@ ldconfig -v
 
 cd /opt/mutnmt
 
+git submodule update --init --recursive
+
 npm install npm@latest -g
 npm install postcss-cli autoprefixer sass postcss -g
 
