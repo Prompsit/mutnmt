@@ -15,6 +15,5 @@ $FLAGS \
 -d \
 --name mutnmt \
 -p 5000:5000 \
--v $(pwd)/app:/opt/mutnmt/app \
 -v $(pwd)/data:/opt/mutnmt/data \
 $IMAGE
