@@ -8,9 +8,7 @@ cd app/static/
 
 # Compile custom Bootstrap css
 >&2 echo "Compiling custom bootstrap..."
-sass scss/custom.scss > scss/bootstrap.raw.css
-cat scss/bootstrap.raw.css | postcss --use autoprefixer --no-map > css/bootstrap.css
-rm scss/bootstrap.raw.css
+sass --style compressed scss/custom.scss > css/bootstrap.min.css
 
 # Minify css
 for file in $(find css \( -name "*.*" ! -iname "*.min*" \) -type f -printf "%T@ %p\n" | sort -nr | cut -d\  -f2-)
