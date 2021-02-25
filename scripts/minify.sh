@@ -14,7 +14,7 @@ sass --style compressed scss/custom.scss > css/bootstrap.min.css
 for file in $(find css \( -name "*.*" ! -iname "*.min*" \) -type f -printf "%T@ %p\n" | sort -nr | cut -d\  -f2-)
 do
     filename=$(echo $file | sed 's/\.[^.]*$//')
-    cat $file | python3 -m cssmin > $filename.min.css
+    cat $file | python3 -m rcssmin > $filename.min.css
 done
 
 # Minify js
