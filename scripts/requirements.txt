@@ -14,6 +14,7 @@ chardet==3.0.4
 click==7.1.2
 cssmin==0.2.0
 cycler==0.10.0
+dataclasses==0.8
 Flask==1.1.2
 Flask-Babel==1.0.0
 Flask-Dance==3.0.0
@@ -32,10 +33,12 @@ grpcio==1.29.0
 gunicorn==20.0.4
 h5py==2.10.0
 idna==2.9
+importlib-metadata==3.4.0
 isort==4.3.21
 itsdangerous==1.1.0
 Jinja2==2.11.2
 joblib==0.15.1
+joeynmt @ file:///opt/mutnmt/app/joeynmt
 jsmin==2.2.2
 Keras-Applications==1.0.8
 Keras-Preprocessing==1.1.2
@@ -88,15 +91,16 @@ tensorflow==2.2.0
 tensorflow-estimator==2.2.0
 termcolor==1.1.0
 toml==0.10.1
-torch==1.5.0
-torchtext==0.6.0
+torch==1.7.1
+torchtext==0.8.1
 tqdm==4.46.0
 typed-ast==1.4.1
 typing==3.7.4.1
+typing-extensions==3.7.4.3
 urllib3==1.25.9
 URLObject==2.4.3
 vine==1.3.0
 Werkzeug==1.0.1
 wrapt==1.11.1
 XlsxWriter==1.2.8
-joeynmt @ file:///opt/mutnmt/app/joeynmt
+zipp==3.4.0
