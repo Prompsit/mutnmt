@@ -2,6 +2,7 @@ from flask import render_template, url_for, redirect
 from flask_login import current_user
 from app import app, login_manager, flash, db
 from app.utils import utils, user_utils, lang_utils
+from app.config import Config
 from .models import User
 
 app.jinja_env.globals.update(**{
@@ -14,7 +15,8 @@ app.jinja_env.globals.update(**{
     "get_uid": user_utils.get_uid,
     "int": int,
     "Flash": flash.Flash,
-    "len": len
+    "len": len,
+    "infix": app.config['INFIX']
 })
 
 @app.route('/')

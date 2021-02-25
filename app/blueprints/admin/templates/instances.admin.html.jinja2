@@ -2,12 +2,11 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.css') }}" />
 {% endblock %}
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
-<script src="{{ url_for('static', filename='js/admin/instances.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin/instances' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block admin_content %}

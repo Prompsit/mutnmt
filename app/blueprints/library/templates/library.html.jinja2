@@ -3,19 +3,19 @@
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/datatables' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/library' + infix + '.css') }}" />
 {% endblock %}
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
-<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
-<script src="{{ url_for('static', filename='js/file-dnd.js') }}"></script>
-<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
-<script src="{{ url_for('static', filename='js/library.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/file-dnd' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upload' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/library' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block content %}

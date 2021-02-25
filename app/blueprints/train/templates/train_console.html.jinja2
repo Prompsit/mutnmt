@@ -2,7 +2,7 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/console' + infix + '.css') }}" />
 {% endblock %}
 
 {% block resources %}
@@ -11,8 +11,8 @@
 <script src="{{ url_for('static', filename='lib/moment-with-locales.min.js') }}"></script>
 <script src="{{ url_for('static', filename='lib/apexcharts.min.js') }}"></script>
 
-<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
-<script src="{{ url_for('static', filename='js/console.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/console' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block content %}

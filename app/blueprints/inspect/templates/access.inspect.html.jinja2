@@ -1,7 +1,7 @@
 {% extends "inspect.html.jinja2" %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status' + infix + '.css') }}" />
 
 <style>
 .cartoon-bubble {

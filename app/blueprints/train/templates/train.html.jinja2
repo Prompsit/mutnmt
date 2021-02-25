@@ -2,14 +2,14 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/train.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cloud' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/train' + infix + '.css') }}" />
 {% endblock %}
 
 {% block resources %}
 {% include "datatables.min.js.jinja2" %}
-<script src="{{ url_for('static', filename='js/longpoll.js') }}"></script>
-<script src="{{ url_for('static', filename='js/train.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/train' + infix + '.js') }}"></script>
 {% endblock %}
 
 {% block content %}
