@@ -4,7 +4,39 @@
 
 ## Deployment
 
-MutNMT is distributed as a Docker container, based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA). Since the latter is **not** compatible with `docker-compose`, please launch MutNMT using the provided script:
+MutNMT is distributed as a Docker container, based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA).
+
+### Building MutNMT
+
+You can build MutNMT with preloaded engines so that users have something to translate and inspect with. Before building the Docker image, 
+include the engines you want to preload in the `app/preloaded` folder (create it if it does not exist).
+Each engine must be stored in its own folder, and must have been trained with [JoeyNMT](https://github.com/joeynmt/joeynmt).
+MutNMT will use the `model/train.log` to retrieve information about the engine, so make sure that file is available.
+
+This is an example of an `app/preloaded` tree with one preloaded engine:
+
+```
++ app/
+|   + preloaded/
+|   |   + transformer-en-es/
+|   |   |    - best.ckpt
+|   |   |    - config.yaml
+|   |   |    - train.model
+|   |   |    - train.vocab
+|   |   |    - validations.txt
+|   |   |    + model/
+|   |   |    |    - train.log
+|   |   |    |    + tensorboard/
+```
+
+Once you are ready, build MutNMT:
+
+```
+docker build -t mutnmt .
+```
+
+Then, launch the container. Since the NVIDIA CUDA container is **not** compatible with `docker-compose`, 
+please launch MutNMT using the provided script.:
 
 ```
 ./run.sh cuda
