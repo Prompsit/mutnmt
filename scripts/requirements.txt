@@ -14,7 +14,6 @@ chardet==3.0.4
 click==7.1.2
 rcssmin==1.0.6
 cycler==0.10.0
-dataclasses==0.8
 Flask==1.1.2
 Flask-Babel==1.0.0
 Flask-Dance==3.0.0
@@ -54,7 +53,7 @@ mccabe==0.6.1
 mecab-python3==0.996.5
 namegenerator==1.0.6
 nltk==3.5
-numpy==1.18.4
+numpy==1.20.1
 oauthlib==3.1.0
 opt-einsum==3.2.1
 pandas==1.0.3
@@ -77,7 +76,7 @@ regex==2020.5.14
 requests==2.23.0
 requests-oauthlib==1.3.0
 rsa==4.0
-sacrebleu==1.4.9
+sacrebleu==1.5.1
 scipy==1.4.1
 seaborn==0.10.1
 sentencepiece==0.1.90
@@ -91,8 +90,8 @@ tensorflow==2.2.0
 tensorflow-estimator==2.2.0
 termcolor==1.1.0
 toml==0.10.1
-torch==1.7.1
-torchtext==0.8.1
+torch==1.8.0
+torchtext==0.9.0
 tqdm==4.46.0
 typed-ast==1.4.1
 typing==3.7.4.1

@@ -8,7 +8,9 @@ RUN apt-get update -q --fix-missing && \
     apt-get -y upgrade && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install \
 			python3 \
+                        python3.8 \
                         python3-dev \
+                        python3.8-dev \
                         autossh \
                         gcc \
                         redis \

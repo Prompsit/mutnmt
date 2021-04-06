@@ -17,7 +17,7 @@ git submodule update --init --recursive
 npm install npm@latest -g
 npm install postcss-cli autoprefixer sass postcss -g
 
-virtualenv -p /usr/bin/python3 venv
+virtualenv -p /usr/bin/python3.8 venv
 
 source venv/bin/activate
 pip3 install -r scripts/requirements.txt
