@@ -3,3 +3,4 @@ app/preloaded/*
 venv/*
 app/uploads/*
 app/joeynmt/*
+app/data/*
