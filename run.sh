@@ -1,19 +1,21 @@
 #!/bin/bash
 FLAGS=
-IMAGE=mutnmt:latest
+MODE=$1
+PORT="${2:-5000}"
+IMAGE="${3:-mutnmt:latest}"
 
-if [ $1 = "cuda" ]
+if [ $MODE = "cuda" ]
 then
 	FLAGS="--gpus all"
-	#IMAGE=mutnmt:latest
 fi
 
-echo "Running MutNMT Docker with FLAGS=$FLAGS and IMAGE=$IMAGE"
+echo "Running MutNMT (mode: $MODE) with FLAGS=$FLAGS and IMAGE=$IMAGE on port $PORT"
 
 docker run \
 $FLAGS \
 -d \
 --name mutnmt \
--p 5000:5000 \
+-p $PORT:5000 \
+-v $(pwd)/app/preloaded:/opt/mutnmt/app/preloaded \
 -v $(pwd)/data:/opt/mutnmt/data \
 $IMAGE

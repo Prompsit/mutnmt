@@ -4,19 +4,65 @@
 
 ## Deployment
 
-MutNMT is distributed as a Docker container, based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA). Since the latter is **not** compatible with `docker-compose`, please launch MutNMT using the provided script:
+MutNMT is distributed as a Docker container, based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA).
+
+
+## Hardware requirements
+
+An NVIDIA graphics card is needed due to the fact that MutNMT is based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA).
+
+## Software requirements
+
+Install the `nvidia-container-runtime` to set up GPU access for Docker. More details in [Docker docs](https://docs.docker.com/config/containers/resource_constraints/#access-an-nvidia-gpu).
+
+
+
+### Building MutNMT
+
+You can build MutNMT with preloaded engines so that users have something to translate and inspect with. Before building the Docker image, 
+include the engines you want to preload in the `app/preloaded` folder (create it if it does not exist).
+Each engine must be stored in its own folder, and must have been trained with [JoeyNMT](https://github.com/joeynmt/joeynmt).
+MutNMT will use the `model/train.log` to retrieve information about the engine, so make sure that file is available.
+
+This is an example of an `app/preloaded` tree with one preloaded engine:
 
 ```
-./run.sh cuda
++ app/
+|   + preloaded/
+|   |   + transformer-en-es/
+|   |   |    - best.ckpt
+|   |   |    - config.yaml
+|   |   |    - train.model
+|   |   |    - train.vocab
+|   |   |    - validations.txt
+|   |   |    + model/
+|   |   |    |    - train.log
+|   |   |    |    + tensorboard/
+```
+
+Once you are ready, build MutNMT:
+
+```
+docker build -t mutnmt .
+```
+
+## Launching MutNMT
+
+MutNMT uses a mounted folder to store data. That is why you need to create that folder in the MutNMT path:
+
+```
+mkdir -p data/logs/
+```
+
+A basic script is provided in order to launch the container:
+
+```
+./run.sh cuda 5000 mutnmt:latest
 ```
 
 This will setup MutNMT to run on port `5000`.
 
 Manual installation is not described since it is not recommended. Anyway, [Dockerfile](Dockerfile) lists the needed packages and scripts.
-
-## Hardware requirements
-
-An NVIDIA graphics card is needed due to the fact that MutNMT is based on the [NVIDIA CUDA container](https://github.com/NVIDIA/nvidia-docker/wiki/CUDA).
 
 ## Multiple user account setup
 
@@ -27,7 +73,6 @@ From the process above, you will get at the end two strings, "client ID" and "cl
 ```python
 SECRET_KEY = 'put a random string here'
 DEBUG      = False
-ADMINS     = ['your.admin.account@gmail.com', 'your.second.admin.account@gmail.com']
 
 USER_LOGIN_ENABLED          = True
 USER_WHITELIST_ENABLED      = False
@@ -39,6 +84,6 @@ USE_PROXY_FIX               = False
 
 To specify admin accounts, please create a file in `app/lists` called `admin.list`, containing one administrator email per line. The admin accounts will allow you to use admin features as translator optimization or the remote Moses server. You can set as many as you want.
 
-When user login is not enabled, a whitelist can be established to let the users in that list log in, but only them. This whitelist is only applied when `USER_LOGIN_ENABLED` is set to `False`. To specify a whitelist, create a file in `app/lists` called `white.list`, containing one user email per line.
+When user login is not enabled, a whitelist can be established to let the users in that list log in, but only them. This whitelist is only applied when `USER_LOGIN_ENABLED` is set to `False`. To specify a whitelist, create a file in `app/lists` called `white.list`, containing one user email per line. Then, enable the whitelist by setting `USER_WHITELIST_ENABLED` to `True`.
 
 Google Authentication may fail to work under some scenarios, for example behind an HTTP proxy. Set `USE_PROXY_FIX` to `True` in order to enable [Proxy Fix](https://werkzeug.palletsprojects.com/en/1.0.x/middleware/proxy_fix/) and make authentication work behind a proxy.

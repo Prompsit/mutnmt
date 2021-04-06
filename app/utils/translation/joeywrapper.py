@@ -3,8 +3,8 @@
 from app import app
 from app.utils.GPUManager import GPUManager
 
-from torchtext import data
-from torchtext.data import Dataset, Iterator, Field
+from torchtext.legacy import data
+from torchtext.legacy.data import Dataset, Iterator, Field
 
 from joeynmt.helpers import load_config, get_latest_checkpoint, \
     load_checkpoint
