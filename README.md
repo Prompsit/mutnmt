@@ -32,7 +32,19 @@ MutNMT provides the following features:
 
 MutNMT is provided as a [Docker](https://www.docker.com/) container. This container is based on [NVIDIA Container Toolkit](https://github.com/NVIDIA/nvidia-docker).
 
-In order to run MutNMT, you need access to an NVIDIA GPU. You must install the [necessary drivers](https://github.com/NVIDIA/nvidia-docker/wiki/Frequently-Asked-Questions#how-do-i-install-the-nvidia-driver) on the host machine. Note that you do not need to install the CUDA Toolkit on the host system.
+In order to run MutNMT, you need access to an NVIDIA GPU. You must install the [necessary drivers](https://github.com/NVIDIA/nvidia-docker/wiki/Frequently-Asked-Questions#how-do-i-install-the-nvidia-driver) on the host machine. Note that you do not need to install the CUDA Toolkit on the host system, but it should be compatible with at least CUDA 11.
+
+## Roadmap
+
+Building and launching MutNMT consists on:
+
+1. Set up preloaded engines (and mount its volume)
+2. Set up user authentication
+3. Set up user lists: admins and whitelist
+4. Set up proxy fix
+5. Build the Docker image
+6. Decide on data persistance
+7. Launch the container
 
 ## Building MutNMT
 
@@ -41,6 +53,9 @@ The image for the MutNMT container must be built taking into account the followi
 ### Preloaded engines
 
 You can build MutNMT with preloaded engines so that users have something to translate and inspect with. Before building the Docker image, include the engines you want to preload in the `app/preloaded` folder (create it if it does not exist).
+
+This folder is **ignored by Docker** in order to make build process faster and the image smaller, so you should mount it as a volume.
+
 Each engine must be stored in its own folder, and must have been trained with [JoeyNMT](https://github.com/joeynmt/joeynmt).
 MutNMT will use the `model/train.log` to retrieve information about the engine, so make sure that file is available.
 
@@ -98,6 +113,13 @@ Once you are ready, build MutNMT:
 docker build -t mutnmt .
 ```
 
+## Data persistance
+
+Logs, database and user data like corpora or engines are stored inside the container in `/opt/mutnmt/data`. You may be interested in mounting that folder so that it persists in case of removing the container. 
+
+Mount that folder in a volume to access its data outside the container. You will be able to back it up as you please.
+
+A script is provided to launch the container: `run.sh`. You may edit that file to add as many volumes as you need.
 
 ## Launching the container
 
@@ -108,6 +130,8 @@ The [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) image this containe
 ```
 
 This will setup MutNMT to run on port `5000`.
+
+## Database
 
 If it is the first time you run MutNMT, make sure to update your database:
 
