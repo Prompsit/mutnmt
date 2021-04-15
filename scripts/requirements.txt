@@ -24,8 +24,8 @@ Flask-SQLAlchemy==2.4.1
 future==0.18.2
 gast==0.3.3
 gevent==20.5.0
-google-auth==1.14.3
-google-auth-oauthlib==0.4.1
+google-auth==1.28.1
+google-auth-oauthlib==0.4.4
 google-pasta==0.2.0
 greenlet==0.4.15
 grpcio==1.29.0
