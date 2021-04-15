@@ -1,6 +1,6 @@
 # MutNMT
 
-<img alt="MutNMT Logo" src="app/static/img/logo.png" style="max-height: 75px; margin-bottom: 1rem;" />
+<img alt="MutNMT Logo" src="app/static/img/logo.png" style="margin-bottom: 1rem;" height="75" />
 
 MutNMT aims to provide a web application to train neural machine translation with didactial purposes. This web application lets the user train, inspect, evaluate and translate using neural engines.
 
