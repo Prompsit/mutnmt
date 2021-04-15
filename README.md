@@ -52,9 +52,9 @@ The image for the MutNMT container must be built taking into account the followi
 
 ### Preloaded engines
 
-You can build MutNMT with preloaded engines so that users have something to translate and inspect with. Before building the Docker image, include the engines you want to preload in the `app/preloaded` folder (create it if it does not exist).
+You can build MutNMT with preloaded engines so that users have something to translate and inspect with. Before building the Docker image, include the engines you want to preload in the `app/preloaded` folder.
 
-This folder is **ignored by Docker** in order to make build process faster and the image smaller, so you should mount it as a volume.
+Create the `app/preloaded` folder even if you don't want to include any preloaded engines. This folder is ignored by Docker in order to make build process faster and the image smaller, so it is mounted by default as a volume.
 
 Each engine must be stored in its own folder, and must have been trained with [JoeyNMT](https://github.com/joeynmt/joeynmt).
 MutNMT will use the `model/train.log` to retrieve information about the engine, so make sure that file is available.
@@ -115,11 +115,7 @@ docker build -t mutnmt .
 
 ## Data persistance
 
-Logs, database and user data like corpora or engines are stored inside the container in `/opt/mutnmt/data`. You may be interested in mounting that folder so that it persists in case of removing the container. 
-
-Mount that folder in a volume to access its data outside the container. You will be able to back it up as you please.
-
-A script is provided to launch the container: `run.sh`. You may edit that file to add as many volumes as you need.
+Logs, database and user data like corpora or engines are stored inside the container in `/opt/mutnmt/data`. This folder is mounted in `./data` by default, so that it persists in case of removing the container. Make sure to create the `./data` folder in the project's directory if it does not exist.
 
 ## Launching the container
 
