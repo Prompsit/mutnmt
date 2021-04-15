@@ -1,0 +1,6 @@
+samples/*
+app/preloaded/*
+venv/*
+app/uploads/*
+app/joeynmt/*
+data/*

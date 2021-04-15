@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        {% if page_title %}{{page_title}} — {% endif %}MutNMT
+    </title>
+
+    {% include "head.html.jinja2" %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base' + infix + '.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tour' + infix + '.css') }}" />
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid px-sm-12">
+        <div class="row my-3">
+            <div class="col-12 col-sm-3">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-light mr-2 d-sm-none" data-toggle="hamburger" data-target="#navbar">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <div class="d-flex align-items-center justify-content-between w-100">
+                        <a class="h4 mb-0 text-dark" href="{{ url_for('index') }}">
+                            <img alt="MutNMT Logo" src="{{ url_for('static', filename='img/icon.svg') }}" style="width: 48px;" class="d-none d-sm-inline" />
+                            MutNMT
+                        </a>
+
+                        <a class="btn btn-link d-sm-none d-none btn-begin-tour">
+                            <i class="fas fa-question-circle"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="navbar" class="hamburger">
+                    <div class="hamburger-overlay"></div>
+                    <div class="hamburger-menu">
+                        <div class="d-flex align-items-center d-sm-none">
+                            <button class="btn btn-light mr-2" data-toggle="hamburger" data-target="#navbar">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+
+                            <a class="h4 mb-0 text-dark" href="{{ url_for('index') }}">
+                                MutNMT
+                            </a>
+                        </div>
+
+                        <ul class="nav nav-pills flex-column mt-3">
+                            <li class="nav-item mb-2">
+                                <a class="nav-link {{ 'active' if page_name.startswith('library_corpora') else '' }}" href="{{ url_for('library.library_corpora') }}">
+                                    <i class="fas fa-database mr-2"></i>
+                                    Data
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link {{ 'active' if page_name.startswith('library_engines') else '' }}" href="{{ url_for('library.library_engines') }}">
+                                    <i class="fas fa-cogs mr-2"></i>
+                                    Engines
+                                </a>
+                            </li>
+                            {% if not is_normal() %}
+                            <li class="nav-item mb-2">
+                                <a class="nav-link {{ 'active' if page_name == 'train' else '' }}" href="{{ url_for('train.train_index') }}">
+                                    <i class="fas fa-running mr-2"></i>
+                                    Train
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item mb-2">
+                                <a class="nav-link {{ 'active' if page_name.startswith('translate') else '' }}" href="{{ url_for('translate.translate_index') }}">
+                                    <i class="fas fa-globe-europe mr-2"></i>
+                                    Translate
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link  {{ 'active' if page_name.startswith('inspect') else '' }}" href="{{ url_for('inspect.inspect_index') }}">
+                                    <i class="fas fa-search mr-2"></i>
+                                    Inspect
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ 'active' if page_name == 'evaluate' else '' }}" href="{{ url_for('evaluate.evaluate_index') }}">
+                                    <i class="fas fa-spell-check mr-2"></i>
+                                    Evaluate
+                                </a>
+                            </li>
+                            {% if is_admin() %}
+                            <li class="nav-item mt-2">
+                                <a class="nav-link {{ 'active' if page_name.startswith('admin') else '' }}" href="{{ url_for('admin.admin_index') }}">
+                                    <i class="fas fa-toolbox mr-2"></i>
+                                    Admin
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+
+                        <div class="nile-resurrect d-none">
+                            <hr />
+
+                            <a href="#" class="nile-resurrect-btn text-reset text-decoration-none">
+                                <img alt="" class="img-fluid" style="width: 48px;" src="{{ url_for('static', filename='img/nile-resurrect.svg') }}" />
+
+                                <span class="ml-2">
+                                    Nile, please help!
+                                </span>
+                            </a>
+                        </div>
+
+                        <hr />
+
+                        {% if current_user.is_authenticated %}
+                        <div class="d-flex align-items-center">
+                            <img alt="" src="{{ current_user.avatar_url }}" class="img-avatar" />
+                            <div class="ml-2">
+                                <div>{{ current_user.username }}</div>
+                                <small class="text-uppercase">
+                                    {% if current_user.admin %} admin {% elif current_user.expert %} expert {% else %} beginner {% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('auth.logout') }}" class="text-danger">
+                                <i class="fas fa-power-off"></i> Sign out
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-9 mt-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div
+                            class="alert alert-{{ 'danger' if category == Flash.ERROR.value else 'success' if category == Flash.SUCCESS.value else 'warning' if category == Flash.WARNING.value else 'primary' }}" 
+                            role="alert">
+                                <p class="mb-0">
+                                    {% if category == Flash.ERROR.value and not message %}
+                                        Sorry! Something went wrong...
+                                    {% else %}
+                                        {{ message }}
+                                    {% endif %}
+                                </p>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='lib/jquery-3.5.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/bootstrap.bundle.min.js') }}"></script>
+    <script src="https://unpkg.com/driver.js/dist/driver.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+    <script src="{{ url_for('static', filename='js/tour' + infix + '.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/base' + infix + '.js') }}"></script>
+    {% block resources %}{% endblock %}
+
+    {% include "tour.html.jinja2" %}
+</body>
+</html>

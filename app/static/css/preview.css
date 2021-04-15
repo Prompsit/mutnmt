@@ -1,0 +1,34 @@
+.parafile-showcase {
+    max-height: 80vh;
+    overflow-y: auto;
+    background-color: var(--light);
+    padding: 0.5rem;
+    counter-reset: lines;
+}
+
+    .parafile-showcase .parafile-line {
+        margin: 1rem 0px 1rem 0px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+        .parafile-showcase .parafile-line .parafile-line-content {
+            max-width: calc(100% - 1.35rem);
+        }
+
+        .parafile-showcase .parafile-line.active .parafile-line-content {
+            background-color: var(--primary);
+            padding: 1px;
+            color: var(--white);
+        }
+
+    .parafile-showcase .parafile-line::before {
+        counter-increment: lines;
+        content: counter(lines);
+        display: block;
+        min-width: 2rem;
+        text-align: center;
+        background-color: var(--secondary);
+        margin-right: 0.35rem;
+        color: white;
+    }

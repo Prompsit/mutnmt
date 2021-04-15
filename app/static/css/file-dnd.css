@@ -1,0 +1,41 @@
+.file-dnd .file-dnd-input {
+    display: none;
+}
+
+.file-dnd {
+    display: block;
+    width: 100%;
+    background: var(--light);
+    padding: 1rem;
+}
+
+.file-dnd .file-dnd-label {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    margin: 0px;
+}
+
+.file-dnd .file-dnd-label .file-dnd-label-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-dnd:not(.dragged) .file-dnd-dragged {
+    display: none;
+}
+
+.file-dnd .file-dnd-dragged {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+.file-dnd.dragged .file-dnd-label-content {
+    display: none;
+}

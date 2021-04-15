@@ -1,0 +1,82 @@
+{% extends "inspect.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status' + infix + '.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/inspect/details.inspect' + infix + '.js') }}"></script>
+{% endblock %}
+
+{% block inspect_content %}
+<div class="row">
+    <div class="col-12">
+        <i class="fas fa-exclamation-triangle"></i> Only the first sentence you type will be inspected
+    </div>
+</div>
+
+<div class="row row-striped inspect-row d-none">
+    <div class="col-12">
+        <hr />
+        <h3 class="h6">Inspection</h3>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Pre-processed input</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content preproc_input"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>N-Best</strong>
+            </div>
+
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content nbest"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Pre-processed output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content preproc_output"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12 col-sm-4">
+                <strong>Final output</strong>
+            </div>
+            <div class="col-12 col-sm-8">
+                <span class="inspect-content postproc_output"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="translation-template">
+    <div class="row mb-1 translation-row">
+        <div class="col-12 col-sm-3">
+            <strong class="engine-name"></strong>
+        </div>
+        <div class="col-12 col-sm-8">
+            <span class="user-engine-target"></span>
+        </div>
+    </div>
+</template>
+{% endblock %}

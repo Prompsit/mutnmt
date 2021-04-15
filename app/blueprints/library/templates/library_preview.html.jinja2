@@ -1,0 +1,41 @@
+{% extends "library.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/preview.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/preview.js') }}"></script>
+{% endblock %}
+
+{% block library_content %}
+
+<p>
+    <a href="{{ request.referrer }}" class="btn btn-link btn-sm px-0">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</p>
+
+<h2 class="h5">Preview corpus</h2>
+
+<div class="row parafile">
+    {% for file_entry in corpus.corpus_files %}
+    <div class="col-12 col-sm mt-3 mt-sm-0">
+        <h3 class="h6">
+            <i class="fas fa-file"></i> {{ file_entry.file.name }} ({{ file_entry.file.lines }} lines)
+        </h3>
+
+        <div class="parafile-showcase" data-file-id="{{ file_entry.file.id }}" data-start="0" data-offset="50">
+            
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<template id="parafile-line-template">
+    <div class="parafile-line">
+        <span class="parafile-line-content"><span>
+    </div>
+</template>
+
+{% endblock %}

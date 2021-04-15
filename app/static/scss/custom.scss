@@ -1,0 +1,78 @@
+/* Variable overrides */
+$primary: #577790 !default;
+$font-family-sans-serif: "Montserrat", Arial, Helvetica, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
+
+/* More spacers */
+$spacer: 1rem !default;
+$spacers: (
+    6: ($spacer * 4),
+    7: ($spacer * 5),
+    8: ($spacer * 6),
+    9: ($spacer * 7),
+    10: ($spacer * 8),
+    11: ($spacer * 9),
+    12: ($spacer * 10)
+);
+
+$theme-colors: (
+    blue-gray: #B3C4D1
+);
+
+/* Required imports */
+@import "../bootstrap-base/scss/functions";
+@import "../bootstrap-base/scss/variables";
+@import "../bootstrap-base/scss/mixins";
+
+/* Optional imports */
+@import "../bootstrap-base/scss/root";
+@import "../bootstrap-base/scss/reboot";
+@import "../bootstrap-base/scss/grid";
+@import "../bootstrap-base/scss/buttons";
+@import "../bootstrap-base/scss/button-group";
+@import "../bootstrap-base/scss/input-group";
+@import "../bootstrap-base/scss/forms";
+@import "../bootstrap-base/scss/custom-forms";
+@import "../bootstrap-base/scss/type";
+@import "../bootstrap-base/scss/nav";
+@import "../bootstrap-base/scss/images";
+@import "../bootstrap-base/scss/alert";
+@import "../bootstrap-base/scss/jumbotron";
+@import "../bootstrap-base/scss/tables";
+@import "../bootstrap-base/scss/dropdown";
+@import "../bootstrap-base/scss/badge";
+@import "../bootstrap-base/scss/utilities/display";
+@import "../bootstrap-base/scss/utilities/flex";
+@import "../bootstrap-base/scss/utilities/spacing";
+@import "../bootstrap-base/scss/utilities/sizing";
+@import "../bootstrap-base/scss/utilities/text";
+@import "../bootstrap-base/scss/utilities/background";
+@import "../bootstrap-base/scss/utilities/align";
+@import "../bootstrap-base/scss/utilities/overflow";
+@import "../bootstrap-base/scss/utilities/borders";
+@import "../bootstrap-base/scss/progress";
+@import "../bootstrap-base/scss/pagination";
+@import "../bootstrap-base/scss/tooltip";
+
+/* Class overrides */
+.btn-outline-primary {
+    @include button-outline-variant($primary, $color-hover: #fff)
+}
+
+.btn-primary {
+    @include button-variant($primary, $primary);
+    color: #fff;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.row-striped > [class*="col-"] {
+    padding: 1rem;
+}
+
+.row-striped > [class*="col-"]:nth-child(2n) {
+    background-color: var(--light);
+}

@@ -1,0 +1,108 @@
+{% extends "admin.html.jinja2" %}
+
+{% block head %}
+{% include "datatables.min.css.jinja2" %}
+{% endblock %}
+
+{% block resources %}
+{% include "datatables.min.js.jinja2" %}
+<script src="{{ url_for('static', filename='js/admin/system' + infix + '.js') }}"></script>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row mt-3 align-items-center">
+    <div class="col-6 h6">
+        Resources used
+    </div>
+    <div class="col-6 text-right">
+        <a href="" class="btn btn-link">
+            <i class="fas fa-redo"></i>
+            Reload
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 col-sm-4 mb-2" title="RAM usage" aria-label="RAM usage">
+        <div class="bg-light p-3 d-flex align-items-center h-100">
+            <div class="mr-3 h1">
+                <i class="fas fa-memory"></i>
+            </div>
+            <div>
+                <p class="h2">
+                    {{ ram.percent }}%
+                </p>
+                {{ ram.used }}GB out of {{ ram.total }}GB
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-4 mb-2" title="Disk usage" aria-label="Disk usage">
+        <div class="bg-light p-3 d-flex align-items-center h-100">
+            <div class="mr-3 h1">
+                <i class="fas fa-hdd"></i>
+            </div>
+            <div>
+                <p class="h2">
+                    {{ disk_usage.percent }}%
+                </p>
+                {{ disk_usage.used }}GB out of {{ disk_usage.total }}GB
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-4 mb-2" title="CPU usage" aria-label="CPU usage">
+        <div class="bg-light p-3 d-flex align-items-center h-100">
+            <div class="mr-3 h1">
+                <i class="fas fa-microchip"></i>
+            </div>
+            <div>
+                <p class="h2">
+                    {{ cpu }}%
+                </p>
+                CPU usage
+            </div>
+        </div>
+    </div>
+
+    {% for gpu in gpus %}
+    <div class="col-12 col-sm-4 mb-2" title="GPU usage" aria-label="GPU usage">
+        <div class="bg-light p-3 d-flex align-items-center h-100">
+            <div class="mr-3 h1">
+                <i class="fas fa-desktop"></i>
+            </div>
+            <div>
+                <div class="mb-2">
+                    <p class="h2 d-inline">
+                        {{ gpu.proc }}% 
+                        <small class="h5">
+                            <i class="fas fa-memory"></i> {{ gpu.memory }}%
+                        </small>
+                    </p>
+                </div>
+
+                GPU {{ gpu.id }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 h6">
+        Python processes
+    </div>
+
+    <div class="col-12 mt-3">
+        <div class="log">
+            <table class="table table-striped table-bordered users-table">
+                <thead>
+                    <th>PID</th>
+                    <th>Start</th>
+                    <th>% CPU</th>
+                    <th>% Memory</th>
+                    <th>Process</th>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

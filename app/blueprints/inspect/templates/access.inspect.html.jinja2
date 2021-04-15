@@ -1,0 +1,39 @@
+{% extends "inspect.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status' + infix + '.css') }}" />
+
+<style>
+.cartoon-bubble {
+    border: solid var(--dark) 2px;
+    border-radius: 1rem 1rem 1rem 1rem;
+    padding: 1rem;
+    position: relative;
+}
+
+.cartoon-bubble:after {
+    content: "";
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    position: absolute;
+    bottom: calc(1rem + 2px);
+    left: calc(-0.5rem - 2px);
+    border-left: solid 2px var(--dark);
+    background-color: white;
+    border-bottom: solid 2px var(--dark);
+    transform: rotate(45deg);
+}
+</style>
+{% endblock %}
+
+{% block inspect_content %}
+<div class="d-flex">
+    <img src="{{ url_for('static', filename='img/punky.svg') }}" alt="A person" />
+    <div class="w-50 mt-5">
+        <div class="cartoon-bubble">
+            Hey! This feature has not been implemented yet. Come back in a few commits!
+        </div>
+    </div>
+</div>
+{% endblock %}

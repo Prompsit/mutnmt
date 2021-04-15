@@ -1,0 +1,46 @@
+
+.tokenizer-animation {
+    flex: 0 0 85px;
+    height: 80px;
+    position: relative;
+}
+
+    .tokenizer-animation .ta-cloud {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        font-size: 64px;
+        color: #e9e9e9;
+    }
+
+    .tokenizer-animation .cogs {
+        position: absolute;
+        left: 54px;
+        top: 40px;
+    }
+
+        .tokenizer-animation .cogs .cog {
+            position: absolute;
+            font-size: 32px;
+            top: 0px;
+            left: 0px;
+            color: var(--secondary);
+            animation: spin 4s linear 0s infinite;
+        }
+
+        .tokenizer-animation .cogs .cog:nth-child(2) {
+            font-size: 16px;
+            top: -4px;
+            left: -14px;
+        }
+
+        .tokenizer-animation .cogs .cog:nth-child(3) {
+            font-size: 16px;
+            top: 20px;
+            left: -14px;
+        }
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,109 @@
+.corpus-selector-area {
+    display: flex;
+    background-color: var(--light);
+}
+
+.area-zone {
+    height: 300px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+}
+
+.area-values {
+    width: 2.5rem;
+    position: relative;
+    height: 100%;
+}
+
+.area-value {
+    position: absolute;
+    left: 11px;
+    transition: top 0.5s ease, color 0.5s ease;
+}
+
+.area-value-current {
+    top: 0px;
+    font-weight: bold;
+    background-color: white;
+    padding: 2px;
+}
+
+.area-zone[data-valid="no"] .area-value-current {
+    color: var(--danger);
+}
+
+.area-zone[data-valid="yes"] .area-value-current {
+    color: var(--success);
+}
+
+.area-zone[data-valid="almost"] .area-value-current {
+    color: var(--warning);
+}
+
+.area-value-max {
+    bottom: 0px;
+}
+
+.area-value-min {
+    top: 50px;
+}
+
+.area-value-bar {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    width: 3px;
+    height: 100%;
+}
+
+.area-value-bar .area-value-bar-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary);
+}
+
+.area-value-bar .area-value-bar-fg {
+    position: absolute;
+    width: 100%;
+    height: 0px;
+    transition: height 0.5s ease;
+}
+
+.area-zone[data-valid="no"] .area-value-bar .area-value-bar-fg {
+    background-color: var(--danger);
+}
+
+.area-zone[data-valid="almost"] .area-value-bar .area-value-bar-fg {
+    background-color: var(--warning);
+}
+
+.area-zone[data-valid="yes"] .area-value-bar .area-value-bar-fg {
+    background-color: var(--success);
+}
+
+.area-info {
+    margin-left: 1rem;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.area-corpora {
+    position: relative;
+}
+
+.corpus-selector-list .dataTables_filter {
+    text-align: left !important;
+}
+
+.corpus-selector-list .dataTables_filter label {
+    display: flex;
+    align-items: center;
+}
+
+.corpus-selector-list .dataTables_filter .form-control {
+    width: 100%;
+    min-width: 0px;
+}

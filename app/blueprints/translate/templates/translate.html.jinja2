@@ -1,0 +1,216 @@
+{% extends "base.html.jinja2" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/file-dnd' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/translate' + infix + '.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/engine-status' + infix + '.css') }}" />
+{% endblock %}
+
+{% block resources %}
+<script src="{{ url_for('static', filename='js/file-dnd' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/translate' + infix + '.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+{% if engines | length > 0 %}
+
+<form action="{{ url_for('translate.as_tmx') }}" method="post" class="live-translate-form" data-status="false">
+    <input type=hidden name="chain" id="chain" value="false" />
+    <div class="row mt-4 align-items-center">
+        <div class="col-12">
+            <h2 class="h5">Translate</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-6" style="padding-right: 0.4rem;">
+            <div class="d-flex">
+                <select class="custom-select mr-1 engine-select w-100 flex-grow-1" name="engine_id">
+                    {% for engine_entry in engines %}
+                        <option value="{{ engine_entry.engine.id }}">
+                            {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                            </option>
+                    {% endfor %}
+                </select>
+
+                <div>
+                    <a href="#" class="btn btn-link chain-btn">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2 chain-row d-none">
+         <div class="col-12 col-sm-6 d-flex" style="padding-right: 0.4rem;">
+            <select class="custom-select mr-1 engine-select-chain w-75" name="engine_id_chain">
+                {% for engine_entry in engines %}
+                    <option value="{{ engine_entry.engine.id }}">
+                        {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                        </option>
+                {% endfor %}
+            </select>
+
+            <a href="#" class="btn btn-link chain-remove-btn">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="row no-gutters mt-2">
+        <div class="col-12 col-sm-6">
+            <div class="custom-textarea file-dnd">
+                <input type=file class="file-dnd-input" id="file_to_translate" accept=".docx,.odt,.pptx,.odp,.xlsx,.ods,.pdf,.txt,.html,.tmx" />
+
+                <div class="custom-textarea-container">
+                    <textarea name="text" class="live-translate-source" autocomplete="off"></textarea>
+                </div>
+
+                <div class="custom-textarea-placeholder source-placeholder">
+                    Type, paste text or drop a document
+                </div>
+                <div class="custom-textarea-file-upload w-100 h-100 d-flex align-items-center justify-content-center">
+                    <div class="text-center w-75">
+                        <div class="h1">
+                            <i class="fas fa-file-word"></i>
+                            <i class="fas fa-file-powerpoint"></i>
+                            <i class="fas fa-file-excel"></i>
+                            <i class="fas fa-file-pdf"></i>
+                            <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <p class="h2">Drop files here</p>
+                        <small>DOCX, ODT, PPTX, ODP, XLSX, ODS, PDF, TXT, HTML, TMX</small>
+                    </div>
+                </div>
+                <div class="custom-textarea-tools" style="z-index: 4;">
+                    <div class="btn-group dropright">
+                        <button class="btn btn-link file-dnd-label pr-0" data-toggle="dropdown">
+                            <i class="far fa-file-alt mr-2"></i>
+                            <span class="file-label-text">File translation</span>
+                            <span class="file-label-name"></span>
+                        </button>
+                        <button class="btn btn-link dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <label class="dropdown-item translate-file-btn pr-0" for="file_to_translate">
+                                <i class="far fa-file-alt mr-2"></i>
+                                <span class="file-label-text">Translate file</span>
+                                <span class="file-label-name"></span>
+                            </label>
+                            <label class="dropdown-item translate-file-tmx-btn mb-0" for="file_to_translate">
+                                <i class="fas fa-box mr-2"></i>
+                                Translate file and get translation memory
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-textarea-separator">
+                    <div class="icon">
+                        <i class="fas fa-angle-double-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6">
+            <div class="custom-textarea readonly">
+                <div class="custom-textarea-container">
+                    <textarea readonly name="text" class="live-translate-target" autocomplete="off"></textarea>
+                </div>
+                
+                <div class="custom-textarea-tools">
+                    <button type=submit class="btn btn-link btn-as-tmx">
+                        <i class="fas fa-file-download"></i> Text as TMX
+                    </button>
+                </div>
+
+                <div class="custom-textarea-placeholder engine-status-container px-3 w-100 h-100 d-flex align-items-center justify-content-center">
+                    <div class="engine-status engine-launching h-100">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <div class="h1 spinner mr-3">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div>
+                                <p class="h5 mb-0">Launching engine...</p>
+                                <p class="mb-0">
+                                    Translations will appear here
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="engine-status engine-file-translating h-100">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <div class="h1 spinner mr-3">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div>
+                                <p class="h5 mb-0">Launching engine <br /> and translating your file...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="engine-status engine-tmx-dialog w-75">
+                        <div class="tmx-mode-select border rounded border-primary">
+                            <div class="tmx-mode-select-content ml-2">
+                                <div class="badge badge-primary">TMX</div>
+                                <div class="p-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tmx_mode" id="tmx_mode_replace" value="replace" checked="checked">
+                                        <label class="form-check-label" for="tmx_mode_replace">Replace target</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tmx_mode" id="tmx_mode_create" value="create">
+                                        <label class="form-check-label" for="tmx_mode_create">Create a new target</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-1 text-right">
+                            <button class="btn btn-primary btn-sm btn-confirm-tmx">Continue</button>
+                        </div>
+                    </div>
+
+                    <div class="engine-status engine-error h-100">
+                        <div class="d-flex align-items-center justify-content-center w-100 h-100">
+                            <div class="h1 mr-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <p class="h5 mb-0">Something went wrong...</p>
+                                <p class="mb-0">
+                                    Try <a href="#" class="engine-relaunch-btn">relaunching the engine</a>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12 col-sm-6">
+            <div class="text-sm-right">
+                <button class="btn btn-primary translate-btn">Translate</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% else %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="jumbotron p-3 text-center">
+            <p class="h6 m-0">
+                You need an engine to translate text or files. <a href="{{ url_for('library.library_engines') }}">Grab</a> or <a href="{{ url_for('train.train_index') }}">train</a> a new one
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

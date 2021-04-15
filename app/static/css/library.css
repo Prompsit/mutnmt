@@ -1,0 +1,67 @@
+.folder-indicator {
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 24px;
+}
+
+.folder-indicator .folder-icon {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+.folder-indicator .second-icon {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+}
+
+.folder-indicator .second-icon::before {
+    background: transparent;
+}
+
+.corpus-header {
+    background-color: var(--light);
+}
+
+.corpus-header .corpus_icon {
+    text-align: center;
+}
+
+.corpus-header th {
+    border-top: 0;
+    border-left: 0;
+    border-bottom: 0;
+    vertical-align: middle;
+}
+
+.corpus-header th:not(:last-child) {
+    border-right: 0;
+}
+
+.corpus_lang_trg::before {
+    content: "— ";
+}
+
+.corpus_lang_trg:empty::before {
+    content: "";
+}
+
+@media screen and (min-width: 576px) {
+    .neural-bg {
+        background-image: url(/img/neural-bg.svg);
+        background-repeat: no-repeat;
+        background-position: right top;
+        background-size: 450px 225px;
+    }
+}
+
+.data-upload-form {
+    overflow: hidden;
+}
+
+.data-upload-form.collapsed {
+    height: 0px;
+    padding: 0px;
+}

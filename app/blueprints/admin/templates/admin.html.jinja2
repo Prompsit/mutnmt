@@ -1,0 +1,17 @@
+{% extends "base.html.jinja2" %}
+
+{% block content %}
+<h2 class="h5">Admin panel</h2>
+
+<div class="btn-group mb-3">
+    <a href="{{ url_for('admin.admin_index') }}" 
+        class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_users' else '' }}">Users</a>
+    <a href="{{ url_for('admin.admin_system') }}"
+        class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_system' else '' }}">System</a>
+    <a href="{{ url_for('admin.admin_instances') }}"
+        class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'admin_instances' else '' }}">Running instances</a>
+</div>
+
+{% block admin_content %} {% endblock %}
+
+{% endblock %}

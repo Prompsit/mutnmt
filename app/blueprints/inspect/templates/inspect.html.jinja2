@@ -1,0 +1,63 @@
+{% extends "base.html.jinja2" %}
+
+{% block content %}
+<h2 class="h5">Inspect translations</h2>
+
+<div class="mt-2 mb-3">
+    <div class="btn-group">
+        <a href="{{ url_for('inspect.inspect_index') }}" id="detailsBtn"
+            class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_details' else '' }}">Details</a>
+
+        <a href="{{ url_for('inspect.inspect_compare') }}" id="compareBtn"
+            class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_compare' else '' }}">Compare</a>
+
+        <a href="{{ url_for('inspect.inspect_access') }}" id="accessBtn"
+            class="btn btn-outline-primary btn-sm {{ 'active' if page_name == 'inspect_access' else '' }}">Access</a>
+    </div>
+</div>
+
+{% if engines | length == 0 %}
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="jumbotron p-3 text-center">
+            <p class="h6 m-0">
+                You need an engine to evaluate text. <a href="{{ url_for('library.library_engines') }}">Grab</a> or <a href="{{ url_for('train.train_index') }}">train</a> a new one
+            </p>
+        </div>
+    </div>
+</div>
+{% else %}
+<form action="#" method="post" class="translate-form" data-status="false">
+    <textarea class="form-control translate-text" style="min-height: 50px;" name="translate_text">This is a very important day for human rights</textarea>
+    <div class="d-flex align-items-center mt-2">
+        <select class="custom-select mr-1 engine-select" name="engine_id">
+            {% for engine_entry in engines %}
+                <option value="{{ engine_entry.engine.id }}" data-src="{{ engine_entry.engine.source.code }}" data-trg="{{ engine_entry.engine.target.code }}">
+                    {{ engine_entry.engine.name }} ({{ engine_entry.engine.source.name }} - {{ engine_entry.engine.target.name }})
+                </option>
+            {% endfor %}
+        </select>
+
+        <div class="text-right">
+            <input type="submit" class="btn btn-primary translate-btn" data-ready="false" value="{{ 'Compare' if page_name == 'inspect_compare' else 'Inspect' }}" />
+        </div>
+    </div>
+
+    <div class="engine-status-container my-3">
+        <div class="alert alert-warning engine-launching mb-0" role="alert">
+            <i class="fas fa-circle-notch fa-spin"></i> Launching engine...
+        </div>
+        <div class="alert alert-success engine-ready mb-0" role="alert">
+            <i class="fas fa-check-circle"></i> Engine ready!
+        </div>
+        <div class="alert alert-danger engine-error mb-0" role="alert">
+            <i class="fas fa-exclamation-circle"></i> Something went wrong!
+        </div>
+    </div>
+</form>
+
+{% block inspect_content %}
+
+{% endblock %}
+{% endif %}
+{% endblock %}

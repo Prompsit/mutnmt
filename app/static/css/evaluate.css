@@ -1,0 +1,82 @@
+.evaluate-hint {
+    opacity: .7;
+}
+
+.sides-decoration::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: rgba(0,0,0,0.1);
+    z-index: -1;
+    position: relative;
+    top: 50%;
+}
+
+.evaluate-status .alert {
+    display: none;
+}
+
+.evaluate-status[data-status="pending"] .evaluate-status-pending {
+    display: block;
+}
+
+.evaluate-status[data-status="error"] .evaluate-status-error {
+    display: block;
+}
+
+.metric-hint {
+    height: 8px;
+}
+
+.metric-hint .metric-hint-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-hint .metric-hint-content .metric-icon {
+    margin-left: 0.5rem;
+}
+
+.metric-hint.reversed .metric-hint-content {
+    flex-direction: row-reverse;
+}
+
+.metric-hint.reversed .metric-hint-content .metric-icon {
+    margin-right: 0.5rem;
+}
+
+.metric-hint .metric-hint-content .metric-hint-bar {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.metric-hint .metric-hint-content .metric-hint-bar .progress {
+    height: 100%;
+}
+
+.metric-hint .progress .metric-bar {
+    background: rgb(129,144,155);
+    background: linear-gradient(90deg, rgb(214 216 217) 0%, rgba(87,119,144,1) 75%);
+}
+
+.metric-hint.reversed .progress .metric-bar {
+    background: rgb(129,144,155);
+    background: linear-gradient(90deg, rgba(87,119,144,1) 0%,  rgb(214 216 217) 75%);
+}
+
+.metric-hint .metric-indicator {
+    content: "";
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50% 50%;
+    background: white;
+    border: solid 3px var(--dark);
+    position: absolute;
+    top: -4px;
+}

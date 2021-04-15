@@ -1,0 +1,26 @@
+.file-dnd {
+    border: dashed 2px var(--gray);
+}
+
+.file-dnd.dragging {
+    border: dashed 3px var(--blue);
+    color: var(--blue);
+}
+
+.file-dnd:hover {
+    border: dashed 2px var(--dark);
+    cursor: pointer;
+}
+
+.file-item .file-item-preview {
+    display: none;
+}
+
+.file-item:hover .file-item-preview {
+    display: block;
+}
+
+.target-col-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}

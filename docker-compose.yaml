@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+    mutnmt:
+        container_name: mutnmt
+        build: .
+        image: mutnmt
+        ports:
+            - 5000:5000
+        environment: 
+            - DEBUG=1
+        volumes:
+            - ./app:/opt/mutnmt/app
+        entrypoint: 'tail -f /dev/null'

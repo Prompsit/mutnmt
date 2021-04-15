@@ -1,0 +1,375 @@
+{% extends "base.html.jinja2" %}
+
+{% block head %}
+{% include "datatables.min.css.jinja2" %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/evaluate' + infix + '.css') }}" />
+{% endblock %}
+
+{% block resources %}
+{% include "datatables.min.js.jinja2" %}
+<script src="{{ url_for('static', filename='lib/apexcharts.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/longpoll' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom-file' + infix + '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/evaluate' + infix + '.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<h2 class="h5">Evaluate translations</h2>
+
+<form action="{{ url_for('evaluate.evaluate_files') }}" method="post" enctype="multipart/form-data" class="evaluate-form">
+    <div class="row mt-3">
+        <div class="col-sm col-12 mt-4 mt-sm-0 source-text-content">
+            <div class="d-flex justify-content-between">
+                <h2 class="h6">Source text</h2>
+
+                <div>
+                    <span class="badge badge-secondary">Optional</span>
+                </div>
+            </div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="source_file" name="source_file">
+                <label class="custom-file-label" for="source_file">Choose file</label>
+            </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/en.src.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get source text template
+                    </a>
+                </small>
+            </div>
+        </div>
+
+        <div class="col-sm col-12 mt-4 mt-sm-0">
+            <h2 class="h6">Machine translation</h2>
+
+            <div class="mt-file-container">
+                <div class="d-flex align-items-start">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input mt_file" id="mt_file" name="mt_file" required>
+                        <label class="custom-file-label" for="mt_file">Choose file</label>
+                    </div>
+                    
+                    <a href="#" class="add-mt-btn ml-3" title="Add MT file">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/es.mt.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get MT text template
+                    </a>
+                </small>
+            </div>
+        </div>
+        <div class="col-sm col-12 mt-4 mt-sm-0">
+            <h2 class="h6">Reference translation</h2>
+
+            <div class="ht-file-container">
+                <div class="d-flex align-items-start">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input ht_file" id="ht_file" name="ht_file" required>
+                        <label class="custom-file-label" for="ht_file">Choose file</label>
+                    </div>
+                    
+                    <a href="#" class="add-ht-btn ml-3" title="Add HT file">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-2">
+                <small>
+                    <a download href="{{ url_for('static', filename='file_templates/evaluate/es.ref.txt') }}">
+                        <i class="far fa-arrow-alt-circle-down"></i> Get reference text template
+                    </a>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <i class="fas fa-exclamation-triangle"></i> Only the first 500 sentences will be evaluated
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 sides-decoration text-center">
+            <div class="bg-white px-2 d-inline-block">
+                <input type=submit class="btn btn-primary" value="Evaluate" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="row evaluate-status" data-status="none">
+    <!-- Icons made by <a href="https://www.flaticon.com/authors/mangsaabguru" title="mangsaabguru">mangsaabguru</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> -->
+    <!-- Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a> -->
+
+    <div class="col-12 mt-4 mt-sm-0">
+        <div class="alert evaluate-status-pending mb-0 mt-3">
+            <div class="d-flex w-100 align-items-center">
+                <div class="mr-5">
+                    <img alt="Pyramids" src="{{ url_for('static', filename='img/pyramids.svg') }}" style="width: 200px;" />
+                </div>
+
+                <div class="h3 mb-0">
+                    Computing metrics... <br /> this may take a while
+                </div>
+            </div>
+        </div>
+        <div class="alert evaluate-status-error alert-danger mb-0">
+            <i class="fas fa-exclamation-circle"></i> Something went wrong...
+        </div>
+    </div>
+</div>
+
+<div class="evaluate-hint row mt-4 bg-gray">
+    <div class="col-12 mb-3">
+        <div class="h5">Sample evaluation</div>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <label for="results-mt-select">Machine translation file</label>
+            <div class="small" id="ttr-badge" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                <span class="badge badge-secondary">TTR</span>
+                <span class="mt-lexical-value">15.1</span>
+            </div>
+        </div>
+
+        <select disabled class="custom-select" id="results-mt-select"></select>
+    </div>
+
+    <div class="col-12 col-sm-6">
+        <div class="d-flex justify-content-between align-items-center">
+            <label for="results-ht-select">Reference translation file</label>
+            <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                <span class="badge badge-secondary">TTR</span>
+                <span class="ht-lexical-value">16.2</span>
+            </div>
+        </div>
+
+        <select disabled class="custom-select" id="results-ht-select"></select>
+    </div>
+
+    <div class="col-12 mt-4">
+        <div class="row">
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-bleu">
+                <strong class="h1 bold metric-value">25.5</strong>
+
+                <div class="metric-hint my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 25%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">BLEU</strong>
+            </div>
+
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-chrf3">
+                <strong class="h1 bold metric-value">37.0</strong>
+
+                <div class="metric-hint my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 35%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">chrF3</strong>
+            </div>
+
+            <div class="col-12 col-sm-4 text-center mb-4" id="sample-ter">
+                <strong class="h1 bold metric-value">80.2</strong>
+
+                <div class="metric-hint reversed my-3">
+                    <div class="metric-hint-content">
+                        <div class="metric-hint-bar">
+                            <div class="progress">
+                                <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                            </div>
+
+                            <div class="metric-indicator" style="left: 85%;"></div>
+                        </div>
+                        
+                        <div class="metric-icon">
+                            <i class="far fa-laugh"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <strong class="metric-name">TER</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="evaluate-results d-none">
+    <div class="row mt-4">
+        <div class="col-6">
+            <h2 class="h5">Metrics</h2>
+        </div>
+        <div class="col-6 text-right">
+            <a class="btn-xlsx-download" href="#">
+                <i class="fas fa-file-excel"></i> Download spreadsheet
+            </a>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-12 col-sm-6">
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="results-mt-select">Machine translation file</label>
+                <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                    <span class="badge badge-secondary">TTR</span>
+                    <span class="mt-lexical-value"></span>
+                </div>
+            </div>
+
+            <select class="results-select results-mt-select custom-select" id="results-mt-select"></select>
+        </div>
+
+        <div class="col-12 col-sm-6">
+            <div class="d-flex justify-content-between align-items-center">
+                <label for="results-ht-select">Reference translation file</label>
+                <div class="small" title="Type Token Ratio: indicates relationship between the number of types (unique words) and the number of tokens (total number of words) in a text. A higher number of types in comparison to the number of tokens indicates a higher variety in the vocabulary">
+                    <span class="badge badge-secondary">TTR</span>
+                    <span class="ht-lexical-value"></span>
+                </div>
+            </div>
+
+            <select class="results-select results-ht-select custom-select" id="results-ht-select"></select>
+        </div>
+    </div>
+
+    <div class="row mt-5 evaluate-results-row">
+    </div>
+
+    <h2 class="h5 mt-5">Score map</h2>
+    
+    <div class="my-3 chart-select">
+    </div>
+
+    <div class="my-3 chart-container">
+        <div></div>
+    </div>
+    <div class="mb-4">
+        <table class="table table-striped table-bordered score-table bleu-line">
+            <thead>
+                <th>Line <span class="score-table-line-no"></span></th>
+                <th>Sentence</th>
+                <th>BLEU</th>
+                <th>TER</th>
+            </thead>
+        </table>
+
+        <div class="input-group justify-content-end mt-2">
+            <input type=number min="1" class="form-control d-block page-number" style="flex: 0 0 84px; width: 84px;" />
+            <div class="input-group-append">
+                <button class="btn btn-outline-primary page-btn">Go</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="sentences-view-template">
+    <tr>
+        <td class="overflow"><strong>Source</strong></td>
+        <td class="sentences-view-source overflow"></td>
+        <td></td>
+        <td></td>
+    </tr>
+</template>
+
+<template id="sentences-view-mt-template">
+    <tr>
+        <td class="overflow"><strong>MT <span class="sentences-view-mt-index"></span></strong></td>
+        <td class="sentences-view-mt overflow"></td>
+        <td class="sentences-view-bleu"></td>
+        <td class="sentences-view-ter"></td>
+    </tr>
+</template>
+
+<template id="mt-file-template">
+    <div class="mt-4 d-flex align-items-center mt-file-row">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input mt_file" id="" name="" required>
+            <label class="custom-file-label" for="">Choose file</label>
+        </div>
+
+        <a href="#" class="remove-mt-btn ml-3">
+            <i class="fas fa-times"></i>
+        </a>
+    </div>
+</template>
+
+<template id="ht-file-template">
+    <div class="mt-4 d-flex align-items-center ht-file-row">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input ht_file" id="" name="" required>
+            <label class="custom-file-label" for="">Choose file</label>
+        </div>
+
+        <a href="#" class="remove-ht-btn ml-3">
+            <i class="fas fa-times"></i>
+        </a>
+    </div>
+</template>
+
+<template id="metric-title-template">
+    <div class="col-12 mb-3">
+        <div class="h6 metric-title"></div>
+    </div>
+</template>
+
+<template id="metric-template">
+    <div class="col-12 col-sm-4 text-center mb-4">
+        <strong class="h1 bold metric-value"></strong>
+
+        <div class="metric-hint my-3">
+            <div class="metric-hint-content">
+                <div class="metric-hint-bar">
+                    <div class="progress">
+                        <div class="progress-bar bg-success metric-bar" role="progressbar" style="width: 100%" aria-role="presentation"></div>
+                    </div>
+
+                    <div class="metric-indicator"></div>
+                </div>
+                
+                <div class="metric-icon">
+                    <i class="far fa-laugh"></i>
+                </div>
+            </div>
+        </div>
+
+        <strong class="metric-name"></strong>
+    </div>
+</template>
+
+<template id="btn-chart-select-template">
+    <button class="btn btn-outline-secondary btn-chart-select btn-sm"></button>
+</template>
+{% endblock %}

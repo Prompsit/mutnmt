@@ -1,0 +1,323 @@
+{% extends "library.html.jinja2" %}
+
+{% block library_content %}
+
+{% if not is_normal() %}
+<div class="d-flex justify-content-between">
+    <a href="#" class="text-reset text-decoration-none upload-header">
+        <h2 class="h5">
+            <span class="mr-2">Upload corpora</span>
+            <i class="fas fa-caret-up header-collapse-icon"></i>
+            <i class="fas fa-caret-down header-collapsed-icon d-none"></i>
+        </h2>
+    </a>
+
+    <a href="#your_corpora">
+        <i class="fas fa-folder"></i> Your corpora
+    </a>
+</div>
+
+<form class="data-upload-form mb-4 " action="{{ url_for('data.data_upload_perform') }}" enctype="multipart/form-data" method="post">
+    <fieldset>
+        <div class="row">
+            <div class="col-12">
+                <div class="bg-light p-3 neural-bg">
+                    <div class="row">
+                        <div class="form-group col-12 col-sm-6">
+                            <label for="name">Name</label>
+                            <input required type="text" class="form-control" id="name" name="name" placeholder="Write a name..." />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-12 col-sm-6">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" placeholder="Write a description..." rows="1"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-12 col-sm-6">
+                            <label for="description">Domain</label>
+                            <select class="custom-select" id="topic" name="topic">
+                                {% for topic in topics %}
+                                    <option value="{{topic.id}}">{{topic.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-12 col-sm-8">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="source_lang">Source language</label>
+                                    <select class="custom-select mb-2 lang_sel source_lang" name="source_lang">
+                                        {% for language in languages %}
+                                            <option value="{{ language.code }}">{{ language.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-6 target-lang-col">
+                                    <label for="target_lang">Target language</label>
+                                    <select class="custom-select mb-2 lang_sel target_lang" name="target_lang">
+                                        {% for language in languages[1:] %}
+                                            <option value="{{ language.code }}">{{ language.name }}</option>
+                                        {% endfor %}
+                                            <option value="{{ languages[0].code }}">{{ languages[0].name }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row upload-files">
+                        <div class="col-12 col-sm-8 text-col">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-2" style="flex: 1 0 auto;">
+                                            <span class="badge badge-secondary">TXT</span>
+                                            <small>2GB total max</small>
+                                        </div>
+                                        <div class="w-100 flex-grow-1"><hr /></div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label for="source_file">Source file</label>
+
+                                    {% with file_dnd_id = "source_file", file_dnd_small = True %}
+                                        {% include "file-dnd.html.jinja2" %}
+                                    {% endwith %}
+
+                                    <div class="mt-1">
+                                        <small>
+                                            <a download href="{{ url_for('static', filename='file_templates/upload/en.src.txt') }}">
+                                                <i class="far fa-arrow-alt-circle-down"></i> Get source TXT template
+                                            </a>
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-6 mt-3 mt-sm-0 target-file-col">
+                                    <label for="target_file">Target file</label>
+
+                                    {% with file_dnd_id = "target_file", file_dnd_small = True %}
+                                        {% include "file-dnd.html.jinja2" %}
+                                    {% endwith %}
+
+                                    <div class="mt-1">
+                                        <small>
+                                            <a download href="{{ url_for('static', filename='file_templates/upload/es.trg.txt') }}">
+                                                <i class="far fa-arrow-alt-circle-down"></i> Get target TXT template
+                                            </a>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-8 bitext-col mt-2">
+                            <div class="d-flex align-items-center">
+                                <div class="mr-2" style="flex: 1 0 auto;">
+                                    <span class="badge badge-secondary">TSV/TMX</span>
+                                    <small>2GB max</small>
+                                </div>
+                                <div class="w-100 flex-grow-1"><hr /></div>
+                            </div>
+
+                            <label for="tmx_tsv_file">File</label>
+                            {% with file_dnd_id = "bitext_file", file_dnd_small = True %}
+                                {% include "file-dnd.html.jinja2" %}
+                            {% endwith %}
+
+                            <div class="mt-1">
+                                <small>
+                                    <i class="far fa-arrow-alt-circle-down"></i>
+
+                                    Get
+
+                                    <a download href="{{ url_for('static', filename='file_templates/upload/en-es.tsv') }}">TSV</a>
+
+                                    /
+
+                                    <a download href="{{ url_for('static', filename='file_templates/upload/en-es.tmx') }}">TMX</a>
+
+                                    template
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row mt-4">
+            <div class="col-12 col-sm-5">
+                <div class="file-size-warning text-danger d-none">
+                    <i class="fas fa-exclamation-triangle"></i> The selected files are too large
+                </div>
+
+                <div class="token-alert d-none">
+                    <div class="d-flex align-items-center">
+                        {% include "cloud.html.jinja2" %}
+                        <div class="ml-3">
+                            <div class="h5 upload-progress-container d-none">
+                                <span class="upload-progress">0</span>%
+                            </div>
+                            <div class="h6">
+                                We're checking your data! Corpora should be plain text or TMX and have
+                                the same length and one sentence per line. This might take some time...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 offset-sm-5 col-sm-2 text-right">
+                <input class="btn btn-primary" type="submit" id="submit" value="Upload" />
+            </div>
+        </div>
+    </fieldset>
+</form>
+{% endif %}
+
+<h2 class="h5 sr-only">Your corpora</h2>
+<ul class="nav nav-tabs corpora-nav-tabs" id="your_corpora">
+    <li class="nav-item">
+        <a class="nav-link active public-nav-tab" data-toggle="tab" href="#public-corpora">Public corpora</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
+    </li>
+</ul>
+
+<div class="tab-content corpora-tab">
+    <div class="tab-pane fade show active pt-4" id="public-corpora">
+        <div class="table-responsive">
+            <table class="table table-bordered corpora-table w-100" data-public="true">
+                <thead class="d-none">
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Sentences</th>
+                    <th>Words</th>
+                    <th>Domain</th>
+                    <th>Date</th>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade pt-4" id="private-corpora">
+        {% if user_library > 0 %}
+        <div class="table-responsive">
+            <table class="table table-bordered corpora-table w-100">
+                <thead>
+                    <th></th>
+                    <th>File name</th>
+                    <th>Language</th>
+                    <th>Sentences</th>
+                    <th>Words</th>
+                    <th>Domain</th>
+                    <th>Date</th>
+                </thead>
+            </table>
+        </div>
+        {% else %}
+        <div class="jumbotron p-3 text-center">
+            <p class="h6 m-0">
+                Nothing yet! <a href="{{ url_for('library.library_corpora') }}">Upload a corpus now</a> or grab one
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<template id="corpus-header-template">
+    <tr class="corpus-header bg-blue-gray">
+        <th class="corpus_icon">
+            <div class="folder-shared folder-indicator text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
+                <i class="second-icon fas fa-share-alt-square text-success bg-white"></i>
+            </div>
+            <div class="folder-grabbed folder-indicator text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
+                <i class="second-icon fas fas fa-user text-warning"></i>
+            </div>
+            <div class="folder-owner text-center d-none">
+                <i class="folder-icon fas fa-folder"></i>
+            </div>
+        </th>
+        <th>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mr-3">
+                    <span class="badge px-0"><span class="corpus_lang_src"></span> <span class="corpus_lang_trg"></span></span>
+                    <div class="corpus_name" data-toggle="tooltip" data-placement="bottom" title="Uploaded by"></div>
+                    <div class="font-weight-normal corpus_description"></div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-link btn-sm text-dark px-1" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="#" class="corpus-preview dropdown-item">
+                            <i class="fas fa-stream"></i> Preview
+                        </a>
+
+                        <a href="#" class="corpus-stop-share d-none dropdown-item">
+                            <i class="fas fa-lock"></i> Stop sharing
+                        </a>
+
+                        <a href="#" class="corpus-share d-none dropdown-item">
+                            <i class="fas fa-lock-open"></i> Share
+                        </a>
+
+                        <a href="#" class="export-btn dropdown-item">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+
+                        <a href="#" class="corpus-delete d-none dropdown-item text-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+
+                        <a href="#" class="corpus-ungrab d-none dropdown-item text-danger">
+                            <i class="fas fa-times"></i> Remove
+                        </a>
+
+                        <a href="#" class="grab-btn dropdown-item d-none">
+                            <i class="fas fa-file-import"></i> Grab
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+    </tr>
+    <tr class="corpus-files-header">
+        <th class="border-right-0"></th>
+        <th>File name</th>
+        <th>Language</th>
+        <th>Sentences</th>
+        <th>Words</th>
+        <th>Domain</th>
+        <th>Date</th>
+    </tr>
+</template>
+
+<template id="corpus-entry-template">
+    <div class="d-flex align-items-center file-item">
+        <i class="fas fa-file mr-2"></i>
+        <span class="file-name"></span>
+    </div>
+</template>
+
+<template id="preview-button-template">
+    <a class="file-item-preview" href="#" title="Preview file">
+        <i class="far fa-eye"></i>
+    </a>
+</template>
+
+{% endblock %}
