@@ -38,7 +38,7 @@ In order to run MutNMT, you need access to an NVIDIA GPU. You must install the [
 
 Building and launching MutNMT consists on:
 
-1. Set up preloaded engines (and mount its volume)
+1. Set up preloaded engines
 2. Set up user authentication
 3. Set up user lists: admins and whitelist
 4. Set up proxy fix
