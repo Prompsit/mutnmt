@@ -35,7 +35,7 @@ idna==2.9
 importlib-metadata==3.4.0
 isort==4.3.21
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 joblib==0.15.1
 joeynmt @ file:///opt/mutnmt/app/joeynmt
 jsmin==2.2.2
