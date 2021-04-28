@@ -13,8 +13,7 @@ from celery import Celery
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
-from lxml import etree
-
+import xml.parsers.expat
 
 import pyter
 import xlsxwriter
@@ -616,21 +615,44 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         file.save(tmp_path)
 
         if file_extension == ".tmx":
-            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
-            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
-            open(tmp_path, 'r') as tmx_file:
-                tmx = etree.parse(tmx_file, etree.XMLParser())
-                body = tmx.getroot().find("body")
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'w') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'w') as trg_file, \
+            open(tmp_path, 'rb') as tmx_file:
+                inside_tuv = False
+                seg_text = []
+                tu = []
 
-                for tu in body.findall('.//tu'):
-                    for i, tuv in enumerate(tu.findall('.//tuv')):
-                        if i > 1: break
-                        line = tuv.find("seg").text.strip()
-                        line = re.sub(r'[\r\n\t\f\v]', " ", line)
-                        dest_file = src_file if i == 0 else trg_file
+                def se(name, _):
+                    nonlocal inside_tuv
+                    if name == "seg":
+                        inside_tuv = True
 
-                        dest_file.write(line.encode('utf-8'))
-                        dest_file.write(os.linesep.encode('utf-8'))
+                def lp(line):
+                    return re.sub(r'[\r\n\t\f\v]', " ", line.strip())
+
+                def ee(name):
+                    nonlocal inside_tuv, seg_text, tu, src_file
+                    if name == "seg":
+                        inside_tuv = False
+                        tu.append("".join(seg_text))
+                        seg_text = []
+
+                        if len(tu) == 2:
+                            print(lp(tu[0]), file=src_file)
+                            print(lp(tu[1]), file=trg_file)
+                            tu = []
+
+                def cd(data):
+                    nonlocal inside_tuv, seg_text
+                    if inside_tuv:
+                        seg_text.append(data)
+
+                parser = xml.parsers.expat.ParserCreate()
+                parser.StartElementHandler = se
+                parser.EndElementHandler = ee
+                parser.CharacterDataHandler = cd
+                parser.ParseFile(tmx_file)
+
         else:
             # We assume it is a TSV
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
