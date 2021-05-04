@@ -178,6 +178,7 @@ class User(UserMixin, db.Model):
     banned          = db.Column(db.Boolean, default=False)
     lang            = db.Column(db.String(32))
     avatar_url      = db.Column(db.String(250))
+    notes = db.Column(db.String(280))
 
     corpora = association_proxy("user_corpora", "corpora")
     engines = association_proxy("user_engines", "engines")
