@@ -27,6 +27,14 @@
         </div>
         <div class="row mt-2">
             <div class="col-4">
+                <label for="userEmail">Role</label>
+            </div>
+            <div class="col-6">
+                {{ 'Admin' if user.admin else ('Expert' if user.expert else 'Beginner') }}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-4">
                 <label for="userNotes">Notes</label>
             </div>
             <div class="col-6">
