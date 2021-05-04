@@ -16,6 +16,7 @@ $FLAGS \
 -d \
 --name mutnmt \
 -p $PORT:5000 \
--v $(pwd)/app/preloaded:/opt/mutnmt/app/preloaded \
+-e DEBUG=1 \
+-v $(pwd)/app:/opt/mutnmt/app \
 -v $(pwd)/data:/opt/mutnmt/data \
 $IMAGE
