@@ -144,6 +144,12 @@
                                         {{ message }}
                                     {% endif %}
                                 </p>
+
+                                {% if category == Flash.ERROR.value %}
+                                <p class="mt-2 mb-0">
+                                    Contact: <a href="mailto:multitrainmt@uab.cat">multitrainmt@uab.cat</a>
+                                </p>
+                                {% endif %}
                         </div>
                         {% endfor %}
                     {% endif %}
