@@ -3,12 +3,19 @@ version: '3.1'
 services:
     mutnmt:
         container_name: mutnmt
-        build: .
-        image: mutnmt
+        image: mutnmt:latest
         ports:
             - 5000:5000
         environment: 
-            - DEBUG=1
+            - DEBUG=0
         volumes:
-            - ./app:/opt/mutnmt/app
-        entrypoint: 'tail -f /dev/null'
+            - ./data:/opt/mutnmt/data
+            - ./app/preloaded:/opt/mutnmt/app/preloaded
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        -
+                            driver: nvidia
+                            count: all
+                            capabilities: [gpu, utility]
