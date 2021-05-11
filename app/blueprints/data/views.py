@@ -1,9 +1,9 @@
 from app import app, db
-from app.models import File, Corpus, Corpus_File, LibraryCorpora, User, Language
+from app.models import File, Corpus, Corpus_File, LibraryCorpora, User, UserLanguage
 from app.utils import utils, user_utils, data_utils, tasks
 from app.flash import Flash
 from flask import Blueprint, render_template, request, jsonify, flash, url_for, redirect
-from flask_login import login_required
+from flask_login import login_required, current_user
 from sqlalchemy import desc
 
 import os
@@ -37,8 +37,45 @@ def data_upload_perform():
 
     try:
         if request.method == 'POST':
+
+            # Handle possible custom languages
+            def add_custom_language(code, name):
+                custom_language = UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()
+
+                if custom_language:
+                    custom_language.name = custom_src_lang_name
+                    db.session.commit()
+                else:
+                    custom_language = UserLanguage(code=code, name=name, user_id=current_user.id)
+                    db.session.add(custom_language)
+                    db.session.commit()
+
+                return UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()
+
+            source_lang = request.form.get('source_lang')
+            target_lang = request.form.get('target_lang')
+
+            custom_src_lang_code = request.form.get('sourceCustomLangCode')
+            custom_trg_lang_code = request.form.get('targetCustomLangCode')
+
+            if custom_src_lang_code:
+                custom_src_lang_name = request.form.get('sourceCustomLangName')
+                custom_lang = add_custom_language(custom_src_lang_code, custom_src_lang_name)
+
+                source_lang = custom_lang.id
+            else:
+                source_lang = UserLanguage.query.filter_by(code=source_lang, user_id=current_user.id).one().id
+
+            if custom_trg_lang_code:
+                custom_trg_lang_name = request.form.get('targetCustomLangName')
+                custom_lang = add_custom_language(custom_trg_lang_code, custom_trg_lang_name)
+
+                target_lang = custom_lang.id
+            else:
+                target_lang = UserLanguage.query.filter_by(code=target_lang, user_id=current_user.id).one().id
+
             task_id = data_utils.process_upload_request(user_utils.get_uid(), request.files.get('bitext_file'), request.files.get('source_file'),
-                    request.files.get('target_file'), request.form.get('source_lang'), request.form.get('target_lang'),
+                    request.files.get('target_file'), source_lang, target_lang,
                     request.form.get('name'), request.form.get('description'), request.form.get('topic'))
 
             return jsonify({ "result": 200, "task_id": task_id })

@@ -14,7 +14,7 @@ from app.models import Topic
 
 # revision identifiers, used by Alembic.
 revision = '1b6f00354bc0'
-down_revision = 'ee1a8f76afb4'
+down_revision = None
 branch_labels = None
 depends_on = None
 

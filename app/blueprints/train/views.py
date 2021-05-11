@@ -1,11 +1,12 @@
 from app import app, db
 from app.flash import Flash
-from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File, Language
+from app.models import LibraryCorpora, LibraryEngine, Engine, File, Corpus_Engine, Corpus, User, Corpus_File, Language, \
+    UserLanguage
 from app.utils import user_utils, utils, data_utils, tensor_utils, tasks, training_log
 from app.utils.trainer import Trainer
 from app.utils.power import PowerUtils
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
-from flask_login import login_required
+from flask_login import login_required, current_user
 from sqlalchemy import func
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import namegenerator
@@ -59,7 +60,7 @@ def train_index():
 
     library_corpora = user_utils.get_user_corpora().filter(LibraryCorpora.corpus.has(Corpus.type == "bilingual")).all()
     corpora = [c.corpus for c in library_corpora]
-    languages = Language.query.all()
+    languages = UserLanguage.query.filter_by(user_id=current_user.id).all()
 
     return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,

@@ -1,4 +1,4 @@
-"""empty message
+"""User notes
 
 Revision ID: c0c7a3a22cd8
 Revises: 54d22e46348c
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'c0c7a3a22cd8'
-down_revision = '54d22e46348c'
+down_revision = '1b6f00354bc0'
 branch_labels = None
 depends_on = None
 
