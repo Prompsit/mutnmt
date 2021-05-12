@@ -47,7 +47,7 @@ def file_reader(file_path, start = None, offset = None):
 def file_length(file_path):
     if os.path.exists(file_path):
         i = None
-        with open(file_path, 'r') as file_reader:
+        with open(file_path, 'rb') as file_reader:
             for i, line in enumerate(file_reader):
                 pass
 
@@ -109,3 +109,4 @@ def get_task_result(task, task_id):
             return False, e
     else:
         return None, None
+
