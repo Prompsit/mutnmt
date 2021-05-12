@@ -34,8 +34,8 @@ class Config(object):
     ENABLE_NEW_LOGINS           = False
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> require HTTPS
-    GOOGLE_OAUTH_CLIENT_ID      = '287276292009-58fqifvjcdll7lqj1c64al1sv4kh6bgq.apps.googleusercontent.com'
-    GOOGLE_OAUTH_CLIENT_SECRET  = '3_ayVdynWW42MnvWh_UC-_nL'
+    GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
+    GOOGLE_OAUTH_CLIENT_SECRET  = 'dACUBYZhq4tEdR_wnbodWfGx'
     GOOGLE_USER_DATA_URL        = '/oauth2/v1/userinfo'
     USE_PROXY_FIX = True
 
