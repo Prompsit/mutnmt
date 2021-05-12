@@ -4,7 +4,6 @@ from app.utils import utils
 from flask_login import UserMixin
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin, SQLAlchemyStorage
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 import datetime
 
@@ -12,6 +11,16 @@ class Language(db.Model):
     __tablename__ = 'language'
     code = db.Column(db.String(3), primary_key=True)
     name = db.Column(db.String(64))
+
+class UserLanguage(db.Model):
+    __tablename__ = 'user_language'
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(3))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    name = db.Column(db.String(64))
+    user = db.relationship("User", backref="languages")
+
+    unique_keys = db.UniqueConstraint('code, user_id')
 
 class Resource(db.Model):
     __tablename__ = 'resource'
@@ -34,13 +43,14 @@ class File(Resource):
     chars = db.Column(db.Integer)
 
     language_id = db.Column(db.String(3), db.ForeignKey('language.code'))
-    language = db.relationship("Language", backref="files")
+    user_language_id = db.Column(db.Integer, db.ForeignKey('user_language.id'))
+    language = db.relationship("UserLanguage", backref="files")
 
 
 class Engine(Resource):
     __tablename__ = 'engine'
     id = db.Column(db.Integer, db.ForeignKey('resource.id'), primary_key=True)
-    
+
     description = db.Column(db.String(280))
     status = db.Column(db.String(64))
     launched = db.Column(db.DateTime)
@@ -55,10 +65,12 @@ class Engine(Resource):
     test_score = db.Column(db.Float)
 
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
-    source = db.relationship("Language", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[source_id])
+    user_source_id = db.Column(db.Integer, db.ForeignKey('user_language.id'))
+    source = db.relationship("UserLanguage", backref = db.backref("engines_source", cascade="all, delete-orphan"), foreign_keys=[user_source_id])
 
     target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
-    target = db.relationship("Language", backref = db.backref("engines_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
+    user_target_id = db.Column(db.Integer, db.ForeignKey('user_language.id'))
+    target = db.relationship("UserLanguage", backref = db.backref("engines_target", cascade="all, delete-orphan"), foreign_keys=[user_target_id])
 
     def __repr__(self):
         return "Engine {}, {}, {}, {}".format(self.name, self.status, self.source_id, self.target_id)
@@ -91,11 +103,14 @@ class Corpus(db.Model):
 
     files = association_proxy("corpus_files", "files")
 
+    # Deprecated
     source_id = db.Column(db.String(3), db.ForeignKey('language.code'))
-    source = db.relationship("Language", backref = db.backref("corpus_source", cascade="all, delete-orphan"), foreign_keys=[source_id])
+    user_source_id = db.Column(db.Integer, db.ForeignKey('user_language.id'))
+    source = db.relationship("UserLanguage", backref = db.backref("corpus_source", cascade="all, delete-orphan"), foreign_keys=[user_source_id])
 
     target_id = db.Column(db.String(3), db.ForeignKey('language.code'))
-    target = db.relationship("Language", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[target_id])
+    user_target_id = db.Column(db.Integer, db.ForeignKey('user_language.id'))
+    target = db.relationship("UserLanguage", backref = db.backref("corpus_target", cascade="all, delete-orphan"), foreign_keys=[user_target_id])
 
     topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'))
     topic = db.relationship("Topic", backref = db.backref("corpus_topic"))

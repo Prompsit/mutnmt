@@ -43,6 +43,17 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
         # We save it
         file.seek(0)
         file.save(path)
+
+        # Convert whatever format this has to UTF-8
+        convert_process = subprocess.Popen(
+            "cat {path} | iconv -f $(cat {path} | head -n 1000 | chardetect | awk '{{print $2}}') -t utf-8 > {path}.utf8".format(path=path),
+            shell=True
+        )
+        convert_process.wait()
+
+        replace_process = subprocess.Popen("mv {path}.utf8 {path}".format(path=path), shell=True)
+        replace_process.wait()
+
         hash = utils.hash(file)
 
         if selected_size is not None:
@@ -68,7 +79,7 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
         lines, words, chars = wc_output_search.group(2),  wc_output_search.group(4),  wc_output_search.group(6)
 
         # Save in DB
-        db_file = File(path = path, name = file.filename, language_id = language,
+        db_file = File(path = path, name = file.filename, user_language_id = language,
                         hash = hash, uploader_id = user_id,
                         lines = lines, words = words, chars = chars,
                         uploaded = datetime.datetime.utcnow())

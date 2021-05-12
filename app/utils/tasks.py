@@ -1,3 +1,6 @@
+from flask import url_for
+from flask_login import current_user
+
 from app import app, db
 from app.utils import user_utils, data_utils, utils, ttr
 from app.utils.power import PowerUtils
@@ -7,7 +10,8 @@ from app.utils.translation.filetranslation import FileTranslation
 from app.utils.translation.joeywrapper import JoeyWrapper
 from app.utils.trainer import Trainer
 from app.utils.tokenizer import Tokenizer
-from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines, LibraryCorpora
+from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines, LibraryCorpora, \
+    UserLanguage
 from app.flash import Flash
 from celery import Celery
 from werkzeug.datastructures import FileStorage
@@ -80,14 +84,14 @@ def launch_training(self, user_id, engine_path, params):
                 # which corpora were used to train the engine
                 engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True, selected_size=corpus_size))
 
-                corpus.source_id = og_corpus.source_id
-                corpus.target_id = og_corpus.target_id
+                corpus.user_source_id = og_corpus.user_source_id
+                corpus.user_target_id = og_corpus.user_target_id
                 for file_entry in og_corpus.corpus_files:
                     with open(file_entry.file.path, 'rb') as file_d:
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
-                                    file_entry.file.language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
+                                    file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.language_id == source_lang else "target"))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang else "target"))
                     used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
@@ -120,9 +124,13 @@ def launch_training(self, user_id, engine_path, params):
 
         engine.name = params['nameText']
         engine.description = params['descriptionText']
-        engine.source_id = params['source_lang']
-        engine.target_id = params['target_lang']
         engine.model_path = os.path.join(engine.path, "model")
+
+        source_lang = UserLanguage.query.filter_by(code=params['source_lang'], user_id=user_id).one()
+        engine.user_source_id = source_lang.id
+
+        target_lang = UserLanguage.query.filter_by(code=params['target_lang'], user_id=user_id).one()
+        engine.user_target_id = target_lang.id
 
         engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
         engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
@@ -599,9 +607,9 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         db_file = data_utils.upload_file(file, language, user_id=user_id)
 
         if role == "source":
-            corpus.source_id = language
+            corpus.user_source_id = language
         else:
-            corpus.target_id = language
+            corpus.user_target_id = language
         
         db.session.add(db_file)
         corpus.corpus_files.append(Corpus_File(db_file, role=role))
