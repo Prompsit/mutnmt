@@ -48,7 +48,7 @@ def evaluate_files():
     mt_paths = []
     for mt_file in mt_files:
         mt_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), mt_file.filename))
-        save_file(mt_file, mt_path)
+        mt_file.save(mt_path)
 
         if not line_length:
             line_length = utils.file_length(mt_path)
@@ -60,7 +60,7 @@ def evaluate_files():
     ht_paths = []
     for ht_file in ht_files:
         ht_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), ht_file.filename))
-        save_file(ht_file, ht_path)
+        ht_file.save(ht_path)
 
         if not line_length:
             line_length = utils.file_length(ht_path)
@@ -71,7 +71,7 @@ def evaluate_files():
 
     if source_file:
         source_path = utils.filepath('FILES_FOLDER', utils.normname(user_utils.get_uid(), source_file.filename))
-        save_file(source_file, source_path)
+        source_file.save(source_path)
     
         if utils.file_length(ht_path) != utils.file_length(source_path):
             return ({ "result": "-1" })
