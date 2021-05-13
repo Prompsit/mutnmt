@@ -48,7 +48,7 @@ def file_length(file_path):
     if os.path.exists(file_path):
         i = None
         with open(file_path, 'rb') as file_reader:
-            for i, line in enumerate(file_reader):
+            for i, _ in enumerate(file_reader):
                 pass
 
         return i + 1 if i else None
