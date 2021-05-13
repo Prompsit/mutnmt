@@ -45,14 +45,7 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
         file.save(path)
 
         # Convert whatever format this has to UTF-8
-        convert_process = subprocess.Popen(
-            "cat {path} | iconv -f $(cat {path} | head -n 1000 | chardetect | awk '{{print $2}}') -t utf-8 > {path}.utf8".format(path=path),
-            shell=True
-        )
-        convert_process.wait()
-
-        replace_process = subprocess.Popen("mv {path}.utf8 {path}".format(path=path), shell=True)
-        replace_process.wait()
+        convert_file_to_utf8(path)
 
         hash = utils.hash(file)
 
@@ -224,3 +217,15 @@ def tokenize(corpus, engine):
                     for line in file:
                         line_encoded = sp.EncodeAsPieces(line)
                         print(" ".join(line_encoded), file=file_tok)
+
+
+def convert_file_to_utf8(path):
+    convert_process = subprocess.Popen(
+        "cat {path} | iconv -f $(cat {path} | head -n 1000 | chardetect | awk '{{print $2}}') -t utf-8 > {path}.utf8".format(
+            path=path),
+        shell=True
+    )
+    convert_process.wait()
+
+    replace_process = subprocess.Popen("mv {path}.utf8 {path}".format(path=path), shell=True)
+    replace_process.wait()

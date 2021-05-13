@@ -439,17 +439,19 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
     # Transform utf-8 with BOM (if it is) to utf-8
     for path in (mt_paths + ht_paths + [source_path]):
         if path:
+            data_utils.convert_file_to_utf8(path)
+
             noBOM = subprocess.Popen("sed -i '1s/^\xEF\xBB\xBF//' {}".format(path), 
                             cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
             noBOM.wait()
 
-            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
-                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
-            noBlankLines.wait()
-
             fixNewlines = subprocess.Popen("cat {path} | tr '\r\n' '\n' > {path}.fix && mv {path}.fix {path}".format(path=path),
                             cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
             fixNewlines.wait()
+
+            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
+                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
+            noBlankLines.wait()
 
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
