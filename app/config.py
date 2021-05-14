@@ -30,8 +30,8 @@ class Config(object):
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
     USER_LOGIN_ENABLED          = True
-    USER_WHITELIST_ENABLED      = False
-    ENABLE_NEW_LOGINS           = False
+    ENABLE_NEW_LOGINS           = True
+    USER_WHITELIST_ENABLED      = True
     BANNED_USERS                = []
     OAUTHLIB_INSECURE_TRANSPORT = True # True also behind firewall,  False -> require HTTPS
     GOOGLE_OAUTH_CLIENT_ID      = '287276292009-73t2rcgnrc7nq7bcam1arjmkn6okdfk7.apps.googleusercontent.com'
