@@ -15,17 +15,6 @@
 {% block content %}
 <h2 class="h5">Train a neural engine</h2>
 
-<div class="my-3 small">
-    <strong>
-        <i class="fas fa-info-circle"></i>
-        Only expert users are allowed to train engines.
-    </strong>
-
-    <p class="mb-0">
-        You can promote any beginner user to expert in <a href="{{ url_for('admin.admin_index') }}">Admin / Users</a>.
-    </p>
-</div>
-
 {% if corpora | length == 0 %}
 <div class="jumbotron p-3 text-center">
     <p class="h6 m-0">

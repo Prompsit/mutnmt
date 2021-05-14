@@ -16,7 +16,8 @@ app.jinja_env.globals.update(**{
     "int": int,
     "Flash": flash.Flash,
     "len": len,
-    "infix": app.config['INFIX']
+    "infix": app.config['INFIX'],
+    "ADMIN_EMAIL": app.config['ADMIN_EMAIL']
 })
 
 @app.route('/')

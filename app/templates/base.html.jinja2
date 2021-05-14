@@ -120,6 +120,17 @@
                             </div>
                         </div>
 
+                        {% if not current_user.admin and not current_user.expert %}
+                            <hr />
+                            <div class="mt-4 small d-flex align-items-center">
+                                <i class="fas fa-lightbulb"></i>
+                                <div class="ml-2">
+                                    Feeling like an expert user? <br />
+                                    Tell <a href="mailto:{{ ADMIN_EMAIL }}">your admin!</a>
+                                </div>
+                            </div>
+                        {% endif %}
+
                         <div class="text-center mt-4">
                             <a href="{{ url_for('auth.logout') }}" class="text-danger">
                                 <i class="fas fa-power-off"></i> Sign out
