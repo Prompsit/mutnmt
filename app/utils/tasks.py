@@ -96,8 +96,12 @@ def launch_training(self, user_id, engine_path, params):
             except:
                 raise Exception
 
-        db.session.add(corpus)
-        db.session.commit()
+        try:
+            db.session.add(corpus)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise Exception
 
         # We put the contents of the several files in a new single one, and we shuffle the sentences
         try:
