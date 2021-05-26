@@ -287,39 +287,43 @@ def monitor_training(self, engine_id):
 
 @celery.task(bind=True)
 def test_training(self, engine_id):
-    engine = Engine.query.filter_by(id=engine_id).first()
-    test_dec_file = Corpus_File.query.filter_by(role = "target") \
-                    .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
-                    .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
+    try:
+        engine = Engine.query.filter_by(id=engine_id).first()
+        test_dec_file = Corpus_File.query.filter_by(role = "target") \
+                        .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
+                        .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
 
-    bleu = 0.0
+        bleu = 0.0
 
-    _, hyps_tmp_file = utils.tmpfile()
-    _, test_crop_file = utils.tmpfile()
-    joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
-                                        .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
-                                        cwd=app.config['JOEYNMT_FOLDER'], shell=True)
-    joey_translate.wait()
+        _, hyps_tmp_file = utils.tmpfile()
+        _, test_crop_file = utils.tmpfile()
+        joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate {} > {}" \
+                                            .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
+                                            cwd=app.config['JOEYNMT_FOLDER'], shell=True)
+        joey_translate.wait()
 
-    decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
-                                        .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
-                                        cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    decode_hyps.wait()
+        decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
+                                            .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
+                                            cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        decode_hyps.wait()
 
-    crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    crop_test.wait()
+        crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        crop_test.wait()
 
-    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file), 
-                        cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
-    sacreBLEU.wait()
+        sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file),
+                            cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
+        sacreBLEU.wait()
 
-    score = sacreBLEU.stdout.readline().decode("utf-8")
+        score = sacreBLEU.stdout.readline().decode("utf-8")
 
-    engine.test_task_id = None
-    engine.test_score = float(score)
-    db.session.commit()
+        engine.test_task_id = None
+        engine.test_score = float(score)
+        db.session.commit()
 
-    return { "bleu": float(score) }
+        return { "bleu": float(score) }
+    except Exception as e:
+        db.session.rollback()
+        raise e
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
