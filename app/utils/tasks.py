@@ -360,12 +360,18 @@ def translate_text(self, user_id, engine_id, lines, is_admin):
             for sentence in sent_tokenize(line):
                 line_tok = tokenizer.tokenize(sentence)
                 translation = translator.translate(line_tok)
-                if translation is not None: 
+                if translation is not None:
                     translations.append(tokenizer.detokenize(translation))
                 else:
                     translations.append("")
         else:
             translations.append("")
+
+    try:
+        db.session.delete(RunningEngines.query.filter_by(user_id=user_id).first())
+        db.session.commit()
+    except:
+        db.session.rollback()
 
     del translator
     return translations
