@@ -43,12 +43,12 @@ $(document).ready(function() {
 
                         $(template).find(".become-admin").attr("href", "become/admin/" + row[0]);
                         $(template).find(".become-expert").attr("href", "become/expert/" + row[0]);
-                        $(template).find(".become-normal").attr("href", "become/normal/" + row[0]);
+                        $(template).find(".become-normal").attr("href", "become/beginner/" + row[0]);
 
                         $(template).find('.become-btn').removeClass('d-none');
-                        if (row[5]) { // is admin
+                        if (row[6]) { // is admin
                             $(template).find(".become-admin").addClass("d-none");
-                        } else if (row[6]) { // is expert
+                        } else if (row[7]) { // is expert
                             $(template).find(".become-expert").addClass("d-none");
                         } else {
                             $(template).find(".become-normal").addClass("d-none");

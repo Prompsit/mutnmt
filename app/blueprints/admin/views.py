@@ -209,7 +209,6 @@ def become(type, id):
 
         user.expert = (type == "expert")
         user.admin = (type == "admin")
-        user.normal = (type == "normal")
 
         db.session.commit()
 
