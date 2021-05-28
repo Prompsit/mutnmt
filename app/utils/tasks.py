@@ -639,6 +639,8 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         tmp_file_fd, tmp_path = utils.tmpfile()
         file.save(tmp_path)
 
+        data_utils.convert_file_to_utf8(tmp_path)
+
         if file_extension == ".tmx":
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'w') as src_file, \
             open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'w') as trg_file, \
