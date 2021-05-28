@@ -57,6 +57,15 @@ for running_engine in models.RunningEngines.query.all():
     db.session.delete(running_engine)    
     db.session.commit()
 
+TOPICS = ["General", "Technical", "Legal", "Financial", "Medical", "Religion", "Politics", "Administrative",
+          "Subtitles", "Patents", "News", "Books", "Other"]
+
+for topic in TOPICS:
+    if models.Topic.query.filter_by(name=topic).first() is None:
+        topic_obj = models.Topic(name=topic)
+        db.session.add(topic_obj)
+db.session.commit()
+
 folders = ['USERSPACE_FOLDER', 'STORAGE_FOLDER', 'FILES_FOLDER', 'ENGINES_FOLDER', 'USERS_FOLDER']
 
 for folder in folders:

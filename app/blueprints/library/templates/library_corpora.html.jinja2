@@ -49,22 +49,81 @@
                         <div class="col-12 col-sm-8">
                             <div class="row">
                                 <div class="col-6">
-                                    <label for="source_lang">Source language</label>
-                                    <select class="custom-select mb-2 lang_sel source_lang" name="source_lang">
-                                        {% for language in languages %}
-                                            <option value="{{ language.code }}">{{ language.name }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <div id="sourceDefaultLangs">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <label for="source_lang">Source language</label>
+
+                                            <a title="Switch to custom language" aria-label="Switch to custom language"
+                                                href="#" role="button" class="lang-mode-switch lang-mode-switch-source lang-mode-to-custom">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                        </div>
+
+                                        <select class="custom-select mb-2 lang_sel source_lang" name="source_lang">
+                                            {% for language in languages %}
+                                                <option value="{{ language.code }}">{{ language.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div id="sourceCustomLangs" class="d-none">
+                                         <div class="d-flex align-items-center justify-content-between">
+                                            <label for="sourceCustomLangCode">Custom source language</label>
+
+                                            <a title="Switch to custom language" aria-label="Switch to default languages"
+                                                href="#" role="button" class="lang-mode-switch lang-mode-switch-source lang-mode-to-default">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"
+                                                   name="sourceCustomLangCode" id="sourceCustomLangCode"
+                                                    placeholder="EG" style="flex: 0 1 25%;" maxlength="3" />
+
+                                            <input type="text" class="form-control"
+                                                   name="sourceCustomLangName" id="sourceCustomLangName"
+                                                    placeholder="Hieroglyphs" />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="col-6 target-lang-col">
-                                    <label for="target_lang">Target language</label>
-                                    <select class="custom-select mb-2 lang_sel target_lang" name="target_lang">
-                                        {% for language in languages[1:] %}
-                                            <option value="{{ language.code }}">{{ language.name }}</option>
-                                        {% endfor %}
-                                            <option value="{{ languages[0].code }}">{{ languages[0].name }}</option>
-                                    </select>
+                                    <div id="targetDefaultLangs">
+                                       <div class="d-flex align-items-center justify-content-between">
+                                            <label for="source_lang">Target language</label>
+
+                                            <a title="Switch to custom language" aria-label="Switch to custom language"
+                                                href="#" role="button" class="lang-mode-switch lang-mode-switch-target lang-mode-to-custom">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                        </div>
+                                        <select class="custom-select mb-2 lang_sel target_lang" name="target_lang">
+                                            {% for language in languages[1:] %}
+                                                <option value="{{ language.code }}">{{ language.name }}</option>
+                                            {% endfor %}
+                                                <option value="{{ languages[0].code }}">{{ languages[0].name }}</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="targetCustomLangs" class="d-none">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <label for="targetCustomLangCode">Custom target language</label>
+
+                                            <a title="Switch to custom language" aria-label="Switch to default languages"
+                                                href="#" role="button" class="lang-mode-switch lang-mode-switch-target lang-mode-to-default">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control"
+                                                   name="targetCustomLangCode" id="targetCustomLangCode"
+                                                    placeholder="TLH" style="flex: 0 1 25%;" maxlength="3" />
+
+                                            <input type="text" class="form-control"
+                                                   name="targetCustomLangName" id="targetCustomLangName"
+                                                    placeholder="Klingon" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

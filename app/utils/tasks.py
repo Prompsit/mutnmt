@@ -1,3 +1,6 @@
+from flask import url_for
+from flask_login import current_user
+
 from app import app, db
 from app.utils import user_utils, data_utils, utils, ttr
 from app.utils.power import PowerUtils
@@ -7,14 +10,14 @@ from app.utils.translation.filetranslation import FileTranslation
 from app.utils.translation.joeywrapper import JoeyWrapper
 from app.utils.trainer import Trainer
 from app.utils.tokenizer import Tokenizer
-from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines, LibraryCorpora
+from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, LibraryEngine, RunningEngines, LibraryCorpora, \
+    UserLanguage
 from app.flash import Flash
 from celery import Celery
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
-from lxml import etree
-
+import xml.parsers.expat
 
 import pyter
 import xlsxwriter
@@ -66,6 +69,7 @@ def launch_training(self, user_id, engine_path, params):
 
     def join_corpora(list_name, phase, source_lang, target_lang):
         corpus = Corpus(owner_id=user_id, visible=False)
+        source_lang_id = UserLanguage.query.filter_by(user_id=user_id, code=source_lang).one().id
         for train_corpus in params[list_name]:
             corpus_data = json.loads(train_corpus)
             corpus_id = corpus_data['id']
@@ -81,20 +85,24 @@ def launch_training(self, user_id, engine_path, params):
                 # which corpora were used to train the engine
                 engine.engine_corpora.append(Corpus_Engine(corpus=og_corpus, engine=engine, phase=phase, is_info=True, selected_size=corpus_size))
 
-                corpus.source_id = og_corpus.source_id
-                corpus.target_id = og_corpus.target_id
+                corpus.user_source_id = og_corpus.user_source_id
+                corpus.user_target_id = og_corpus.user_target_id
                 for file_entry in og_corpus.corpus_files:
                     with open(file_entry.file.path, 'rb') as file_d:
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
-                                    file_entry.file.language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
+                                    file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.language_id == source_lang else "target"))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang_id else "target"))
                     used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
 
-        db.session.add(corpus)
-        db.session.commit()
+        try:
+            db.session.add(corpus)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise Exception
 
         # We put the contents of the several files in a new single one, and we shuffle the sentences
         try:
@@ -121,9 +129,13 @@ def launch_training(self, user_id, engine_path, params):
 
         engine.name = params['nameText']
         engine.description = params['descriptionText']
-        engine.source_id = params['source_lang']
-        engine.target_id = params['target_lang']
         engine.model_path = os.path.join(engine.path, "model")
+
+        source_lang = UserLanguage.query.filter_by(code=params['source_lang'], user_id=user_id).one()
+        engine.user_source_id = source_lang.id
+
+        target_lang = UserLanguage.query.filter_by(code=params['target_lang'], user_id=user_id).one()
+        engine.user_target_id = target_lang.id
 
         engine.engine_corpora.append(Corpus_Engine(corpus=train_corpus, engine=engine, phase="train"))
         engine.engine_corpora.append(Corpus_Engine(corpus=dev_corpus, engine=engine, phase="dev"))
@@ -276,39 +288,43 @@ def monitor_training(self, engine_id):
 
 @celery.task(bind=True)
 def test_training(self, engine_id):
-    engine = Engine.query.filter_by(id=engine_id).first()
-    test_dec_file = Corpus_File.query.filter_by(role = "target") \
-                    .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
-                    .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
+    try:
+        engine = Engine.query.filter_by(id=engine_id).first()
+        test_dec_file = Corpus_File.query.filter_by(role = "target") \
+                        .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
+                        .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
 
-    bleu = 0.0
+        bleu = 0.0
 
-    _, hyps_tmp_file = utils.tmpfile()
-    _, test_crop_file = utils.tmpfile()
-    joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
-                                        .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
-                                        cwd=app.config['JOEYNMT_FOLDER'], shell=True)
-    joey_translate.wait()
+        _, hyps_tmp_file = utils.tmpfile()
+        _, test_crop_file = utils.tmpfile()
+        joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate {} > {}" \
+                                            .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
+                                            cwd=app.config['JOEYNMT_FOLDER'], shell=True)
+        joey_translate.wait()
 
-    decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
-                                        .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
-                                        cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    decode_hyps.wait()
+        decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
+                                            .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
+                                            cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        decode_hyps.wait()
 
-    crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    crop_test.wait()
+        crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        crop_test.wait()
 
-    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file), 
-                        cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
-    sacreBLEU.wait()
+        sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file),
+                            cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
+        sacreBLEU.wait()
 
-    score = sacreBLEU.stdout.readline().decode("utf-8")
+        score = sacreBLEU.stdout.readline().decode("utf-8")
 
-    engine.test_task_id = None
-    engine.test_score = float(score)
-    db.session.commit()
+        engine.test_task_id = None
+        engine.test_score = float(score)
+        db.session.commit()
 
-    return { "bleu": float(score) }
+        return { "bleu": float(score) }
+    except Exception as e:
+        db.session.rollback()
+        raise e
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
@@ -345,12 +361,18 @@ def translate_text(self, user_id, engine_id, lines, is_admin):
             for sentence in sent_tokenize(line):
                 line_tok = tokenizer.tokenize(sentence)
                 translation = translator.translate(line_tok)
-                if translation is not None: 
+                if translation is not None:
                     translations.append(tokenizer.detokenize(translation))
                 else:
                     translations.append("")
         else:
             translations.append("")
+
+    try:
+        db.session.delete(RunningEngines.query.filter_by(user_id=user_id).first())
+        db.session.commit()
+    except:
+        db.session.rollback()
 
     del translator
     return translations
@@ -432,17 +454,19 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
     # Transform utf-8 with BOM (if it is) to utf-8
     for path in (mt_paths + ht_paths + [source_path]):
         if path:
+            data_utils.convert_file_to_utf8(path)
+
             noBOM = subprocess.Popen("sed -i '1s/^\xEF\xBB\xBF//' {}".format(path), 
                             cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
             noBOM.wait()
 
-            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
-                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
-            noBlankLines.wait()
-
             fixNewlines = subprocess.Popen("cat {path} | tr '\r\n' '\n' > {path}.fix && mv {path}.fix {path}".format(path=path),
                             cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
             fixNewlines.wait()
+
+            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
+                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
+            noBlankLines.wait()
 
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
@@ -600,9 +624,9 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         db_file = data_utils.upload_file(file, language, user_id=user_id)
 
         if role == "source":
-            corpus.source_id = language
+            corpus.user_source_id = language
         else:
-            corpus.target_id = language
+            corpus.user_target_id = language
         
         db.session.add(db_file)
         corpus.corpus_files.append(Corpus_File(db_file, role=role))
@@ -615,22 +639,47 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         tmp_file_fd, tmp_path = utils.tmpfile()
         file.save(tmp_path)
 
+        data_utils.convert_file_to_utf8(tmp_path)
+
         if file_extension == ".tmx":
-            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \
-            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'wb') as trg_file, \
-            open(tmp_path, 'r') as tmx_file:
-                tmx = etree.parse(tmx_file, etree.XMLParser())
-                body = tmx.getroot().find("body")
+            with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'w') as src_file, \
+            open(utils.filepath('FILES_FOLDER', norm_name + "-trg"), 'w') as trg_file, \
+            open(tmp_path, 'rb') as tmx_file:
+                inside_tuv = False
+                seg_text = []
+                tu = []
 
-                for tu in body.findall('.//tu'):
-                    for i, tuv in enumerate(tu.findall('.//tuv')):
-                        if i > 1: break
-                        line = tuv.find("seg").text.strip()
-                        line = re.sub(r'[\r\n\t\f\v]', " ", line)
-                        dest_file = src_file if i == 0 else trg_file
+                def se(name, _):
+                    nonlocal inside_tuv
+                    if name == "seg":
+                        inside_tuv = True
 
-                        dest_file.write(line.encode('utf-8'))
-                        dest_file.write(os.linesep.encode('utf-8'))
+                def lp(line):
+                    return re.sub(r'[\r\n\t\f\v]', " ", line.strip())
+
+                def ee(name):
+                    nonlocal inside_tuv, seg_text, tu, src_file
+                    if name == "seg":
+                        inside_tuv = False
+                        tu.append("".join(seg_text))
+                        seg_text = []
+
+                        if len(tu) == 2:
+                            print(lp(tu[0]), file=src_file)
+                            print(lp(tu[1]), file=trg_file)
+                            tu = []
+
+                def cd(data):
+                    nonlocal inside_tuv, seg_text
+                    if inside_tuv:
+                        seg_text.append(data)
+
+                parser = xml.parsers.expat.ParserCreate()
+                parser.StartElementHandler = se
+                parser.EndElementHandler = ee
+                parser.CharacterDataHandler = cd
+                parser.ParseFile(tmx_file)
+
         else:
             # We assume it is a TSV
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'wb') as src_file, \

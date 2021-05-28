@@ -29,6 +29,8 @@ class Config(object):
     # Uncomment it to enable translations. Follow instructions in README.md to add more languages
     LANGUAGES = { 'ca': 'Català', 'en': 'English', 'es': 'Spanish' }
 
+    ADMIN_EMAIL = ""
+
     USER_LOGIN_ENABLED          = True
     ENABLE_NEW_LOGINS           = True
     USER_WHITELIST_ENABLED      = True

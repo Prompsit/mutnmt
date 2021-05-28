@@ -1,9 +1,10 @@
 from app import app, db
-from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, Language, Corpus_Engine, Topic
+from app.models import User, File, LibraryCorpora, LibraryEngine, Resource, Engine, Corpus, Corpus_File, LibraryEngine, \
+    Language, Corpus_Engine, Topic, UserLanguage
 from app.utils import user_utils, utils, datatables, tensor_utils, training_log
 from app.utils.power import PowerUtils
 from app.flash import Flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 from sqlalchemy import and_, not_
 from sqlalchemy.orm import load_only
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify, send_file
@@ -26,7 +27,7 @@ def library_corpora():
     user_library = user_utils.get_user_corpora().count()
     public_files = user_utils.get_user_corpora(public=True).count()
 
-    languages = Language.query.all()
+    languages = UserLanguage.query.filter_by(user_id=current_user.id).all()
     topics = Topic.query.all()
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',
@@ -67,8 +68,8 @@ def library_corpora_feed():
 
     corpus_rows = []
     for corpus in user_library:
-        corpus_rows.append([corpus.id, corpus.name, 
-                            corpus.source.name + (corpus.target.name if corpus.target else ""), 
+        corpus_rows.append([corpus.id, corpus.name,
+                            corpus.source.name + (corpus.target.name if corpus.target else ""),
                             corpus.lines(), corpus.words(), corpus.chars(),
                             corpus.uploaded()])
 

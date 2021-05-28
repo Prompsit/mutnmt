@@ -2,7 +2,7 @@ from app.models import User, Corpus, Engine, RunningEngines
 from app.utils import user_utils, utils, datatables
 from app.utils.trainer import Trainer
 from app import db, app
-from flask import Blueprint, render_template, request, jsonify, redirect
+from flask import Blueprint, render_template, request, jsonify, redirect, escape, url_for
 from flask_login import login_required
 
 import shutil
@@ -15,11 +15,30 @@ admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 @admin_blueprint.route('/')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_index():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     return render_template('users.admin.html.jinja2', page_name='admin_users', page_title='Users')
+
+@admin_blueprint.route('/user/<id>', methods=['GET', 'POST'])
+@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def user_edit(id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    user = User.query.filter_by(id=id).one()
+    if request.method == 'GET':
+        return render_template('users_edit.admin.html.jinja2', page_name='admin_users', page_title='Edit user',
+                               user=user)
+    else:
+        notes = request.form.get('userNotes')
+        user.notes = escape(notes)
+        db.session.commit()
+        return redirect(request.referrer)
 
 @admin_blueprint.route('/system')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_system():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     factor = 1073741824
     vmem = psutil.virtual_memory()
     ram = { "percent": vmem.percent, "used": round(vmem.used / factor, 2), "total": round(vmem.total / factor, 2) } # GB
@@ -46,12 +65,16 @@ def admin_system():
 @admin_blueprint.route('/instances')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def admin_instances():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     return render_template('instances.admin.html.jinja2', page_name='admin_instances', page_title='Instances')
 
 @admin_blueprint.route('/users_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def user_datatables_feed():
-    columns = [User.id, User.username, User.email]
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
+    columns = [User.id, User.username, User.email, User.notes]
     dt = datatables.Datatables()
 
     rows, rows_filtered, search = dt.parse(User, columns, request)
@@ -59,14 +82,17 @@ def user_datatables_feed():
     user_data = []
     for user in (rows_filtered if search else rows):
         user_data.append([user.id, user.username, user.email,
-                        "Admin" if user.admin else "Expert" if user.expert else "Beginner", 
-                        "", user.admin, user.expert])
+                          'Admin' if user.admin else 'Expert' if user.expert else 'Beginner',
+                          user.notes, '',
+                          user.admin, user.expert])
 
     return dt.response(rows, rows_filtered, user_data)
 
 @admin_blueprint.route('/python_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def python_feed():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     draw = request.form.get('draw')
     search = request.form.get('search[value]')
     start = int(request.form.get('start'))
@@ -114,6 +140,8 @@ def python_feed():
 @admin_blueprint.route('/instances_feed', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def instances_datatables_feed():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     columns = [Engine.id, Engine.name]
     dt = datatables.Datatables()
 
@@ -136,6 +164,8 @@ def instances_datatables_feed():
 @admin_blueprint.route('/delete_user')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def delete_user():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     id = request.args.get('id')
 
     try:
@@ -158,6 +188,8 @@ def delete_user():
 @admin_blueprint.route('/stop_engine')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def stop_engine():
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     id = request.args.get('id')
 
     try:
@@ -170,12 +202,13 @@ def stop_engine():
 @admin_blueprint.route('/become/<type>/<id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def become(type, id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     if user_utils.get_user().admin:
         user = User.query.filter_by(id = id).first()
 
         user.expert = (type == "expert")
         user.admin = (type == "admin")
-        user.normal = (type == "normal")
 
         db.session.commit()
 

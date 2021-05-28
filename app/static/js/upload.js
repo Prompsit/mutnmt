@@ -51,6 +51,23 @@ $(document).ready(function() {
         $(other).removeClass('target-col-disabled')
     });
 
+    $('.lang-mode-switch').on('click', function(e) {
+        e.preventDefault();
+
+        const target = $(this).hasClass('lang-mode-switch-source') ? 'source' : 'target';
+        if ($(this).hasClass('lang-mode-to-custom')) {
+            $(`#${target}DefaultLangs`).addClass('d-none');
+            $(`#${target}CustomLangs`).removeClass('d-none');
+        } else {
+            $(`#${target}DefaultLangs`).removeClass('d-none');
+            $(`#${target}CustomLangs`).addClass('d-none');
+
+            $(`#${target}CustomLangs input`).each(function(i, el) {
+                $(el).val('');
+            });
+        }
+    });
+
     let adjust_languages = (el) => {
         let other = $('.lang_sel').not(el);
         let selected_lang = $(el).find('option:selected').val();
@@ -91,6 +108,10 @@ $(document).ready(function() {
         data.append("topic", $("#topic option:selected").val());
         data.append("source_lang", $(".source_lang option:selected").val());
         data.append("target_lang", $(".target_lang option:selected").val());
+        data.append("sourceCustomLangCode", $("#sourceCustomLangCode").val());
+        data.append("sourceCustomLangName", $("#sourceCustomLangName").val());
+        data.append("targetCustomLangCode", $("#targetCustomLangCode").val());
+        data.append("targetCustomLangName", $("#targetCustomLangName").val());
 
         if (bitext_file) {
             data.append("bitext_file", bitext_file)

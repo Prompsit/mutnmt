@@ -2,6 +2,16 @@
 
 {% block head %}
 {% include "datatables.min.css.jinja2" %}
+
+<style>
+.notes-row .notes-link {
+    display: none;
+}
+
+.notes-row:hover .notes-link {
+    display: block;
+}
+</style>
 {% endblock %}
 
 {% block resources %}
@@ -16,7 +26,8 @@
         <th>ID</th>
         <th>Username</th>
         <th>Email</th>
-        <th>Type</th>
+        <th>Role</th>
+        <th>Notes</th>
         <th></th>
     </thead>
 </table>
@@ -28,23 +39,34 @@
                 <i class="fas fa-ellipsis-v"></i> <span class="sr-only">Options</span>
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                <a href="#" class="dropdown-item text-danger delete-user">
+                <a href="#" class="dropdown-item edit-user">
+                    <i class="fas fa-edit" style="width: 20px;"></i> Edit user notes
+                </a>
+
+                <a href="#" class="dropdown-item text-danger delete-user d-none">
                     <i class="fas fa-trash" style="width: 20px;"></i> Delete
                 </a>
 
-                <a href="#" class="dropdown-item become-admin">
+                <a href="#" class="dropdown-item become-btn become-admin d-none">
                     <i class="fas fa-user-shield" style="width: 20px;"></i> To admin account
                 </a>
 
-                <a href="#" class="dropdown-item become-expert">
+                <a href="#" class="dropdown-item become-btn become-expert d-none">
                     <i class="fas fa-user-graduate" style="width: 20px;"></i> To expert account
                 </a>
 
-                <a href="#" class="dropdown-item become-normal">
+                <a href="#" class="dropdown-item become-btn become-normal d-none">
                     <i class="fas fa-user" style="width: 20px;"></i> To beginner account
                 </a>
             </div>
         </div>
+    </div>
+</template>
+
+<template id="notes-template">
+    <div class="notes-container d-flex align-items-start justify-content-between">
+        <span class="notes-content"></span>
+        <a href="#" class="notes-link d-none" title="Edit user notes"><i class="fas fa-edit"></i></a>
     </div>
 </template>
 {% endblock %}

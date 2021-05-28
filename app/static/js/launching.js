@@ -25,5 +25,5 @@ $(document).ready(function() {
 });
 
 $(window).on('beforeunload', () => {
-    return !force_quit;
-})
+    if (!force_quit) return true;
+});

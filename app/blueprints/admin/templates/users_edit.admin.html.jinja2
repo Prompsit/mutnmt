@@ -1,0 +1,53 @@
+{% extends "admin.html.jinja2" %}
+
+{% block admin_content %}
+
+<div class="mt-4">
+    <a href="{{ url_for('admin.admin_index') }}"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="h5 mt-2">User info</div>
+</div>
+
+<form class="row mt-3" method="post">
+    <div class="col-12 col-sm-6">
+        <div class="row">
+            <div class="col-4">
+                <label for="userName">Name</label>
+            </div>
+            <div class="col-6">
+                <span id="userName">{{ user.username }}</span>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-4">
+                <label for="userEmail">Email</label>
+            </div>
+            <div class="col-6">
+                <a href="mailto:{{ user.email }}" id="userEmail">{{ user.email }}</a>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-4">
+                <label for="userEmail">Role</label>
+            </div>
+            <div class="col-6">
+                {{ 'Admin' if user.admin else ('Expert' if user.expert else 'Beginner') }}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-4">
+                <label for="userNotes">Notes</label>
+            </div>
+            <div class="col-6">
+                <textarea name="userNotes" id="userNotes" class="form-control" maxlength="280"
+                placeholder="Max 280 chars">{{ user.notes if user.notes else '' }}</textarea>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-6 offset-4 text-right">
+                <input type="reset" class="btn btn-secondary" value="Reset" />
+                <input type="submit" class="btn btn-primary" value="Update" />
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
