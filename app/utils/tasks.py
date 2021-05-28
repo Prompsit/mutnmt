@@ -69,6 +69,7 @@ def launch_training(self, user_id, engine_path, params):
 
     def join_corpora(list_name, phase, source_lang, target_lang):
         corpus = Corpus(owner_id=user_id, visible=False)
+        source_lang_id = UserLanguage.query.filter_by(user_id=user_id, code=source_lang).one().id
         for train_corpus in params[list_name]:
             corpus_data = json.loads(train_corpus)
             corpus_id = corpus_data['id']
@@ -91,13 +92,17 @@ def launch_training(self, user_id, engine_path, params):
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
                                     file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang else "target"))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang_id else "target"))
                     used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
 
-        db.session.add(corpus)
-        db.session.commit()
+        try:
+            db.session.add(corpus)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise Exception
 
         # We put the contents of the several files in a new single one, and we shuffle the sentences
         try:
@@ -283,39 +288,43 @@ def monitor_training(self, engine_id):
 
 @celery.task(bind=True)
 def test_training(self, engine_id):
-    engine = Engine.query.filter_by(id=engine_id).first()
-    test_dec_file = Corpus_File.query.filter_by(role = "target") \
-                    .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
-                    .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
+    try:
+        engine = Engine.query.filter_by(id=engine_id).first()
+        test_dec_file = Corpus_File.query.filter_by(role = "target") \
+                        .filter(Corpus_File.corpus_id.in_(db.session.query(Corpus_Engine.corpus_id) \
+                        .filter_by(engine_id=engine_id, phase = "test", is_info=False))).first().file.path
 
-    bleu = 0.0
+        bleu = 0.0
 
-    _, hyps_tmp_file = utils.tmpfile()
-    _, test_crop_file = utils.tmpfile()
-    joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate -sm {} | tail -n +2 > {}" \
-                                        .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
-                                        cwd=app.config['JOEYNMT_FOLDER'], shell=True)
-    joey_translate.wait()
+        _, hyps_tmp_file = utils.tmpfile()
+        _, test_crop_file = utils.tmpfile()
+        joey_translate = subprocess.Popen("cat {} | head -n 2000 | python3 -m joeynmt translate {} > {}" \
+                                            .format(os.path.join(engine.path, 'test.' + engine.source.code), os.path.join(engine.path, 'config.yaml'), hyps_tmp_file),
+                                            cwd=app.config['JOEYNMT_FOLDER'], shell=True)
+        joey_translate.wait()
 
-    decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
-                                        .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
-                                        cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    decode_hyps.wait()
+        decode_hyps = subprocess.Popen("cat {} | head -n 2000 | spm_decode --model={} --input_format=piece > {}.dec" \
+                                            .format(hyps_tmp_file, os.path.join(engine.path, 'train.model'), hyps_tmp_file),
+                                            cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        decode_hyps.wait()
 
-    crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
-    crop_test.wait()
+        crop_test = subprocess.Popen("cat {} | head -n 2000 > {}".format(test_dec_file, test_crop_file), cwd=app.config['MUTNMT_FOLDER'], shell=True)
+        crop_test.wait()
 
-    sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file), 
-                        cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
-    sacreBLEU.wait()
+        sacreBLEU = subprocess.Popen("cat {}.dec | sacrebleu -b {}".format(hyps_tmp_file, test_crop_file),
+                            cwd=app.config['MUTNMT_FOLDER'], shell=True, stdout=subprocess.PIPE)
+        sacreBLEU.wait()
 
-    score = sacreBLEU.stdout.readline().decode("utf-8")
+        score = sacreBLEU.stdout.readline().decode("utf-8")
 
-    engine.test_task_id = None
-    engine.test_score = float(score)
-    db.session.commit()
+        engine.test_task_id = None
+        engine.test_score = float(score)
+        db.session.commit()
 
-    return { "bleu": float(score) }
+        return { "bleu": float(score) }
+    except Exception as e:
+        db.session.rollback()
+        raise e
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Translation tasks
@@ -352,12 +361,18 @@ def translate_text(self, user_id, engine_id, lines, is_admin):
             for sentence in sent_tokenize(line):
                 line_tok = tokenizer.tokenize(sentence)
                 translation = translator.translate(line_tok)
-                if translation is not None: 
+                if translation is not None:
                     translations.append(tokenizer.detokenize(translation))
                 else:
                     translations.append("")
         else:
             translations.append("")
+
+    try:
+        db.session.delete(RunningEngines.query.filter_by(user_id=user_id).first())
+        db.session.commit()
+    except:
+        db.session.rollback()
 
     del translator
     return translations
@@ -623,6 +638,8 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         norm_name = utils.normname(user_id=user_id, filename=file_name)
         tmp_file_fd, tmp_path = utils.tmpfile()
         file.save(tmp_path)
+
+        data_utils.convert_file_to_utf8(tmp_path)
 
         if file_extension == ".tmx":
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'w') as src_file, \
