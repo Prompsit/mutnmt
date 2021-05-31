@@ -446,6 +446,7 @@ def inspect_compare(self, user_id, line, engines, is_admin):
 
     return { "source": engine.source.code, "target": engine.target.code, "translations": translations }
 
+
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # EVALUATE TASKS
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -455,18 +456,7 @@ def evaluate_files(self, user_id, mt_paths, ht_paths, source_path=None):
     for path in (mt_paths + ht_paths + [source_path]):
         if path:
             data_utils.convert_file_to_utf8(path)
-
-            noBOM = subprocess.Popen("sed -i '1s/^\xEF\xBB\xBF//' {}".format(path), 
-                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
-            noBOM.wait()
-
-            fixNewlines = subprocess.Popen("cat {path} | tr '\r\n' '\n' > {path}.fix && mv {path}.fix {path}".format(path=path),
-                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
-            fixNewlines.wait()
-
-            noBlankLines = subprocess.Popen("sed -i '/^$/d' {}".format(path),
-                            cwd=app.config['TMP_FOLDER'], shell=True, stdout=subprocess.PIPE)
-            noBlankLines.wait()
+            data_utils.fix_file(path)
 
     # Load evaluators from ./evaluators folder
     evaluators: Evaluator = []
@@ -640,6 +630,7 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
         file.save(tmp_path)
 
         data_utils.convert_file_to_utf8(tmp_path)
+        data_utils.fix_file(tmp_path)
 
         if file_extension == ".tmx":
             with open(utils.filepath('FILES_FOLDER', norm_name + "-src"), 'w') as src_file, \
