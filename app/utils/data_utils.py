@@ -2,10 +2,8 @@ from subprocess import CalledProcessError
 
 from app import app, db
 from app.utils import utils, user_utils, tasks
-from app.models import File, Corpus_File, Corpus, User, LibraryCorpora
+from app.models import File, Corpus_File
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.datastructures import FileStorage
-from lxml import etree
 
 import os
 import subprocess
@@ -57,7 +55,10 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
             crop_path = "{}.crop".format(path)
 
             if offset:
-                crop_proccess = subprocess.Popen("cat {} | head -n {} | head -n {} > {}".format(path, offset, selected_size, crop_path), shell=True)
+                crop_proccess = subprocess.Popen("cat {} "
+                                                 "| head -n {} "
+                                                 "| tail -n {} > {}".format(path, int(offset) + int(selected_size),
+                                                                            selected_size, crop_path), shell=True)
                 crop_proccess.wait()
             else:
                 crop_proccess = subprocess.Popen("cat {} | head -n {} > {}".format(path, selected_size, crop_path), shell=True)
