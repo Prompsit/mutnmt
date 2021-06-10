@@ -93,7 +93,7 @@ $(document).ready(function() {
         if ($(".bilingual-nav-tab").hasClass("active") && (file_target == null && bitext_file == null)) return false;
 
         // Check file size
-        if ((bitext_file != null && bitext_file.size / 1073741824 > 2) || (file_source && (file_source.size + file_target.size) / 1073741824 > 2)) {
+        if ((bitext_file != null && bitext_file.size / 1073741824 > 15) || (file_source && (file_source.size + file_target.size) / 1073741824 > 15)) {
             $(".file-size-warning").removeClass("d-none");
             return false;
         }
