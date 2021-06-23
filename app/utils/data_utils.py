@@ -1,9 +1,9 @@
+from subprocess import CalledProcessError
+
 from app import app, db
 from app.utils import utils, user_utils, tasks
-from app.models import File, Corpus_File, Corpus, User, LibraryCorpora
+from app.models import File, Corpus_File
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.datastructures import FileStorage
-from lxml import etree
 
 import os
 import subprocess
@@ -46,6 +46,7 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
 
         # Convert whatever format this has to UTF-8
         convert_file_to_utf8(path)
+        fix_file(path)
 
         hash = utils.hash(file)
 
@@ -54,7 +55,10 @@ def upload_file(file, language, format="text", selected_size=None, offset=None, 
             crop_path = "{}.crop".format(path)
 
             if offset:
-                crop_proccess = subprocess.Popen("cat {} | head -n {} | head -n {} > {}".format(path, offset, selected_size, crop_path), shell=True)
+                crop_proccess = subprocess.Popen("cat {} "
+                                                 "| head -n {} "
+                                                 "| tail -n {} > {}".format(path, int(offset) + int(selected_size),
+                                                                            selected_size, crop_path), shell=True)
                 crop_proccess.wait()
             else:
                 crop_proccess = subprocess.Popen("cat {} | head -n {} > {}".format(path, selected_size, crop_path), shell=True)
@@ -220,12 +224,30 @@ def tokenize(corpus, engine):
 
 
 def convert_file_to_utf8(path):
-    convert_process = subprocess.Popen(
-        "cat {path} | iconv -f $(cat {path} | head -n 1000 | chardetect | awk '{{print $2}}') -t utf-8 > {path}.utf8".format(
-            path=path),
-        shell=True
-    )
-    convert_process.wait()
+    try:
+        convert_process = subprocess.check_output(
+            "cat {path} | "
+            "iconv -f $(cat {path} | head -n 1000 | chardetect | awk '{{print $2}}') -t utf-8 > {path}.utf8".format(
+                path=path),
+            shell=True
+        )
 
-    replace_process = subprocess.Popen("mv {path}.utf8 {path}".format(path=path), shell=True)
-    replace_process.wait()
+        replace_process = subprocess.Popen("mv {path}.utf8 {path}".format(path=path), shell=True)
+        replace_process.wait()
+    except CalledProcessError as e:
+        import sys
+        print('Could not convert file to utf-8: {}'.format(e))
+        pass
+
+
+def fix_file(path):
+    no_bom = subprocess.Popen("sed -i '1s/^\xEF\xBB\xBF//' {}".format(path), cwd=app.config['TMP_FOLDER'], shell=True)
+    no_bom.wait()
+
+    fix_new_lines = subprocess.Popen("cat {path} | tr '\r\n' '\n' > {path}.fix "
+                                     "&& mv {path}.fix {path}".format(path=path),
+                                     cwd=app.config['TMP_FOLDER'], shell=True)
+    fix_new_lines.wait()
+
+    no_blank_lines = subprocess.Popen("sed -i '/^$/d' {}".format(path), cwd=app.config['TMP_FOLDER'], shell=True)
+    no_blank_lines.wait()
