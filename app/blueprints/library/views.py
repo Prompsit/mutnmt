@@ -27,7 +27,7 @@ def library_corpora():
     user_library = user_utils.get_user_corpora().count()
     public_files = user_utils.get_user_corpora(public=True).count()
 
-    languages = UserLanguage.query.filter_by(user_id=current_user.id).all()
+    languages = UserLanguage.query.filter_by(user_id=current_user.id).order_by(UserLanguage.name).all()
     topics = Topic.query.all()
 
     return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',

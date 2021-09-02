@@ -60,7 +60,7 @@ def train_index():
 
     library_corpora = user_utils.get_user_corpora().filter(LibraryCorpora.corpus.has(Corpus.type == "bilingual")).all()
     corpora = [c.corpus for c in library_corpora]
-    languages = UserLanguage.query.filter_by(user_id=current_user.id).all()
+    languages = UserLanguage.query.filter_by(user_id=current_user.id).order_by(UserLanguage.name).all()
 
     return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,
