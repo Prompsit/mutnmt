@@ -75,11 +75,12 @@ def get_user_corpora(user_id=None, public=False):
     user_id = user_id if user_id else get_uid()
     if public:
         return LibraryCorpora.query.filter(LibraryCorpora.corpus_id.notin_(
-            db.session.query(LibraryCorpora.corpus_id).filter_by(user_id=user_id)
+                db.session.query(LibraryCorpora.corpus_id).filter_by(user_id=user_id)
             )).filter(LibraryCorpora.corpus.has(and_(
                 Corpus.visible == True,
                 Corpus.public == True,
-                Corpus.owner_id != user_id
+                Corpus.owner_id != user_id,
+                Corpus.owner_id == LibraryCorpora.user_id
             ))).order_by(LibraryCorpora.id.desc())
     else:
         return LibraryCorpora.query.filter(LibraryCorpora.user_id == user_id) \
