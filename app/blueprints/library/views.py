@@ -26,12 +26,15 @@ library_blueprint = Blueprint('library', __name__, template_folder='templates')
 def library_corpora():
     user_library = user_utils.get_user_corpora().count()
     public_files = user_utils.get_user_corpora(public=True).count()
+    used_library = user_utils.get_user_corpora(used=True).count() if current_user.admin else 0
+    not_used_library = user_utils.get_user_corpora(not_used=True).count() if current_user.admin else 0
 
     languages = UserLanguage.query.filter_by(user_id=current_user.id).order_by(UserLanguage.name).all()
     topics = Topic.query.all()
 
-    return render_template('library_corpora.html.jinja2', page_name = 'library_corpora', page_title = 'Corpora',
-            user_library = user_library, public_files = public_files, languages=languages, topics=topics)
+    return render_template('library_corpora.html.jinja2', page_name='library_corpora', page_title='Corpora',
+                           user_library=user_library, public_files = public_files, languages=languages, topics=topics,
+                           used_library=used_library, not_used_library=not_used_library)
 
 @library_blueprint.route('/engines')
 def library_engines():
@@ -48,9 +51,15 @@ def library_engines():
 @library_blueprint.route('/corpora_feed', methods=["POST"])
 def library_corpora_feed():
     public = request.form.get('public') == "true"
+    used = request.form.get('used') == "true"
+    not_used = request.form.get('not_used') == "true"
 
     if public:
         library_objects = user_utils.get_user_corpora(public=True).all()
+    elif used:
+        library_objects = user_utils.get_user_corpora(used=True).all()
+    elif not_used:
+        library_objects = user_utils.get_user_corpora(not_used=True).all()
     else:
         library_objects = user_utils.get_user_corpora().all()
     

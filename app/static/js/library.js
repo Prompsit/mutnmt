@@ -22,6 +22,9 @@ $(document).ready(function() {
 
     $('.corpora-table').each(function(i, el) {
         let public_mode = ($(el).attr("data-public") == "true");
+        let used_mode = $(el).attr("data-used") == "true";
+        let not_used_mode = $(el).attr("data-not-used") == "true";
+
         let corpora_table = $(el).DataTable({
             processing: true,
             serverSide: true,
@@ -29,7 +32,7 @@ $(document).ready(function() {
             ajax: {
                 url: "corpora_feed",
                 method: "post",
-                data: { public: public_mode }
+                data: { public: public_mode, used: used_mode, not_used: not_used_mode }
             },
             drawCallback: function(settings) {
                 let api = this.api()
