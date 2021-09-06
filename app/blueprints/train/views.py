@@ -60,7 +60,7 @@ def train_index():
 
     library_corpora = user_utils.get_user_corpora().filter(LibraryCorpora.corpus.has(Corpus.type == "bilingual")).all()
     corpora = [c.corpus for c in library_corpora]
-    languages = UserLanguage.query.filter_by(user_id=current_user.id).all()
+    languages = UserLanguage.query.filter_by(user_id=current_user.id).order_by(UserLanguage.name).all()
 
     return render_template('train.html.jinja2', page_name='train', page_title='Train',
                             corpora=corpora, random_name=random_name,
@@ -359,38 +359,39 @@ def train_finish(id):
 def train_resume(engine_id):
     engine = Engine.query.filter_by(id=engine_id).first()
 
-    new_model_path = os.path.join(engine.path, 'model-{}'.format(utils.randomfilename(length=8)))
-    while os.path.exists(new_model_path):
+    if current_user.id == engine.engine_users[0].user.id or current_user.admin:
         new_model_path = os.path.join(engine.path, 'model-{}'.format(utils.randomfilename(length=8)))
+        while os.path.exists(new_model_path):
+            new_model_path = os.path.join(engine.path, 'model-{}'.format(utils.randomfilename(length=8)))
 
-    config_file_path = os.path.join(engine.path, 'config.yaml')
+        config_file_path = os.path.join(engine.path, 'config.yaml')
 
-    config = None
-    with open(config_file_path, 'r') as config_file:
-        config = yaml.load(config_file, Loader=yaml.FullLoader)
-        current_model = config["training"]["model_dir"]
-        config["training"]["model_dir"] = new_model_path
+        config = None
+        with open(config_file_path, 'r') as config_file:
+            config = yaml.load(config_file, Loader=yaml.FullLoader)
+            current_model = config["training"]["model_dir"]
+            config["training"]["model_dir"] = new_model_path
 
-        current_model_ckpt = os.path.join(current_model, 'best.ckpt')
-        if os.path.exists(current_model_ckpt):
-            config["training"]["load_model"] = current_model_ckpt
-    
-    with open(config_file_path, 'w') as config_file:
-        yaml.dump(config, config_file)
+            current_model_ckpt = os.path.join(current_model, 'best.ckpt')
+            if os.path.exists(current_model_ckpt):
+                config["training"]["load_model"] = current_model_ckpt
 
-    engine.model_path = new_model_path
-    engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
-    engine.finished = None
-    db.session.commit()
+        with open(config_file_path, 'w') as config_file:
+            yaml.dump(config, config_file)
 
-    task_id, _ = Trainer.launch(engine_id, user_utils.is_admin())
+        engine.model_path = new_model_path
+        engine.launched = datetime.datetime.utcnow().replace(tzinfo=None)
+        engine.finished = None
+        db.session.commit()
 
-    i = 0
-    while engine.has_stopped() and i < 100:
-        db.session.refresh(engine)
-        i += 1
+        task_id, _ = Trainer.launch(engine_id, user_utils.is_admin())
 
-    return redirect(url_for('train.train_console', id=engine_id))
+        i = 0
+        while engine.has_stopped() and i < 100:
+            db.session.refresh(engine)
+            i += 1
+
+        return redirect(url_for('train.train_console', id=engine_id))
 
 @train_blueprint.route('/test', methods=["POST"])
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
