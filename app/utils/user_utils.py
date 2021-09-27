@@ -1,6 +1,6 @@
 from flask_login import current_user
 from app import app, db
-from app.models import Corpus, LibraryEngine, LibraryCorpora
+from app.models import Corpus, LibraryEngine, LibraryCorpora, Corpus_Engine, User
 from sqlalchemy import and_
 import os, shutil
 
@@ -71,16 +71,32 @@ def library_delete(type, id, user_id = None):
 
     return True
 
-def get_user_corpora(user_id=None, public=False):
+def get_user_corpora(user_id=None, public=False, used=False, not_used=False):
     user_id = user_id if user_id else get_uid()
     if public:
         return LibraryCorpora.query.filter(LibraryCorpora.corpus_id.notin_(
-            db.session.query(LibraryCorpora.corpus_id).filter_by(user_id=user_id)
+                db.session.query(LibraryCorpora.corpus_id).filter_by(user_id=user_id)
             )).filter(LibraryCorpora.corpus.has(and_(
                 Corpus.visible == True,
                 Corpus.public == True,
-                Corpus.owner_id != user_id
+                Corpus.owner_id != user_id,
+                Corpus.owner_id == LibraryCorpora.user_id
             ))).order_by(LibraryCorpora.id.desc())
+    elif used:
+        return LibraryCorpora.query.filter(LibraryCorpora.corpus.has(
+            and_(Corpus.corpus_engines,
+                 Corpus_Engine.is_info == True,
+                 LibraryCorpora.user_id == Corpus.owner_id
+            )
+        ))
+    elif not_used:
+        return LibraryCorpora.query.filter(LibraryCorpora.corpus.has(
+            and_(
+                ~ Corpus.corpus_engines.any(),
+                Corpus_Engine.is_info == True,
+                LibraryCorpora.user_id == Corpus.owner_id
+            )
+        ))
     else:
         return LibraryCorpora.query.filter(LibraryCorpora.user_id == user_id) \
                 .filter(LibraryCorpora.corpus.has(and_(

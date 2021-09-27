@@ -134,7 +134,7 @@
                     <a href="{{ url_for('train.train_finish', id=engine.id) }}" class="btn btn-danger">
                         <i class="far fa-stop-circle"></i> Stop
                     </a>
-                {% else %}
+                {% elif current_user.id == engine.engine_users[0].user.id or current_user.admin %}
                     <a href="{{ url_for('train.train_resume', engine_id=engine.id) }}" class="btn btn-success">
                         <i class="far fa-play-circle"></i> Resume
                     </a>
