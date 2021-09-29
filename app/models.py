@@ -169,7 +169,7 @@ class Corpus_Engine(db.Model):
     selected_size = db.Column(db.Integer)
 
     engine = db.relationship(Engine, backref = db.backref("engine_corpora", cascade="all, delete-orphan"))
-    corpus = db.relationship("Corpus")
+    corpus = db.relationship("Corpus", backref = db.backref("corpus_engines"))
 
     __table_args__ = (
         db.UniqueConstraint('corpus_id', 'engine_id', 'phase'),

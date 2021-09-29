@@ -89,11 +89,11 @@ def launch_training(self, user_id, engine_path, params):
                 corpus.user_target_id = og_corpus.user_target_id
                 for file_entry in og_corpus.corpus_files:
                     with open(file_entry.file.path, 'rb') as file_d:
-                        db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name), 
+                        db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name),
                                     file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
                     corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang_id else "target"))
-                    used_corpora[corpus_id] += corpus_size
+                used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
 
