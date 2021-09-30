@@ -177,7 +177,7 @@ def train_status():
         stats = {}
 
         epoch_no = 0
-        for data in tensor.get_tag("train/epoch"):
+        for data in tensor.get_tag("train/train_epoch"):
             if data.value > epoch_no:
                 epoch_no = data.value
         stats["epoch"] = epoch_no
