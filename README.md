@@ -2,7 +2,7 @@
 
 <img alt="MutNMT Logo" src="app/static/img/logo.png" style="margin-bottom: 1rem;" height="75" />
 
-MutNMT aims to provide a web application to train neural machine translation with educational purposes. This web application lets the user train, inspect, evaluate and translate using neural engines.
+MutNMT aims to provide a web application to train neural machine translation with educational purposes. This web application lets the user train, inspect, evaluate and translate using neural engines. To know more about what you will find at MutNMT, please read the [Basic and advanced features page](https://github.com/Prompsit/mutnmt/wiki/MutNMT:-Basic-and-advanced-features).
 
 It has been developed by [Prompsit](https://github.com/Prompsit) in collaboration with the partners of the "MultiTraiNMT - Machine Translation training for multilingual citizens" European project (2019-1-ES01-KA203-064245, 01/09/2019–31/08/2022).
 
