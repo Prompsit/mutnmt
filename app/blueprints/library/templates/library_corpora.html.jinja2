@@ -55,7 +55,7 @@
 
                                             <a title="Switch to custom language" aria-label="Switch to custom language"
                                                 href="#" role="button" class="lang-mode-switch lang-mode-switch-source lang-mode-to-custom">
-                                                <i class="fas fa-exchange-alt"></i>
+                                                <i class="fas fa-sliders-h"></i>
                                             </a>
                                         </div>
 
@@ -72,7 +72,7 @@
 
                                             <a title="Switch to custom language" aria-label="Switch to default languages"
                                                 href="#" role="button" class="lang-mode-switch lang-mode-switch-source lang-mode-to-default">
-                                                <i class="fas fa-exchange-alt"></i>
+                                                <i class="fas fa-sliders-h"></i>
                                             </a>
                                         </div>
                                         <div class="input-group">
@@ -94,7 +94,7 @@
 
                                             <a title="Switch to custom language" aria-label="Switch to custom language"
                                                 href="#" role="button" class="lang-mode-switch lang-mode-switch-target lang-mode-to-custom">
-                                                <i class="fas fa-exchange-alt"></i>
+                                                <i class="fas fa-sliders-h"></i>
                                             </a>
                                         </div>
                                         <select class="custom-select mb-2 lang_sel target_lang" name="target_lang">
@@ -111,7 +111,7 @@
 
                                             <a title="Switch to custom language" aria-label="Switch to default languages"
                                                 href="#" role="button" class="lang-mode-switch lang-mode-switch-target lang-mode-to-default">
-                                                <i class="fas fa-exchange-alt"></i>
+                                                <i class="fas fa-sliders-h"></i>
                                             </a>
                                         </div>
                                         <div class="input-group">
@@ -248,6 +248,20 @@
     <li class="nav-item">
         <a class="nav-link private-nav-tab" data-toggle="tab" href="#private-corpora">Your corpora</a>
     </li>
+    {% if is_admin() %}
+        <li class="nav-item">
+            <a class="nav-link used-nav-tab d-flex align-items-center" data-toggle="tab" href="#used-corpora">
+                <span>Used corpora</span>
+                <span class="badge bg-secondary ml-2 text-light">Admin</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link not-used-nav-tab d-flex align-items-center" data-toggle="tab" href="#not-used-corpora">
+                <span>Not used corpora</span>
+                <span class="badge bg-secondary ml-2 text-light">Admin</span>
+            </a>
+        </li>
+    {% endif %}
 </ul>
 
 <div class="tab-content corpora-tab">
@@ -289,6 +303,54 @@
         </div>
         {% endif %}
     </div>
+    {% if is_admin() %}
+        <div class="tab-pane fade pt-4" id="used-corpora">
+            {% if used_library > 0 %}
+            <div class="table-responsive">
+                <table class="table table-bordered corpora-table w-100" data-used="true">
+                    <thead>
+                        <th></th>
+                        <th>File name</th>
+                        <th>Language</th>
+                        <th>Sentences</th>
+                        <th>Words</th>
+                        <th>Domain</th>
+                        <th>Date</th>
+                    </thead>
+                </table>
+            </div>
+            {% else %}
+            <div class="jumbotron p-3 text-center">
+                <p class="h6 m-0">
+                    Nothing yet! <a href="{{ url_for('library.library_corpora') }}">Upload a corpus now</a> or grab one
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="tab-pane fade pt-4" id="not-used-corpora">
+            {% if not_used_library > 0 %}
+            <div class="table-responsive">
+                <table class="table table-bordered corpora-table w-100" data-not-used="true">
+                    <thead>
+                        <th></th>
+                        <th>File name</th>
+                        <th>Language</th>
+                        <th>Sentences</th>
+                        <th>Words</th>
+                        <th>Domain</th>
+                        <th>Date</th>
+                    </thead>
+                </table>
+            </div>
+            {% else %}
+            <div class="jumbotron p-3 text-center">
+                <p class="h6 m-0">
+                    Nothing yet! <a href="{{ url_for('library.library_corpora') }}">Upload a corpus now</a> or grab one
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 
 <template id="corpus-header-template">
