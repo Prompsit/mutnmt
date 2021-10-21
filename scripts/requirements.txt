@@ -4,7 +4,7 @@ amqp==2.5.2
 astor==0.8.1
 astroid==2.4.1
 astunparse==1.6.3
-Babel==2.8.0
+Babel==2.9.1
 billiard==3.6.3.0
 blinker==1.4
 cachetools==4.1.0
