@@ -28,6 +28,20 @@ def index():
     else:
         return render_template('index.html.jinja2')
 
+@app.route('/about')
+def about():
+    return render_template('about.html.jinja2', videos=[
+        {'name': 'Basics and limitations', 'id': 'eWHvHfIgNDg'},
+        {'name': 'Home and users', 'id': 'E_z9OKfyzrk'},
+        {'name': 'Data section', 'id': 'qT9TH7zsUkM'},
+        {'name': 'Engines section', 'id': 'eOnHYP5VcCI'},
+        {'name': 'Training section', 'id': 'kCdZ-s75vP0'},
+        {'name': 'Translate section', 'id': '8UqdO-DUvFM'},
+        {'name': 'Inspect section', 'id': 'EhQIYPQ-zkQ'},
+        {'name': 'Evaluate section', 'id': '93alDhy8IfA'},
+        {'name': 'Admin section', 'id': 'vqc4Gx8b2bo'}
+    ])
+
 @login_manager.user_loader
 @utils.condec(login_manager.user_loader, user_utils.isUserLoginEnabled())
 def load_user(user_id):
