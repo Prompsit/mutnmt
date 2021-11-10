@@ -106,6 +106,15 @@ def google_logged_in(blueprint, token):
     else:
         print("No account info available")
 
+@auth_blueprint.route('/demo')
+def demo_log_in():
+    # We log out the user if the session is active
+    if current_user:
+        logout_user()
+
+    demo_user = User.query.filter_by(demo=True).first()
+    print(demo_user, file=sys.stderr)
+    login_user(demo_user)
 
 def add_pretrained_engines(user_id):
     preloaded_path = os.path.join(app.config['BASEDIR'], "preloaded/")

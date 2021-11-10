@@ -194,6 +194,7 @@ class User(UserMixin, db.Model):
     lang            = db.Column(db.String(32))
     avatar_url      = db.Column(db.String(250))
     notes = db.Column(db.String(280))
+    demo = db.Column(db.Boolean, default=False)
 
     corpora = association_proxy("user_corpora", "corpora")
     engines = association_proxy("user_engines", "engines")
