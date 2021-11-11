@@ -48,7 +48,7 @@ $(document).ready(function() {
                     });
 
                     if (tooltips && popover['description']) {
-                        document.getElementById(popover.element).setAttribute('title', popover['description']);
+                        document.getElementById(popover.element)?.setAttribute('title', popover['description']);
                     }
                 }
             } else {
