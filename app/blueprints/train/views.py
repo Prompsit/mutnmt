@@ -32,8 +32,6 @@ train_blueprint = Blueprint('train', __name__, template_folder='templates')
 @train_blueprint.route('/')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_index():
-    if user_utils.is_normal(): return redirect(url_for('index'))
-
     currently_training = Engine.query.filter_by(uploader_id = user_utils.get_uid()) \
                             .filter(Engine.status.like("training")).all()
 
@@ -357,6 +355,8 @@ def train_finish(id):
 @train_blueprint.route('/resume/<engine_id>')
 @utils.condec(login_required, user_utils.isUserLoginEnabled())
 def train_resume(engine_id):
+    if user_utils.is_normal(): return redirect(url_for('index'))
+
     engine = Engine.query.filter_by(id=engine_id).first()
 
     if current_user.id == engine.engine_users[0].user.id or current_user.admin:

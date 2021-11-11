@@ -13,6 +13,11 @@
     bottom: -100%;
 }
 
+.nile-resurrect-btn {
+    display: flex;
+    align-items: center;
+}
+
 @media screen and (max-width: 576px) {
     .tour-guide {
         display: none;
