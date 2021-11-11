@@ -60,16 +60,17 @@ def upgrade():
         batch_op.create_foreign_key('fk_engine_user_target_id', 'user_language', ['user_target_id'], ['id'])
 
     for engine in Engine.query.all():
-        if engine.uploader_id:
-            source_lang = UserLanguage.query.filter_by(code=engine.source_id, user_id=engine.uploader_id).one()
-            target_lang = UserLanguage.query.filter_by(code=engine.target_id, user_id=engine.uploader_id).one()
-        else:
-            source_lang = UserLanguage.query.filter_by(code=engine.source_id).first()
-            target_lang = UserLanguage.query.filter_by(code=engine.target_id).first()
+        if engine.source_id and engine.target_id:
+            if engine.uploader_id:
+                source_lang = UserLanguage.query.filter_by(code=engine.source_id, user_id=engine.uploader_id).one()
+                target_lang = UserLanguage.query.filter_by(code=engine.target_id, user_id=engine.uploader_id).one()
+            else:
+                source_lang = UserLanguage.query.filter_by(code=engine.source_id).first()
+                target_lang = UserLanguage.query.filter_by(code=engine.target_id).first()
 
-        engine.user_source_id = source_lang.id
-        engine.user_target_id = target_lang.id
-    db.session.commit()
+            engine.user_source_id = source_lang.id
+            engine.user_target_id = target_lang.id
+            db.session.commit()
 
     op.add_column('file', sa.Column('user_language_id', sa.Integer(), nullable=True))
 
