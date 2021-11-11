@@ -66,6 +66,11 @@ for topic in TOPICS:
         db.session.add(topic_obj)
 db.session.commit()
 
+# If demo user is not present, add
+if models.User.query.filter_by(demo=True).first() is None:
+    demo_user = models.User(id=-1, username='Demo', social_id='DEMO', email='demo@example.com', demo=True)
+    db.session.add(demo_user)
+
 folders = ['USERSPACE_FOLDER', 'STORAGE_FOLDER', 'FILES_FOLDER', 'ENGINES_FOLDER', 'USERS_FOLDER']
 
 for folder in folders:

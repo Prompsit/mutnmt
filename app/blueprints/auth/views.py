@@ -106,6 +106,37 @@ def google_logged_in(blueprint, token):
     else:
         print("No account info available")
 
+@auth_blueprint.route('/demo')
+def demo_log_in():
+    # We log out the user if the session is active
+    if current_user:
+        logout_user()
+
+    # If demo user is not present, add
+    if User.query.filter_by(demo=True).first() is None:
+        demo_user = User(id=-1, username='Amun', social_id='DEMO', email='demo@example.com', demo=True,
+                         avatar_url='/img/amun.png')
+        db.session.add(demo_user)
+        db.session.commit()
+
+        # Add languages to user
+        with open(os.path.join(app.config['MUTNMT_FOLDER'], 'scripts/langs.txt')) as langs_file:
+            for line in langs_file:
+                line = line.strip()
+                if line:
+                    data = line.split(',')
+                    user_language = UserLanguage(code=data[0], name=data[1], user_id=demo_user.id)
+                    db.session.add(user_language)
+            db.session.commit()
+
+    demo_user = User.query.filter_by(demo=True).first()
+
+    if demo_user:
+        login_user(demo_user)
+        return redirect(url_for('library.library_corpora'))
+    else:
+        return redirect(url_for('index'))
+
 
 def add_pretrained_engines(user_id):
     preloaded_path = os.path.join(app.config['BASEDIR'], "preloaded/")
