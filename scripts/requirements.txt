@@ -86,7 +86,7 @@ SQLAlchemy-Utils==0.36.5
 subword-nmt==0.3.7
 tensorboard==2.2.1
 tensorboard-plugin-wit==1.6.0.post3
-tensorflow==2.2.0
+tensorflow==2.5.3
 tensorflow-estimator==2.2.0
 termcolor==1.1.0
 toml==0.10.1
