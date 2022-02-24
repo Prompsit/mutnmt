@@ -18,6 +18,7 @@ redis-server conf/redis.conf
 
 nohup celery worker --workdir $ROOT \
                     -A app.utils.tasks.celery --loglevel=info \
+                    --max-tasks-per-child 1 \
                     --logfile=$ROOT/data/logs/celery-worker.log &
 
 if [ -z "$DEBUG" ] || [ "$DEBUG" == "0" ]
