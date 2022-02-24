@@ -69,22 +69,26 @@ class JoeyWrapper:
         
         self.logger = logging.getLogger(__name__)
 
-    def __del__(self):
-        if self.gpu_id is not None:
-            GPUManager.free_device(self.gpu_id)
-
     def load(self):
         # build model and load parameters into it
         model_checkpoint = load_checkpoint(self.ckpt, self.use_cuda)
         self.model = build_model(self.model_data, src_vocab=self.src_vocab, trg_vocab=self.trg_vocab)
         self.model.load_state_dict(model_checkpoint["model_state"])
 
+        device = list(self.model.parameters())[0].device
+        logging.debug("Loaded model in device: " + str(device))
+
         if self.use_cuda:
-            self.gpu_id = GPUManager.wait_for_available_device(is_admin=self.is_admin)
-            if self.gpu_id is not None:
-                self.model.cuda(self.gpu_id)
-            else:
+            # Move model to GPU
+            self.gpu_id = os.environ["CUDA_VISIBLE_DEVICES"]
+            if not os.environ["CUDA_VISIBLE_DEVICES" ]:
                 return False
+            else:
+                # Assuming always one device in CUDA_VISIBLE_DEVICES
+                # so moving to id 0, which is the only one
+                self.model = self.model.to(0)
+                device = list(self.model.parameters())[0].device
+                logging.debug("Moved model to device: " + str(device))
         return True
 
     def load_line_as_data(self, line, level, lowercase, src_vocab, trg_vocab):
@@ -131,6 +135,8 @@ class JoeyWrapper:
 
     def translate(self, line, nbest=1):
         line = line.strip()
+        cuda_device = 0 if os.environ["CUDA_VISIBLE_DEVICES"] else self.gpu_id
+        #cuda_device = self.gpu_id
         if line:
             return self.joey_translate(line,
                             beam_size=self.beam_size,
@@ -144,6 +150,6 @@ class JoeyWrapper:
                             use_cuda=self.use_cuda,
                             logger=self.logger,
                             nbest=nbest,
-                            cuda_device=self.gpu_id)
+                            cuda_device=cuda_device)
         else:
             return None

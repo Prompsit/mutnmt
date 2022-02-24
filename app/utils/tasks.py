@@ -14,6 +14,7 @@ from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, Library
     UserLanguage
 from app.flash import Flash
 from celery import Celery
+from celery.signals import task_prerun, task_postrun
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
@@ -34,13 +35,13 @@ import importlib
 import inspect
 import re
 import redis
+import logging
 
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
-
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Engine training tasks
@@ -729,3 +730,28 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
     db.session.commit()
 
     return True
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# Pre- post- tasks to allocate GPUs for translation
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+@task_prerun.connect
+def reserve_gpu(sender=None, **kwargs):
+    name = sender.name.split('.')[-1]
+    is_admin = sender.request.args[-1]
+    if name in ('translate_text', 'translate_file'):
+        device = GPUManager.wait_for_available_device(is_admin=is_admin)
+        if device is not None:
+            os.environ['CUDA_VISIBLE_DEVICES'] = str(device)
+        else:
+            os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        logging.debug(f"Task {sender.name}[{sender.request.id}] reserved GPU {device}")
+
+@task_postrun.connect
+def free_gpu(sender=None, **kwargs):
+    name = sender.name.split('.')[-1]
+    if name in ('translate_text', 'translate_file'):
+        if os.environ["CUDA_VISIBLE_DEVICES"]:
+            device = os.environ["CUDA_VISIBLE_DEVICES"]
+            GPUManager.free_device(int(device))
+            logging.debug(f"Task {sender.name}[{sender.request.id}] freed GPU {device}")
