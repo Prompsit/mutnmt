@@ -130,7 +130,7 @@
     <div class="col-12 col-sm-4">
         <div class="text-right">
             {% if not engine.has_stopped() %}
-                {% if not current_user.is_normal() %}
+                {% if not is_normal() %}
                     <a href="{{ url_for('train.train_finish', id=engine.id) }}" class="btn btn-danger">
                         <i class="far fa-stop-circle"></i> Stop
                     </a>
