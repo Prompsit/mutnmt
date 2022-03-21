@@ -150,7 +150,7 @@ def launch_training(self, user_id, engine_path, params):
 
         config_file_path = os.path.join(engine.path, 'config.yaml')
 
-        shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), config_file_path)
+        shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer-small.yaml'), config_file_path)
 
         db.session.add(engine)
         db.session.commit()
