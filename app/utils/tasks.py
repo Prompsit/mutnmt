@@ -70,7 +70,6 @@ def launch_training(self, user_id, engine_path, params):
 
     def join_corpora(list_name, phase, source_lang, target_lang):
         corpus = Corpus(owner_id=user_id, visible=False)
-        source_lang_id = UserLanguage.query.filter_by(user_id=user_id, code=source_lang).one().id
         for train_corpus in params[list_name]:
             corpus_data = json.loads(train_corpus)
             corpus_id = corpus_data['id']
@@ -93,7 +92,7 @@ def launch_training(self, user_id, engine_path, params):
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name),
                                     file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang_id else "target"))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.language.code == source_lang else "target"))
                 used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
