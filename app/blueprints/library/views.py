@@ -244,6 +244,11 @@ def library_grab(type, id):
     if type == "library_corpora":
         corpus = Corpus.query.filter_by(id = id).first()
         user.user_corpora.append(LibraryCorpora(corpus=corpus, user=user))
+        # If user doesn't have any of the corpus langs, add them
+        if not UserLanguage.query.filter_by(code=corpus.source.code, user_id=current_user.id).first():
+            user_utils.add_custom_language(corpus.source.code, corpus.source.name)
+        if not UserLanguage.query.filter_by(code=corpus.target.code, user_id=current_user.id).first():
+            user_utils.add_custom_language(corpus.target.code, corpus.target.name)
     else:
         engine = Engine.query.filter_by(id = id).first()
         user.user_engines.append(LibraryEngine(engine=engine, user=user))

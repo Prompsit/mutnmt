@@ -38,20 +38,6 @@ def data_upload_perform():
     try:
         if request.method == 'POST':
 
-            # Handle possible custom languages
-            def add_custom_language(code, name):
-                custom_language = UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()
-
-                if custom_language:
-                    custom_language.name = custom_src_lang_name
-                    db.session.commit()
-                else:
-                    custom_language = UserLanguage(code=code, name=name, user_id=current_user.id)
-                    db.session.add(custom_language)
-                    db.session.commit()
-
-                return UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()
-
             source_lang = request.form.get('source_lang')
             target_lang = request.form.get('target_lang')
 
@@ -60,7 +46,7 @@ def data_upload_perform():
 
             if custom_src_lang_code:
                 custom_src_lang_name = request.form.get('sourceCustomLangName')
-                custom_lang = add_custom_language(custom_src_lang_code, custom_src_lang_name)
+                custom_lang = user_utils.add_custom_language(custom_src_lang_code, custom_src_lang_name)
 
                 source_lang = custom_lang.id
             else:
@@ -68,7 +54,7 @@ def data_upload_perform():
 
             if custom_trg_lang_code:
                 custom_trg_lang_name = request.form.get('targetCustomLangName')
-                custom_lang = add_custom_language(custom_trg_lang_code, custom_trg_lang_name)
+                custom_lang = user_utils.add_custom_language(custom_trg_lang_code, custom_trg_lang_name)
 
                 target_lang = custom_lang.id
             else:
