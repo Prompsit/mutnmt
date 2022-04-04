@@ -738,7 +738,7 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
 def reserve_gpu(sender=None, **kwargs):
     name = sender.name.split('.')[-1]
     is_admin = sender.request.args[-1]
-    if name in ('translate_text', 'translate_file'):
+    if name in ('translate_text', 'translate_file', 'inspect_details'):
         device = GPUManager.wait_for_available_device(is_admin=is_admin)
         if device is not None:
             os.environ['CUDA_VISIBLE_DEVICES'] = str(device)
@@ -749,7 +749,7 @@ def reserve_gpu(sender=None, **kwargs):
 @task_postrun.connect
 def free_gpu(sender=None, **kwargs):
     name = sender.name.split('.')[-1]
-    if name in ('translate_text', 'translate_file'):
+    if name in ('translate_text', 'translate_file', 'inspect_details'):
         if os.environ["CUDA_VISIBLE_DEVICES"]:
             device = os.environ["CUDA_VISIBLE_DEVICES"]
             GPUManager.free_device(int(device))
