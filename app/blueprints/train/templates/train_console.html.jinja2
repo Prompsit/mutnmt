@@ -129,16 +129,24 @@
 
     <div class="col-12 col-sm-4">
         <div class="text-right">
-            {% if not is_normal() %}
-                {% if not engine.has_stopped() %}
+            {% if not engine.has_stopped() %}
+                {% if not is_normal() %}
                     <a href="{{ url_for('train.train_finish', id=engine.id) }}" class="btn btn-danger">
                         <i class="far fa-stop-circle"></i> Stop
                     </a>
-                {% elif current_user.id == engine.engine_users[0].user.id or current_user.admin %}
-                    <a href="{{ url_for('train.train_resume', engine_id=engine.id) }}" class="btn btn-success">
-                        <i class="far fa-play-circle"></i> Resume
-                    </a>
+                {% else %}
+                    <button class="btn btn-danger disabled">
+                        <i class="far fa-stop-circle"></i> Stop
+                    </button>
                 {% endif %}
+            {% elif current_user.id == engine.engine_users[0].user.id or current_user.admin %}
+                <a href="{{ url_for('train.train_resume', engine_id=engine.id) }}" class="btn btn-success">
+                    <i class="far fa-play-circle"></i> Resume
+                </a>
+            {% else %}
+                <button class="btn btn-success disabled">
+                    <i class="far fa-play-circle"></i> Resume
+                </button>
             {% endif %}
 
             {% if engine.has_stopped() %}

@@ -14,6 +14,7 @@ from app.models import Engine, Corpus, Corpus_Engine, Corpus_File, User, Library
     UserLanguage
 from app.flash import Flash
 from celery import Celery
+from celery.signals import task_prerun, task_postrun
 from werkzeug.datastructures import FileStorage
 from nltk.tokenize import sent_tokenize
 from werkzeug.utils import secure_filename
@@ -34,13 +35,13 @@ import importlib
 import inspect
 import re
 import redis
+import logging
 
 celery = Celery(app.name, broker = app.config['CELERY_BROKER_URL'])
 celery.conf.update(app.config)
 
 from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
-
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # Engine training tasks
@@ -69,7 +70,6 @@ def launch_training(self, user_id, engine_path, params):
 
     def join_corpora(list_name, phase, source_lang, target_lang):
         corpus = Corpus(owner_id=user_id, visible=False)
-        source_lang_id = UserLanguage.query.filter_by(user_id=user_id, code=source_lang).one().id
         for train_corpus in params[list_name]:
             corpus_data = json.loads(train_corpus)
             corpus_id = corpus_data['id']
@@ -92,7 +92,7 @@ def launch_training(self, user_id, engine_path, params):
                         db_file = data_utils.upload_file(FileStorage(stream=file_d, filename=file_entry.file.name),
                                     file_entry.file.user_language_id, selected_size=corpus_size, offset=used_corpora[corpus_id],
                                     user_id=user_id)
-                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.user_language_id == source_lang_id else "target"))
+                    corpus.corpus_files.append(Corpus_File(db_file, role="source" if file_entry.file.language.code == source_lang else "target"))
                 used_corpora[corpus_id] += corpus_size
             except:
                 raise Exception
@@ -149,7 +149,7 @@ def launch_training(self, user_id, engine_path, params):
 
         config_file_path = os.path.join(engine.path, 'config.yaml')
 
-        shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer.yaml'), config_file_path)
+        shutil.copyfile(os.path.join(app.config['BASE_CONFIG_FOLDER'], 'transformer-small.yaml'), config_file_path)
 
         db.session.add(engine)
         db.session.commit()
@@ -729,3 +729,28 @@ def process_upload_request(self, user_id, bitext_path, src_path, trg_path, src_l
     db.session.commit()
 
     return True
+
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# Pre- post- tasks to allocate GPUs for translation
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+@task_prerun.connect
+def reserve_gpu(sender=None, **kwargs):
+    name = sender.name.split('.')[-1]
+    is_admin = sender.request.args[-1]
+    if name in ('translate_text', 'translate_file', 'inspect_details', 'inspect_compare'):
+        device = GPUManager.wait_for_available_device(is_admin=is_admin)
+        if device is not None:
+            os.environ['CUDA_VISIBLE_DEVICES'] = str(device)
+        else:
+            os.environ['CUDA_VISIBLE_DEVICES'] = ''
+        logging.debug(f"Task {sender.name}[{sender.request.id}] reserved GPU {device}")
+
+@task_postrun.connect
+def free_gpu(sender=None, **kwargs):
+    name = sender.name.split('.')[-1]
+    if name in ('translate_text', 'translate_file', 'inspect_details', 'inspect_compare'):
+        if os.environ["CUDA_VISIBLE_DEVICES"]:
+            device = os.environ["CUDA_VISIBLE_DEVICES"]
+            GPUManager.free_device(int(device))
+            logging.debug(f"Task {sender.name}[{sender.request.id}] freed GPU {device}")

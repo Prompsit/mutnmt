@@ -1,6 +1,6 @@
 from flask_login import current_user
 from app import app, db
-from app.models import Corpus, LibraryEngine, LibraryCorpora, Corpus_Engine, User
+from app.models import Corpus, LibraryEngine, LibraryCorpora, Corpus_Engine, User, UserLanguage
 from sqlalchemy import and_
 import os, shutil
 
@@ -102,3 +102,17 @@ def get_user_corpora(user_id=None, public=False, used=False, not_used=False):
                 .filter(LibraryCorpora.corpus.has(and_(
                     Corpus.visible == True
                 ))).order_by(LibraryCorpora.id.desc())
+
+# Handle possible custom languages
+def add_custom_language(code, name):
+    code = code.lower()
+    custom_language = UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()
+
+    if custom_language:
+        raise Exception(f"Could not add custom language {name}({code}), already exists")
+    else:
+        custom_language = UserLanguage(code=code, name=name, user_id=current_user.id)
+        db.session.add(custom_language)
+        db.session.commit()
+
+    return UserLanguage.query.filter_by(code=code, user_id=current_user.id).first()

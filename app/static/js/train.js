@@ -224,7 +224,9 @@ $(document).ready(function() {
         });
     });
 
-    draw_stacks(corpora_stacks);
+    if (document.querySelector('.training-zone')) {
+        draw_stacks(corpora_stacks);
+    }
 
     $(".train-form").on('submit', function() {
         $(".token-alert").removeClass("d-none");

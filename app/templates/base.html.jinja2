@@ -59,14 +59,12 @@
                                     Engines
                                 </a>
                             </li>
-                            {% if not is_normal() %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name == 'train' else '' }}" href="{{ url_for('train.train_index') }}">
                                     <i class="fas fa-running mr-2"></i>
                                     Train
                                 </a>
                             </li>
-                            {% endif %}
                             <li class="nav-item mb-2">
                                 <a class="nav-link {{ 'active' if page_name.startswith('translate') else '' }}" href="{{ url_for('translate.translate_index') }}">
                                     <i class="fas fa-globe-europe mr-2"></i>
@@ -115,12 +113,20 @@
                             <div class="ml-2">
                                 <div>{{ current_user.username }}</div>
                                 <small class="text-uppercase">
-                                    {% if current_user.admin %} admin {% elif current_user.expert %} expert {% else %} beginner {% endif %}
+                                    {% if current_user.admin %}
+                                        admin
+                                    {% elif current_user.expert %}
+                                        expert
+                                    {% elif current_user.demo %}
+                                        demo
+                                    {% else %}
+                                        beginner
+                                    {% endif %}
                                 </small>
                             </div>
                         </div>
 
-                        {% if not current_user.admin and not current_user.expert %}
+                        {% if not current_user.admin and not current_user.expert and not current_user.demo %}
                             <hr />
                             <div class="mt-4 small d-flex align-items-center">
                                 <i class="fas fa-lightbulb"></i>
