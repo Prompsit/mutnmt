@@ -27,11 +27,6 @@ RUN apt-get update -q --fix-missing && \
     apt-get autoremove -y && \
     apt-get autoclean
 
-COPY id_rsa /root/.ssh/
-COPY id_rsa.pub /root/.ssh/
-COPY known_hosts /root/.ssh/
-RUN chmod 600 /root/.ssh/id_rsa
-
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
         apt-get install -y nodejs && curl -L https://npmjs.org/install.sh | sh
 
