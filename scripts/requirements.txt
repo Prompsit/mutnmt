@@ -44,7 +44,7 @@ Keras-Preprocessing==1.1.2
 kiwisolver==1.2.0
 kombu==4.6.8
 lazy-object-proxy==1.4.3
-lxml==4.6.3
+lxml==4.9.1
 Mako==1.1.2
 Markdown==3.2.2
 MarkupSafe==1.1.1
