@@ -53,7 +53,7 @@ mccabe==0.6.1
 mecab-python3==0.996.5
 namegenerator==1.0.6
 nltk==3.5
-numpy==1.20.1
+numpy==1.22.0
 oauthlib==3.1.0
 opt-einsum==3.2.1
 pandas==1.0.3
