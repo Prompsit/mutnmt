@@ -6,6 +6,7 @@ from flask import Blueprint, render_template, request, jsonify, flash, url_for, 
 from flask_login import login_required, current_user
 from sqlalchemy import desc
 
+import requests
 import os
 import subprocess
 import hashlib
@@ -88,3 +89,39 @@ def data_upload_status():
         return jsonify({ "result": 200 })
     else:
         return jsonify({ "result": -1 })
+
+@data_blueprint.route('/get-opus-corpora', methods=['POST'])
+#@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def get_opus_corpora_by_langs():
+    src_lang = request.form.get('source_lang')
+    trg_lang = request.form.get('target_lang')
+    
+    full_url = f"http://opus.nlpl.eu/opusapi/?&source={src_lang}&target={trg_lang}&preprocessing=xml&version=latest"
+    data = requests.get(full_url)
+    
+    print(full_url, flush = True)
+
+    output = data.json()
+    datasets = []
+
+    src_lang_aux = src_lang
+    if src_lang > trg_lang:
+        src_lang = trg_lang 
+        trg_lang = src_lang_aux
+
+    for line in output["corpora"]:
+        if line["source"] == src_lang and line["target"] == trg_lang:
+            datasets.append(line)
+
+    return jsonify({ "result": 200, "datasets": datasets })
+
+@data_blueprint.route('/download-opus-corpus', methods=['POST'])
+#@utils.condec(login_required, user_utils.isUserLoginEnabled())
+def download_opus_corpus():
+    src_lang = request.form.get('source_lang')
+    trg_lang = request.form.get('target_lang')
+    corpus = request.form.get('corpus')
+    data = requests.get(f"http://opus.nlpl.eu/opusapi/?corpus={corpus}&source={src_lang}&target={trg_lang}&preprocessing=xml&version=latest")
+    output = data.json()
+    url_to_download = output["corpora"][0]["url"]
+    return url_to_download

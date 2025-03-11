@@ -26,6 +26,12 @@ class MarianWrapper:
                 output_tmp.name,
             )
         )
+
+        print("----------------------------", flush = True)
+        print("MARIAN TRANSLATE COMMAND", flush = True)
+        print(marian_cmd, flush = True)
+        print("----------------------------", flush = True)
+
         try:
             subprocess.run(marian_cmd, shell=True, capture_output=True, check=True)
         except Exception as e:
