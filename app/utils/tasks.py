@@ -323,9 +323,8 @@ def launch_training(self, user_id, engine_path, params):
             config["early-stopping"] = int(params["patienceTxt"])
             config["valid-freq"] = int(params["validationFreq"])
 
-            # unneeded parameters - commented
-            # config["batch_size"] = int(params['batchSizeTxt'])
-            # config["beam_size"] = int(params['beamSizeTxt'])
+            config["mini-batch"] = int(params['batchSizeTxt'])
+            config["beam-size"] = int(params['beamSizeTxt'])
 
             with open(config_file_path, "w") as config_file:
                 yaml.dump(config, config_file)

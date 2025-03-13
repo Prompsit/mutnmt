@@ -16,8 +16,8 @@ early-stopping: 5
 exponential-smoothing: 0.0001
 keep-best: True
 valid-freq: 1000
-valid-mini-batch: 20
-save-freq: 300
+valid-mini-batch: 32
+save-freq: 1000
 overwrite: True
 disp-freq: 50
 #disp-first: 10

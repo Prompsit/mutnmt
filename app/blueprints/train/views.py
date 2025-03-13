@@ -370,8 +370,7 @@ def train_stats():
         epoch_number = int(re.findall(r'\d+', config["after"])[0])
         data["epochs"] = epoch_number if "after" in config else None
 
-        # batch size no longer needed when training with Marian - for now
-        #data["batch_size"] = config["batch_size"] if "batch_size" in config else None 
+        data["batch_size"] = config["mini-batch"] if "mini-batch" in config else None 
 
     data["vocab_size"] = config["dim-vocabs"][0] if "dim-vocabs" in config else None
 
